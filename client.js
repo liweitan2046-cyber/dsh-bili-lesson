@@ -875,13 +875,19 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
 /* 底部四卡 */
 .bl-bottom{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.bl-mini{border:1px solid var(--bl-line);border-radius:12px;background:linear-gradient(180deg,rgba(12,26,44,.9),rgba(6,14,26,.94));padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
-.bl-mini-head{display:flex;align-items:center;gap:6px;font-size:11px;color:#c2d8ec;font-weight:600;letter-spacing:.02em}
-.bl-mini-head svg{color:var(--bl-cyan-2);opacity:.9}
-.bl-mini-big{display:flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums}
-.bl-mini-big b{font-size:20px;font-weight:700;color:#eaf4ff}
-.bl-mini-big em{font-style:normal;font-size:10.5px;color:#7d95ad}
+.bl-mcard{border:1px solid var(--bl-line);border-radius:12px;background:linear-gradient(180deg,rgba(12,26,44,.9),rgba(6,14,26,.94));padding:11px 13px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.bl-mcard-head{display:flex;align-items:center;gap:6px;font-size:11px;color:#c2d8ec;font-weight:600;letter-spacing:.02em}
+.bl-mcard-head svg{color:var(--bl-cyan-2);opacity:.9}
+.bl-mcard-big{display:flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums}
+.bl-mcard-big b{font-size:20px;font-weight:700;color:#eaf4ff}
+.bl-mcard-big em{font-style:normal;font-size:10.5px;color:#7d95ad}
 .bl-bars{height:38px;gap:6px}
+.bl-dotcell{display:flex;flex-direction:column;align-items:center;gap:4px}
+.bl-dotcell span{font-size:8.5px;color:#657e95;font-variant-numeric:tabular-nums}
+.bl-dotcell:nth-child(7) span{color:#8fd8ff}
+.bl-dotcell i{width:13px;height:13px;border-radius:4px;background:rgba(140,176,210,.14);border:1px solid rgba(140,176,210,.22)}
+.bl-dotcell i.on{background:rgba(92,200,255,.82);border-color:rgba(140,215,255,.9);box-shadow:0 0 8px rgba(92,200,255,.45)}
+.bl-hexmed{clip-path:polygon(26% 2%,74% 2%,100% 50%,74% 98%,26% 98%,0 50%);border-radius:0}
 .bl-bars i{background:linear-gradient(180deg,rgba(120,200,255,.85),rgba(40,110,190,.35));border-radius:2px}
 .bl-bars i.on{background:linear-gradient(180deg,#8fe0ff,#2f8fe0);box-shadow:0 0 10px rgba(90,190,255,.55)}
 
@@ -972,7 +978,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 }
 
 
-.bl-mini .bl-draws .bl-draw-row{padding:4px 0}
+.bl-mcard .bl-draws .bl-draw-row{padding:4px 0}
 
 /* ---- 舰桥页面骨架：六页统一标题/指标/卡片 ---- */
 .bl-pagehead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:1px 2px 13px;margin-bottom:15px;border-bottom:1px solid var(--bl-line)}
@@ -2083,11 +2089,19 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           const key = addDays(today, -i)
           recent.push({ key: key.slice(8), on: (watchIndex.byDate[key] || []).length > 0 })
         }
+        const weekMinutes = (() => {
+          let m = 0
+          for (let i = 0; i < 7; i += 1) {
+            const key = addDays(today, -i)
+            ;(watchIndex.byDate[key] || []).forEach((id) => { const v = pick(id); if (v) m += (Number(v.duration) || 0) / 60 })
+          }
+          return Math.round(m)
+        })()
         const owned = rewards ? rewards.items.filter((it) => it.count > 0) : []
         const meds = (rewards ? rewards.items : []).filter((it) => it.count > 0).slice(0, 3)
 
-        const mini = (key, icon, title, right, body) => h('div', { key, className: 'bl-mini' }, [
-          h('div', { key: 'h', className: 'bl-mini-head' }, [
+        const mini = (key, icon, title, right, body) => h('div', { key, className: 'bl-mcard' }, [
+          h('div', { key: 'h', className: 'bl-mcard-head' }, [
             RailIcon({ key: 'i', name: icon, size: 13 }),
             h('span', { key: 'l' }, title),
             h('div', { key: 'sp', className: 'bl-spacer' }),
@@ -2096,27 +2110,30 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ].concat(body))
 
         const bottom = h('div', { key: 'bottom', className: 'bl-bottom' }, [
-          mini('rep', 'watch', '学习报告', h('span', { key: 'r', className: 'bl-hint' }, '近 7 天'), [
-            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(doneTotal)), h('em', { key: 'u' }, '条累计')]),
+          mini('rep', 'watch', '学习报告', null, [
+            h('div', { key: 'b', className: 'bl-mcard-big' }, [h('b', { key: 'v' }, String(weekMinutes)), h('em', { key: 'u' }, '分钟 · 近 7 天')]),
             h('div', { key: 'bars', className: 'bl-bars' }, [0, 1, 2, 3, 4, 5, 6].map(bar)),
           ]),
           mini('cat', 'library', '今日分类', null, [
-            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(doneToday.length) + ' / ' + String(todayIds.length)), h('em', { key: 'u' }, '条')]),
+            h('div', { key: 'b', className: 'bl-mcard-big' }, [h('b', { key: 'v' }, String(doneToday.length) + ' / ' + String(todayIds.length)), h('em', { key: 'u' }, '条')]),
             h('div', { key: 'c', className: 'bl-chips' }, todayIds.slice(0, 4).map((id) => {
               const v = pick(id)
               return h('span', { key: id, className: 'bl-chip' }, (v && v.category) || '未分类')
             }).concat(todayIds.length ? [] : [h('span', { key: 'none', className: 'bl-empty' }, '今天没排片')])),
           ]),
           mini('st', 'rewards', '连续学习', null, [
-            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(streak)), h('em', { key: 'u' }, '天')]),
-            h('div', { key: 'd', className: 'bl-dots' }, recent.map((r) => h('i', { key: r.key, className: r.on ? 'on' : '', title: r.key }))),
+            h('div', { key: 'b', className: 'bl-mcard-big' }, [h('b', { key: 'v' }, String(streak)), h('em', { key: 'u' }, '天')]),
+            h('div', { key: 'd', className: 'bl-dots' }, recent.map((r) => h('div', { key: r.key, className: 'bl-dotcell' }, [
+              h('i', { key: 'd', className: r.on ? 'on' : '' }),
+              h('span', { key: 'n' }, r.key),
+            ]))),
           ]),
           mini('med', 'lessons', '勋章成就', h('button', { key: 'all', className: 'bl-link', onClick: () => setTab('rewards') }, '查看全部 →'), [
-            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(owned.length)), h('em', { key: 'u' }, '/ ' + String(rewards ? rewards.items.length : 0) + ' 枚')]),
+            h('div', { key: 'b', className: 'bl-mcard-big' }, [h('b', { key: 'v' }, String(owned.length)), h('em', { key: 'u' }, '/ ' + String(rewards ? rewards.items.length : 0) + ' 枚')]),
             meds.length
               ? h('div', { key: 'm', style: { display: 'flex', gap: '6px' } }, meds.map((it) => h('div', {
                 key: it.id,
-                className: 'bl-medal ' + (it.rarity === 'epic' ? 'gold' : ''),
+                className: 'bl-medal bl-hexmed ' + (it.rarity === 'epic' ? 'gold' : ''),
                 style: { width: '38px', height: '38px' },
                 title: it.name + ' ×' + it.count,
               }, h(Glyph, { key: 's', name: rewardGlyph(it.id), size: 20, sw: 1.8 }))))
@@ -2958,9 +2975,9 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ])
         })
 
-        const stat = h('div', { key: 'stat', className: 'bl-mini' }, [
-          h('div', { key: 'h', className: 'bl-mini-head' }, '盲盒 BONUS'),
-          h('div', { key: 'big', className: 'bl-mini-big' }, [h('b', { key: 'n' }, String(view.available)), h('em', { key: 'u' }, '个可抽 · 累计 ' + view.earned + ' / 抽掉 ' + view.used)]),
+        const stat = h('div', { key: 'stat', className: 'bl-mcard' }, [
+          h('div', { key: 'h', className: 'bl-mcard-head' }, '盲盒 BONUS'),
+          h('div', { key: 'big', className: 'bl-mcard-big' }, [h('b', { key: 'n' }, String(view.available)), h('em', { key: 'u' }, '个可抽 · 累计 ' + view.earned + ' / 抽掉 ' + view.used)]),
           renderDrawCard(),
           h('button', {
             key: 'draw',
@@ -2971,8 +2988,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           h('div', { key: 'note', className: 'bl-hint' }, '看完片把课卡答到 80 分，每天给一个盲盒。'),
         ])
 
-        const challenge = h('div', { key: 'ch', className: 'bl-mini' }, [
-          h('div', { key: 'h', className: 'bl-mini-head' }, '本周挑战 CHALLENGE'),
+        const challenge = h('div', { key: 'ch', className: 'bl-mcard' }, [
+          h('div', { key: 'h', className: 'bl-mcard-head' }, '本周挑战 CHALLENGE'),
           h('div', { key: 'rows', className: 'bl-detail-rows' }, [
             h('div', { key: 'a', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '本周看片'), h('b', { key: 'v' }, weekDone + ' / ' + weekTasks)]),
             h('div', { key: 'b', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '累计看片'), h('b', { key: 'v' }, String(doneTotal))]),
@@ -3015,8 +3032,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ]),
           h('div', { key: 'bottom', className: 'bl-bottom3' }, [
             stat,
-            h('div', { key: 'recent', className: 'bl-mini' }, [
-              h('div', { key: 'h', className: 'bl-mini-head' }, '最近解锁 UNLOCKED'),
+            h('div', { key: 'recent', className: 'bl-mcard' }, [
+              h('div', { key: 'h', className: 'bl-mcard-head' }, '最近解锁 UNLOCKED'),
               recentList.length ? h('div', { key: 'l', className: 'bl-draws' }, recentList) : h('div', { key: 'e', className: 'bl-empty' }, '还没抽过。答完一套课卡，来开第一个盲盒。'),
             ]),
             challenge,
