@@ -1038,7 +1038,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
     function BiliPanel() {
       const [tab, setTab] = useState('library')
-      const [homeView, setHomeView] = useState('map')
+      const [homeView, setHomeView] = useState('route')
       const [rewardPick, setRewardPick] = useState('')
       const [library, setLibrary] = useState({ items: [], categories: [], stats: { total: 0, dead: 0 } })
       const [allVideos, setAllVideos] = useState([])
@@ -1765,6 +1765,104 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       }
 
 
+      function renderRoute() {
+        const days = (plan && plan.days) || []
+        const tasks = []
+        days.forEach((d) => (d.videoIds || []).forEach((id) => {
+          const video = pick(id)
+          if (video) tasks.push({ date: d.date, id, video, done: (watchIndex.byDate[d.date] || []).indexOf(id) !== -1 })
+        }))
+        if (!tasks.length) {
+          return h('div', { key: 'route-empty', className: 'bl-empty-panel' },
+            '本周航线还是空的。去「本周航线」点一下自动排片，或者手动往某一天加两集。')
+        }
+        const doneCount = tasks.filter((t) => t.done).length
+        const curIndex = tasks.findIndex((t) => !t.done)
+        const shown = tasks.slice(0, 6)
+        const rest = tasks.length - shown.length
+        const W = Math.max(320, Math.round(mapBox.w || 1000))
+        const H = Math.max(240, Math.round(mapBox.h || 470))
+        const cx = W / 2
+        const amp = Math.min(190, Math.max(70, W * 0.3))
+        const top = 84
+        const bottom = 78
+        const n = shown.length
+        const rrect = (x, y, w, h, cut) => 'M' + (x + cut) + ',' + y + 'H' + (x + w - cut) + 'L' + (x + w) + ',' + (y + cut) + 'V' + (y + h - cut) + 'L' + (x + w - cut) + ',' + (y + h) + 'H' + (x + cut) + 'L' + x + ',' + (y + h - cut) + 'V' + (y + cut) + 'Z'
+        const pts = shown.map((t, i) => {
+          const ratio = n > 1 ? i / (n - 1) : 0.5
+          const y = H - bottom - ratio * (H - top - bottom)
+          const side = i % 2 === 0 ? -1 : 1
+          const x = n > 1 ? cx + side * amp : cx
+          const on = i === curIndex
+          return { t, i, x, y, on, side, done: t.done, w: on ? 130 : 118, h: on ? 60 : 56 }
+        })
+        const segmentD = (a, b) => {
+          const midY = Math.round((a.y + b.y) / 2)
+          return 'M' + a.x + ',' + a.y + ' C' + a.x + ',' + midY + ' ' + b.x + ',' + midY + ' ' + b.x + ',' + b.y
+        }
+        const segments = []
+        for (let i = 1; i < pts.length; i += 1) segments.push({ from: pts[i - 1], to: pts[i], key: 'seg' + i })
+        const arrows = segments.map((s) => {
+          const my = Math.round((s.from.y + s.to.y) / 2)
+          const mx = Math.round((s.from.x + s.to.x) / 2)
+          const ang = Math.round(Math.atan2(s.to.y - s.from.y, s.to.x - s.from.x) * 180 / Math.PI)
+          return h('path', {
+            key: 'ar' + s.key,
+            d: 'M-5,-5L0,0L-5,5',
+            transform: 'translate(' + mx + ',' + my + ') rotate(' + ang + ')',
+            fill: 'none',
+            stroke: s.to.done ? 'rgba(92,200,255,.7)' : 'rgba(140,176,210,.35)',
+            strokeWidth: 1.6,
+            strokeLinecap: 'round',
+          })
+        })
+        const lines = segments.map((s) => h('path', {
+          key: s.key,
+          d: segmentD(s.from, s.to),
+          fill: 'none',
+          stroke: s.to.done ? 'rgba(92,200,255,.55)' : 'rgba(140,176,210,.16)',
+          strokeWidth: 2,
+          strokeDasharray: s.to.done ? null : '5 7',
+          strokeLinecap: 'round',
+        }))
+        const nodes = pts.map((n0) => {
+          const color = n0.on ? '#f3b34c' : n0.done ? '#4fd8a6' : '#7e97ad'
+          const stroke = n0.on ? 'rgba(243,179,76,.95)' : n0.done ? 'rgba(79,216,166,.6)' : 'rgba(140,176,210,.3)'
+          const title = (n0.t.video.title || n0.t.id || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim()
+          const label = title.length > 9 ? title.slice(0, 9) + '…' : title
+          return h('g', {
+            key: 'rn' + n0.t.date + n0.t.id,
+            className: 'bl-station' + (n0.on ? ' on' : '') + (n0.done ? ' done' : ''),
+            style: { cursor: 'pointer', opacity: n0.done || n0.on ? 1 : 0.78, filter: n0.on ? 'url(#blRouteGlow)' : undefined },
+            onClick: () => (lessons.some((l) => l.videoId === n0.t.id) ? setTab('learn') : setPlayer(n0.t.video)),
+          }, [
+            h('ellipse', { key: 'sh', cx: n0.x, cy: n0.y + n0.h / 2 + 9, rx: 40, ry: 5, fill: 'rgba(0,0,0,.42)' }),
+            n0.on ? h('circle', { key: 'ring', cx: n0.x, cy: n0.y, r: 42, fill: 'none', stroke: 'rgba(243,179,76,.3)', strokeWidth: 1, strokeDasharray: '2 6' }) : null,
+            h('path', { key: 'plate', d: rrect(n0.x - n0.w / 2, n0.y - n0.h / 2, n0.w, n0.h, 14), fill: n0.on ? 'rgba(56,50,26,.9)' : 'rgba(9,22,38,.94)', stroke, strokeWidth: n0.on ? 1.7 : 1.15 }),
+            h('path', { key: 'inner', d: rrect(n0.x - n0.w / 2 + 5, n0.y - n0.h / 2 + 5, n0.w - 10, n0.h - 10, 10), fill: n0.on ? 'rgba(96,74,26,.5)' : 'rgba(8,20,34,.9)', stroke: color, strokeOpacity: n0.on ? 0.5 : n0.done ? 0.32 : 0.2, strokeWidth: 1 }),
+            h(Glyph, { key: 'ic', name: catGlyph(n0.t.video.category), x: n0.x - 10, y: n0.y - n0.h / 2 + 8, width: 20, height: 20, sw: 1.8, style: { color } }),
+            h('text', { key: 'lb', x: n0.x, y: n0.y + n0.h / 2 - 11, textAnchor: 'middle', style: { fill: n0.on ? '#ffe3ad' : n0.done ? '#cdeadf' : '#b3c6d6', fontSize: '9.5px', fontWeight: 600 } }, label),
+            h('text', { key: 'dt', x: n0.x, y: n0.y - n0.h / 2 - 7, textAnchor: 'middle', style: { fill: 'rgba(150,180,206,.55)', fontSize: '9px', letterSpacing: '.08em' } }, n0.t.date.slice(5) + (n0.done ? ' · 已看' : n0.on ? ' · 现在' : '')),
+          ])
+        })
+        const legend = h('div', { key: 'legend', className: 'bl-map-legend' }, [
+          h('b', { key: 'l' }, '本周航线'),
+          h('span', { key: 's1' }, '已看 ' + doneCount + ' / ' + tasks.length + ' 条' + (rest > 0 ? ' · 还有 ' + rest + ' 条在后面' : '')),
+          h('div', { key: 'sp', className: 'bl-spacer' }),
+          h('span', { key: 's2' }, curIndex >= 0 ? '金色是现在这条' : '本周全看完了'),
+        ])
+        const defs = h('defs', { key: 'defs' }, [
+          h('filter', { key: 'glow', id: 'blRouteGlow', x: '-40%', y: '-60%', width: '180%', height: '220%' }, [
+            h('feGaussianBlur', { key: 'b', stdDeviation: '7', result: 'blur' }),
+            h('feMerge', { key: 'm' }, [h('feMergeNode', { key: '1', in: 'blur' }), h('feMergeNode', { key: '2', in: 'SourceGraphic' })]),
+          ]),
+        ])
+        return h('div', { key: 'route', className: 'bl-map' }, [
+          legend,
+          h('svg', { key: 'svg', ref: mapSvgRef, viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': 'true' }, [defs].concat(lines).concat(arrows).concat(nodes)),
+        ])
+      }
+
       function renderHudCells() {
         const day = ((plan && plan.days) || []).find((d) => d.date === today) || null
         const ids = day ? (day.videoIds || []) : []
@@ -1990,8 +2088,9 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ]),
         ])
 
+        const left = homeView === 'route' ? renderRoute() : renderStarMap()
         const hero = h('div', { key: 'hero', className: 'bl-hero' }, [
-          renderStarMap() || h('div', { key: 'nomap', className: 'bl-empty-panel' }, '片库还没分类，先去「片库仓库」加几条片子。'),
+          left || h('div', { key: 'nomap', className: 'bl-empty-panel' }, '片库还没分类，先去「片库仓库」加几条片子。'),
           renderCoursePanel(),
         ])
 
@@ -2003,7 +2102,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
         return [
           h('div', { key: 'subtabs', className: 'bl-subtabs' }, [
-            h('button', { key: 'map', className: 'bl-subtab' + (homeView === 'map' ? ' on' : ''), onClick: () => setHomeView('map') }, '星域地图'),
+            h('button', { key: 'route', className: 'bl-subtab' + (homeView === 'route' ? ' on' : ''), onClick: () => setHomeView('route') }, '本周航线'),
+            h('button', { key: 'map', className: 'bl-subtab' + (homeView === 'map' ? ' on' : ''), onClick: () => setHomeView('map') }, '分类星图'),
             h('button', { key: 'mine', className: 'bl-subtab' + (homeView === 'mine' ? ' on' : ''), onClick: () => setHomeView('mine') }, '我的课程'),
             h('div', { key: 'sp', className: 'bl-spacer' }),
             h('button', { key: 'vault', className: 'bl-link', onClick: () => setTab('vault') }, '片库仓库 ' + allVideos.length + ' 条 →'),
