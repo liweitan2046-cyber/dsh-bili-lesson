@@ -33,6 +33,8 @@ cd "$env:USERPROFILE\.dsh\profiles\desktop"; pnpm install
 - **片库**：粘一个 BV 号或整条 B 站链接 → 服务端去 B 站拉标题/封面/时长/UP 主；分类、最低年龄、为什么给他看、家长提醒都自己填。「校验失效」批量探一次，下架的视频标红但不会自动删。
 - **本周**：一周 7 天，每天 `perDay` 条。「自动排」按分类轮转、跳过失效的、跳过最近三周排过的；也可以手动换。
 - **记录**：按天打勾，上面一行给本周条数与连续打卡。
+- **学习**：左边是本周排好的片子，点一条右边直接播（沿用播放器与「新标签打开」兜底），下面跟着这张课卡；逐题选完点「交卷」，后端判分后回填每题对错、得分与错题解释。答完全部题目且得分到 80 分，当天给一个盲盒。
+- **奖励**：贴纸墙 8 张（常见 / 稀有 / 珍稀），没抽到的是灰问号；上面是剩余可抽次数和开盒按钮，下面列最近 10 次记录。抽奖权重在后端，前端只拿结果。
 - **课卡**：一条视频配 3-5 道题，字段就是 `CurriculumQuestion`（`prompt / spokenPrompt / options / answer / hint / explanation / difficulty / variant / mode`）。
 - **设置**：每天几条、片库默认年龄、点开是否直接内嵌播放。
 - **导出**：`GET /bili-lesson/export` 出本周计划 + 视频 + 课卡，面板里一键复制。
@@ -48,6 +50,8 @@ cd "$env:USERPROFILE\.dsh\profiles\desktop"; pnpm install
 | `watch.json` | 观看记录 |
 | `lessons.json` | 课卡 |
 | `settings.json` | perDay / maxAge / embedPlay |
+| `attempts.json` | 交卷记录，含每题的 qid / choice / correct、得分与是否给过盲盒 |
+| `rewards.json` | 抽奖记录（只存 itemId），贴纸墙的收藏数是聚合出来的 |
 
 写盘走临时文件 + rename，读坏了当空处理，不会因为半截 JSON 打不开面板。
 
@@ -58,8 +62,8 @@ cd "$env:USERPROFILE\.dsh\profiles\desktop"; pnpm install
 ## 自测
 
 ```powershell
-npm run check   # 六个文件 node --check
-npm test        # 起真 HTTP 服务跑 19 条冒烟（会真的请求一次 B 站 view 接口）
+npm run check   # 七个文件 node --check
+npm test        # 起真 HTTP 服务跑 45 条冒烟（会真的请求一次 B 站 view 接口）
 ```
 
 ## 已知限制

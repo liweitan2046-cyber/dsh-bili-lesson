@@ -3,13 +3,38 @@
  * 每个请求先过 connection 的 Host/Origin 与登录凭证检查（照抄 dsh-wanfeng-studio/src/routes.js:152-176）。
  * 数据全在本机 JSON 里，接口只做增删改查与一次 B 站校验，不落任何远端。
  */
+import { randomUUID } from 'node:crypto'
+import { join } from 'node:path'
 import { fetchVideo, parseBvid } from './bili.js'
 import { autoFill, mondayOf, normalizePlan, toDate } from './plan.js'
 import { normalizeLesson } from './lesson.js'
-import { DEFAULT_SETTINGS } from './store.js'
+import { DEFAULT_SETTINGS, Store } from './store.js'
+import {
+  availableOf,
+  boxEligible,
+  collectAnswers,
+  localDay,
+  gradeAttempt,
+  nextAttemptId,
+  pickSticker,
+  rewardView,
+} from './rewards.js'
 
 export const PREFIX = '/bili-lesson'
 const MAX_JSON = 1_000_000
+
+/** 学习闭环新增的两个数据文件，沿用 Store 的 tmp + rename 与串行写。 */
+const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json' }
+
+class LedgerStore extends Store {
+  path(name) {
+    return join(this.dir, LEDGER_FILES[name])
+  }
+}
+
+function newId(prefix) {
+  return prefix + randomUUID().replace(/-/g, '').slice(0, 8)
+}
 
 function json(res, status, body) {
   res.statusCode = status
@@ -66,6 +91,19 @@ export class Routes {
   constructor(ctx, store) {
     this.ctx = ctx
     this.store = store
+    this.ledger = new LedgerStore(store.dir)
+  }
+
+  /** attempts.json 里的数组（读失败当空）。 */
+  async attempts() {
+    const data = await this.ledger.read('attempts')
+    return data && Array.isArray(data.attempts) ? data.attempts : []
+  }
+
+  /** rewards.json 里的抽奖记录（读失败当空）。 */
+  async draws() {
+    const data = await this.ledger.read('rewards')
+    return data && Array.isArray(data.draws) ? data.draws : []
   }
 
   rejection(req) {
@@ -335,6 +373,44 @@ export class Routes {
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
     }
 
+    /* ---------------- 答题（学习闭环） ---------------- */
+
+    if (head === 'lessons' && parts[2] === 'attempt') {
+      if (method !== 'POST') throw Object.assign(new Error('答题请用 POST'), { status: 405 })
+      const lessons = await this.store.read('lessons')
+      const lesson = (Array.isArray(lessons) ? lessons : []).find(row => row && row.id === parts[1])
+      if (!lesson) throw Object.assign(new Error('没有这张课卡'), { status: 404 })
+      const body = await readJson(req)
+      const picked = collectAnswers(lesson.questions, body.answers)
+      const date = localDay()
+      const graded = gradeAttempt(lesson.questions, picked)
+      let record = null
+      const saved = await this.ledger.update('attempts', current => {
+        const list = current && Array.isArray(current.attempts) ? current.attempts.slice() : []
+        record = {
+          id: newId('at_'),
+          lessonId: lesson.id,
+          videoId: lesson.videoId,
+          date,
+          answers: graded.rows,
+          correct: graded.correct,
+          total: graded.total,
+          score: graded.score,
+          boxGranted: boxEligible(list, lesson.id, date, graded),
+          createdAt: Date.now(),
+        }
+        list.push(record)
+        return { attempts: list }
+      })
+      const attempts = saved && Array.isArray(saved.attempts) ? saved.attempts : []
+      return json(res, 200, {
+        ok: true,
+        attempt: record,
+        available: availableOf(attempts, await this.draws()),
+        newBox: record.boxGranted,
+      })
+    }
+
     /* ---------------- 课卡 ---------------- */
 
     if (head === 'lessons') {
@@ -376,6 +452,43 @@ export class Routes {
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
     }
 
+    /* ---------------- 奖励（学习闭环） ---------------- */
+
+    if (head === 'rewards' && !tail) {
+      if (method === 'GET') {
+        const [attempts, draws] = await Promise.all([this.attempts(), this.draws()])
+        return json(res, 200, rewardView(attempts, draws))
+      }
+      throw Object.assign(new Error('不支持的方法'), { status: 405 })
+    }
+
+    if (head === 'rewards' && tail === 'draw') {
+      if (method !== 'POST') throw Object.assign(new Error('抽盒请用 POST'), { status: 405 })
+      const attempts = await this.attempts()
+      let refusal = ''
+      let drawn = null
+      const saved = await this.ledger.update('rewards', current => {
+        const list = current && Array.isArray(current.draws) ? current.draws.slice() : []
+        if (availableOf(attempts, list) <= 0) {
+          refusal = '没有可抽的盲盒了'
+          return undefined
+        }
+        const item = pickSticker()
+        const draw = { id: newId('dr_'), at: Date.now(), attemptId: nextAttemptId(attempts, list), itemId: item.id }
+        list.push(draw)
+        drawn = { item, draw }
+        return { draws: list }
+      })
+      if (refusal) return json(res, 409, { ok: false, error: refusal })
+      const draws = saved && Array.isArray(saved.draws) ? saved.draws : []
+      return json(res, 200, {
+        ok: true,
+        item: drawn.item,
+        draw: drawn.draw,
+        available: availableOf(attempts, draws),
+      })
+    }
+
     /* ---------------- 设置 ---------------- */
 
     if (head === 'settings') {
@@ -396,10 +509,12 @@ export class Routes {
 
     if (head === 'export' && method === 'GET') {
       const weekStart = mondayOf(q.weekStart)
-      const [videos, lessons, plans] = await Promise.all([
+      const [videos, lessons, plans, attempts, draws] = await Promise.all([
         this.store.read('videos'),
         this.store.read('lessons'),
         this.store.read('plans'),
+        this.attempts(),
+        this.draws(),
       ])
       const plan = normalizePlan(plans[weekStart], settings.perDay)
       const plannedIds = new Set()
@@ -413,6 +528,8 @@ export class Routes {
         plan,
         videos: exportVideos,
         lessons: exportLessons,
+        attempts,
+        rewards: rewardView(attempts, draws),
       })
     }
 

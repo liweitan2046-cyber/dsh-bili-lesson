@@ -19,11 +19,14 @@ window.__ModuleLoader__.load({
       { id: 'library', label: '片库' },
       { id: 'plan', label: '本周' },
       { id: 'watch', label: '记录' },
+      { id: 'learn', label: '学习' },
+      { id: 'rewards', label: '奖励' },
       { id: 'lessons', label: '课卡' },
       { id: 'settings', label: '设置' },
     ]
     const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
     const DIFFICULTY = { 1: '简单', 2: '适中', 3: '进阶' }
+    const RARITY = { common: '常见', rare: '稀有', epic: '珍稀' }
     const DEFAULT_SETTINGS = { perDay: 2, maxAge: 6, embedPlay: false }
 
     /* ------------------------------------------------------------------ */
@@ -89,6 +92,13 @@ window.__ModuleLoader__.load({
     function fmtDur(seconds) {
       const s = Math.max(0, Math.round(Number(seconds) || 0))
       return pad2(Math.floor(s / 60)) + ':' + pad2(s % 60)
+    }
+
+    function timeText(stamp) {
+      const value = Number(stamp) || 0
+      if (!value) return ''
+      const d = new Date(value)
+      return pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes())
     }
 
     function coverUrl(raw) {
@@ -325,6 +335,30 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
 .bl-frame{width:100%;aspect-ratio:16/9;background:#000;border:0;display:block}
 .bl-fallback{padding:18px 16px;color:#a2acbb;font-size:12.5px;line-height:1.8;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
 .bl-cover-preview{width:100%;max-height:180px;object-fit:cover;border-radius:8px;border:1px solid #262c35;display:block}
+.bl-q-prompt{font-size:13px;color:#e8eaf0;line-height:1.5}
+.bl-opt-pick{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:8px;border:1px solid #262c35;background:#171b21!important;cursor:pointer;color:#c3ccd9;font-size:12.5px}
+.bl-opt-pick:hover{border-color:#39414d;color:#e8eaf0}
+.bl-opt-pick.on{border-color:rgba(53,216,255,.6);background:rgba(53,216,255,.12);color:#9fe9ff}
+.bl-opt-pick input{accent-color:#35d8ff;width:14px;height:14px;flex:none;cursor:pointer}
+.bl-opt-text{min-width:0;overflow-wrap:anywhere}
+.bl-q-right{border-color:rgba(163,230,53,.28)}
+.bl-q-wrong{border-color:rgba(255,110,110,.3)}
+.bl-verdict{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border-radius:8px;border:1px solid #262c35;background:#171b21!important;font-size:12px}
+.bl-verdict.ok{border-color:rgba(163,230,53,.35);background:rgba(163,230,53,.08);color:#c8f08a}
+.bl-verdict.bad{border-color:rgba(255,110,110,.35);background:rgba(255,110,110,.1);color:#ffb3b3}
+.bl-score{font-size:26px;font-weight:700;line-height:1.1;color:#9fe9ff;font-variant-numeric:tabular-nums}
+.bl-stickers{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.bl-sticker{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border-radius:10px;border:1px solid #262c35;background:#1b1f26!important;text-align:center}
+.bl-sticker.locked{opacity:.55;filter:grayscale(1)}
+.bl-sticker-emoji{font-size:26px;line-height:1.1}
+.bl-sticker-name{font-size:12px;color:#e8eaf0;font-weight:600}
+.bl-sticker-meta{font-size:10.5px;color:#78828f}
+.bl-sticker-count{font-size:10.5px;color:#9fe9ff}
+.bl-draw-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1px solid rgba(53,216,255,.4);background:rgba(53,216,255,.08)!important}
+.bl-draw-card .bl-sticker-emoji{font-size:34px}
+.bl-draw-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bl-draws{display:flex;flex-direction:column;gap:4px}
+.bl-draw-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:7px;background:#1b1f26!important;border:1px solid #262c35;font-size:11.5px;color:#c3ccd9}
 `
 
 
@@ -387,6 +421,13 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
       const [lessonVideo, setLessonVideo] = useState('')
       const [lessonDraft, setLessonDraft] = useState(null)
       const [lessonBusy, setLessonBusy] = useState(false)
+      const [learnPick, setLearnPick] = useState('')
+      const [learnPicks, setLearnPicks] = useState({})
+      const [learnOutcome, setLearnOutcome] = useState(null)
+      const [learnBusy, setLearnBusy] = useState(false)
+      const [rewards, setRewards] = useState(null)
+      const [rewardBusy, setRewardBusy] = useState(false)
+      const [lastDraw, setLastDraw] = useState(null)
       const [exportText, setExportText] = useState('')
       const [settings, setSettings] = useState(DEFAULT_SETTINGS)
       const [settingsBusy, setSettingsBusy] = useState(false)
@@ -1361,6 +1402,303 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
       }
 
       /* ------------------------------------------------------------------ */
+      /* 渲染：学习                                                          */
+      /* ------------------------------------------------------------------ */
+
+      const weekVideos = useMemo(() => {
+        const seen = new Set()
+        const out = []
+        for (const day of (plan && plan.days) || []) {
+          for (const id of day.videoIds || []) {
+            if (seen.has(id)) continue
+            seen.add(id)
+            const video = pick(id)
+            if (video) out.push({ video, date: day.date })
+          }
+        }
+        return out
+      }, [plan, pick])
+
+      const loadRewards = useCallback(async () => {
+        const data = await api('/rewards')
+        setRewards(data && Array.isArray(data.items) ? data : null)
+        return data
+      }, [])
+
+      useEffect(() => {
+        if (tab !== 'learn' && tab !== 'rewards') return
+        loadRewards().catch((e) => fail(e))
+      }, [tab, loadRewards, fail])
+
+      useEffect(() => {
+        if (tab !== 'learn' || weekVideos.length === 0) return
+        if (learnPick && weekVideos.some((row) => row.video.id === learnPick)) return
+        setLearnPick(weekVideos[0].video.id)
+      }, [tab, weekVideos, learnPick])
+
+      const learnRow = learnPick ? (weekVideos.find((row) => row.video.id === learnPick) || null) : null
+      const learnVideo = learnRow ? learnRow.video : null
+      const learnLesson = learnPick ? (lessons.find((row) => row.videoId === learnPick) || null) : null
+      const learned = (learnPick && learnPicks[learnPick]) || {}
+      const learnResult = learnOutcome && learnOutcome.videoId === learnPick ? learnOutcome : null
+      const answeredCount = learnLesson ? learnLesson.questions.filter((q) => learned[q.id] !== undefined && learned[q.id] !== null).length : 0
+      const answeredAll = Boolean(learnLesson) && answeredCount === learnLesson.questions.length
+
+      function pickChoice(qid, choice) {
+        setLearnOutcome(null)
+        setLastDraw(null)
+        setLearnPicks((prev) => {
+          const bucket = prev[learnPick] || {}
+          return { ...prev, [learnPick]: { ...bucket, [qid]: choice } }
+        })
+      }
+
+      function resetLearn() {
+        setLearnPicks((prev) => ({ ...prev, [learnPick]: {} }))
+        setLearnOutcome(null)
+        setLastDraw(null)
+      }
+
+      async function submitAttempt() {
+        if (!learnLesson || !answeredAll || learnBusy) return
+        setError('')
+        setLearnBusy(true)
+        try {
+          const answers = learnLesson.questions.map((q) => ({ qid: q.id, choice: Number(learned[q.id]) }))
+          const data = await send('/lessons/' + encodeURIComponent(learnLesson.id) + '/attempt', 'POST', { answers })
+          setLearnOutcome({
+            videoId: learnPick,
+            lessonId: learnLesson.id,
+            attempt: data.attempt,
+            newBox: Boolean(data.newBox),
+            available: Number(data.available) || 0,
+          })
+          setLastDraw(null)
+          loadRewards().catch(() => {})
+          flash(data.newBox ? '交卷了，得了一个盲盒' : '交卷了，看看错在哪')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setLearnBusy(false)
+        }
+      }
+
+      async function drawBox() {
+        if (rewardBusy) return
+        setError('')
+        setRewardBusy(true)
+        try {
+          const data = await send('/rewards/draw', 'POST')
+          setLastDraw(data.item || null)
+          setLearnOutcome((prev) => (prev ? { ...prev, available: Number(data.available) || 0, newBox: (Number(data.available) || 0) > 0 } : prev))
+          loadRewards().catch(() => {})
+          flash('抽到了：' + ((data.item && data.item.name) || '一张贴纸'))
+        } catch (e) {
+          fail(e)
+        } finally {
+          setRewardBusy(false)
+        }
+      }
+
+      function renderDrawCard() {
+        if (!lastDraw) return null
+        return h('div', { key: 'prize', className: 'bl-draw-card' }, [
+          h('span', { key: 'e', className: 'bl-sticker-emoji' }, lastDraw.emoji || '🎁'),
+          h('div', { key: 'txt', className: 'bl-draw-text' }, [
+            h('b', { key: 'n' }, lastDraw.name || '贴纸'),
+            h('span', { key: 'r', className: 'bl-sticker-meta' }, (RARITY[lastDraw.rarity] || '贴纸') + ' · 已经贴到「奖励」墙上'),
+          ]),
+        ])
+      }
+
+      function renderAnswerSheet() {
+        const lesson = learnLesson
+        const attempt = learnResult && learnResult.attempt ? learnResult.attempt : null
+        const markByQid = {}
+        if (attempt && Array.isArray(attempt.answers)) {
+          for (const row of attempt.answers) {
+            if (row && row.qid) markByQid[row.qid] = row
+          }
+        }
+        const questions = lesson.questions.map((question, index) => {
+          const mark = markByQid[question.id] || null
+          const picked = learned[question.id]
+          const chosen = Number.isInteger(picked) ? picked : -1
+          const className = 'bl-q' + (mark ? (mark.correct ? ' bl-q-right' : ' bl-q-wrong') : '')
+          const rows = [
+            h('div', { key: 'head', className: 'bl-q-head' }, [
+              h('span', { key: 'no', className: 'bl-q-no' }, '第 ' + (index + 1) + ' 题'),
+              h('span', { key: 'diff', className: 'bl-hint' }, DIFFICULTY[question.difficulty] || DIFFICULTY[1]),
+            ]),
+            h('div', { key: 'prompt', className: 'bl-q-prompt' }, question.prompt),
+            h('div', { key: 'opts', className: 'bl-opts' }, question.options.map((option, oi) => h('label', {
+              key: 'o' + oi,
+              className: 'bl-opt-pick' + (chosen === oi ? ' on' : ''),
+            }, [
+              h('input', {
+                key: 'r',
+                type: 'radio',
+                name: 'learn-' + lesson.id + '-' + question.id,
+                checked: chosen === oi,
+                disabled: Boolean(attempt),
+                onChange: () => pickChoice(question.id, oi),
+              }),
+              h('span', { key: 't', className: 'bl-opt-text' }, option),
+            ]))),
+          ]
+          if (mark) {
+            rows.push(h('div', { key: 'mark', className: 'bl-hint' }, mark.correct
+              ? '答对了'
+              : (mark.choice === null || mark.choice === undefined
+                ? '这题空着'
+                : '答错了，你选的是「' + (question.options[mark.choice] || ('选项 ' + (mark.choice + 1))) + '」')))
+            if (!mark.correct && question.hint) rows.push(h('div', { key: 'hint', className: 'bl-note' }, '提示：' + question.hint))
+            if (question.explanation) rows.push(h('div', { key: 'exp', className: 'bl-note' }, '解释：' + question.explanation))
+          }
+          return h('div', { key: question.id || String(index), className }, rows)
+        })
+
+        const bar = h('div', { key: 'bar', className: 'bl-toolbar' }, [
+          learnResult
+            ? h('button', { key: 'again', className: 'bl-btn', onClick: resetLearn }, '再做一遍')
+            : (answeredAll
+              ? h('button', { key: 'submit', className: 'bl-btn bl-btn-primary', disabled: learnBusy, onClick: submitAttempt }, learnBusy ? '交卷中…' : '交卷')
+              : h('span', { key: 'hint', className: 'bl-hint' }, '还有 ' + (lesson.questions.length - answeredCount) + ' 题没选，全部选完才能交卷')),
+        ])
+
+        const verdict = attempt ? h('div', { key: 'verdict', className: 'bl-verdict ' + (attempt.score >= 80 ? 'ok' : 'bad') }, [
+          h('span', { key: 's', className: 'bl-score' }, String(attempt.score)),
+          h('span', { key: 'u', className: 'bl-hint' }, '分'),
+          h('span', { key: 'c', className: 'bl-hint' }, '答对 ' + attempt.correct + ' / ' + attempt.total + ' 题'),
+          h('div', { key: 'sp', className: 'bl-spacer' }),
+          learnResult.newBox
+            ? h('button', { key: 'draw', className: 'bl-btn bl-btn-primary', disabled: rewardBusy, onClick: drawBox }, rewardBusy ? '开盒中…' : '抽一个盲盒')
+            : h('span', { key: 'why', className: 'bl-hint' }, attempt.score >= 80
+              ? '这套课卡今天已经给过盲盒了，明天再来'
+              : '得分到 80 才能拿盲盒，错的题看一眼解释再来一遍'),
+        ]) : null
+
+        return h('div', { key: 'sheet', className: 'bl-panel' }, [
+          h('div', { key: 'head', className: 'bl-panel-head' }, [
+            h('b', { key: 't' }, lesson.topic || '这套课卡'),
+            h('span', { key: 'h', className: 'bl-hint' }, lesson.questions.length + ' 道题 · 答完交卷'),
+            h('div', { key: 'sp', className: 'bl-spacer' }),
+            h('button', {
+              key: 'reset',
+              className: 'bl-btn bl-btn-sm',
+              disabled: !answeredCount && !learnResult,
+              onClick: resetLearn,
+            }, '重选'),
+          ]),
+          learnResult ? null : h('div', { key: 'tip', className: 'bl-note' }, '先看一遍视频，再把题目答完；满分 100，到 80 分能拿一个盲盒，同一套课卡每天只给一个。'),
+          verdict,
+          renderDrawCard(),
+          h('div', { key: 'qs', className: 'bl-week' }, questions),
+          bar,
+        ])
+      }
+
+      function renderLearn() {
+        const rows = weekVideos.map((row) => {
+          const video = row.video
+          const lesson = lessons.find((item) => item.videoId === video.id) || null
+          return h('div', {
+            key: video.id,
+            className: 'bl-list-item' + (learnPick === video.id ? ' on' : ''),
+            title: video.title || video.id,
+            onClick: () => setLearnPick(video.id),
+          }, [
+            h('span', { key: 't', className: 'bl-list-title' }, video.title || video.id),
+            h('span', { key: 'f', className: 'bl-list-flag' + (lesson ? ' on' : '') }, lesson ? '有课卡' : '没课卡'),
+          ])
+        })
+
+        const right = learnVideo
+          ? h('div', { key: 'main', className: 'bl-panel' }, [
+            h('div', { key: 'head', className: 'bl-panel-head' }, [
+              h('b', { key: 't' }, learnVideo.title || learnVideo.id),
+              h('span', { key: 'd', className: 'bl-hint' }, learnRow ? (weekdayLabel(learnRow.date) + ' ' + shortDate(learnRow.date)) : ''),
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              h('a', { key: 'tab', className: 'bl-btn bl-btn-sm', href: siteUrl(learnVideo.id), target: '_blank', rel: 'noreferrer' }, '新标签打开'),
+            ]),
+            playerNode(learnVideo),
+            learnLesson
+              ? renderAnswerSheet()
+              : h('div', { key: 'nocard', className: 'bl-empty-panel' }, '这条片子还没写课卡。去「课卡」tab 给它配 3 到 5 道题，回来就能边看边答。'),
+          ])
+          : h('div', { key: 'none', className: 'bl-empty-panel' }, '本周计划还是空的。先去「本周」排片，再看这里。')
+
+        return [
+          h('div', { key: 'split', className: 'bl-split' }, [
+            h('div', { key: 'left', className: 'bl-list' }, rows.length
+              ? rows
+              : [h('div', { key: 'e', className: 'bl-empty' }, '本周还没排片，去「本周」点自动排一下')]),
+            right,
+          ]),
+        ]
+      }
+
+      function renderRewards() {
+        const view = rewards
+        if (!view) return [h('div', { key: 'loading', className: 'bl-empty-panel' }, '正在读奖励账本…')]
+        const byItem = {}
+        for (const item of view.items) byItem[item.id] = item
+        const wall = view.items.map((item) => h('div', {
+          key: item.id,
+          className: 'bl-sticker' + (item.count > 0 ? '' : ' locked'),
+          title: item.name,
+        }, [
+          h('span', { key: 'e', className: 'bl-sticker-emoji' }, item.count > 0 ? item.emoji : '？'),
+          h('span', { key: 'n', className: 'bl-sticker-name' }, item.count > 0 ? item.name : '还没抽到'),
+          h('span', { key: 'm', className: 'bl-sticker-meta' }, RARITY[item.rarity] || '贴纸'),
+          h('span', { key: 'c', className: 'bl-sticker-count' }, item.count > 0 ? ('×' + item.count) : '—'),
+        ]))
+        const recent = (view.draws || []).slice(0, 10).map((row) => {
+          const item = byItem[row.itemId] || null
+          return h('div', { key: row.id || String(row.at), className: 'bl-draw-row' }, [
+            h('span', { key: 'e', className: 'bl-sticker-emoji' }, item ? item.emoji : '🎁'),
+            h('span', { key: 'n', style: { flex: '1', minWidth: '0' } }, item ? item.name : '贴纸'),
+            h('span', { key: 't', className: 'bl-hint' }, timeText(row.at)),
+          ])
+        })
+        const owned = view.items.filter((item) => item.count > 0).length
+        return [
+          h('div', { key: 'wallet', className: 'bl-panel' }, [
+            h('div', { key: 'head', className: 'bl-panel-head' }, [
+              h('b', { key: 't' }, '盲盒'),
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              h('button', {
+                key: 'draw',
+                className: 'bl-btn bl-btn-primary',
+                disabled: rewardBusy || view.available <= 0,
+                onClick: drawBox,
+              }, rewardBusy ? '开盒中…' : (view.available > 0 ? ('抽一个盲盒（' + view.available + '）') : '没有可抽的盲盒了')),
+            ]),
+            h('div', { key: 'stats', className: 'bl-stats' }, [
+              h('div', { key: 'a', className: 'bl-stat-box' }, [h('b', { key: 'n' }, String(view.available)), h('span', { key: 'l' }, '可抽次数')]),
+              h('div', { key: 'e', className: 'bl-stat-box' }, [h('b', { key: 'n' }, String(view.earned)), h('span', { key: 'l' }, '累计得到')]),
+              h('div', { key: 'u', className: 'bl-stat-box' }, [h('b', { key: 'n' }, String(view.used)), h('span', { key: 'l' }, '已经抽掉')]),
+            ]),
+            renderDrawCard(),
+            h('div', { key: 'note', className: 'bl-note' }, '看完视频把课卡题目答完，得分到 80 就能拿一个盲盒；同一套课卡每天只给一个。抽到的贴纸都贴在这面墙上。'),
+          ]),
+          h('div', { key: 'wall', className: 'bl-panel' }, [
+            h('div', { key: 'head', className: 'bl-panel-head' }, [
+              h('b', { key: 't' }, '贴纸墙'),
+              h('span', { key: 'h', className: 'bl-hint' }, owned + ' / ' + view.items.length + ' 集齐'),
+            ]),
+            h('div', { key: 'grid', className: 'bl-stickers' }, wall),
+          ]),
+          h('div', { key: 'recent', className: 'bl-panel' }, [
+            h('div', { key: 'head', className: 'bl-panel-head' }, [h('b', { key: 't' }, '最近抽到的')]),
+            recent.length
+              ? h('div', { key: 'list', className: 'bl-draws' }, recent)
+              : h('div', { key: 'empty', className: 'bl-empty' }, '还没抽过。答完一套课卡，来开第一个盲盒。'),
+          ]),
+        ]
+      }
+
+      /* ------------------------------------------------------------------ */
       /* 渲染：设置                                                          */
       /* ------------------------------------------------------------------ */
 
@@ -1429,6 +1767,32 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
       /* 渲染：弹层                                                          */
       /* ------------------------------------------------------------------ */
 
+      function playerNode(video) {
+        if (settings.embedPlay) {
+          return h('iframe', {
+            key: 'frame',
+            className: 'bl-frame',
+            src: playerUrl(video.id),
+            title: video.title || video.id,
+            allow: 'autoplay; fullscreen; encrypted-media; picture-in-picture',
+            allowFullScreen: true,
+            referrerPolicy: 'no-referrer',
+          })
+        }
+        return h('div', { key: 'gate', className: 'bl-fallback' }, [
+          h('div', { key: 'l1' }, '设置里关掉了内嵌播放，所以这里只给入口。'),
+          h('div', { key: 'l2', className: 'bl-hint' }, 'iframe 被 CSP 或者 B 站拦掉的时候，也走同一个「新标签打开」。'),
+          h('a', {
+            key: 'go',
+            className: 'bl-btn bl-btn-primary',
+            style: { marginTop: '6px' },
+            href: siteUrl(video.id),
+            target: '_blank',
+            rel: 'noreferrer',
+          }, '去 B 站看这条'),
+        ])
+      }
+
       function renderPlayer() {
         const v = player
         return h('div', { key: 'player', className: 'bl-modal', onClick: () => setPlayer(null) }, [
@@ -1445,28 +1809,7 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
               }, '新标签打开'),
               h('button', { key: 'x', className: 'bl-btn bl-btn-sm', onClick: () => setPlayer(null) }, '关闭'),
             ]),
-            settings.embedPlay
-              ? h('iframe', {
-                key: 'frame',
-                className: 'bl-frame',
-                src: playerUrl(v.id),
-                title: v.title || v.id,
-                allow: 'autoplay; fullscreen; encrypted-media; picture-in-picture',
-                allowFullScreen: true,
-                referrerPolicy: 'no-referrer',
-              })
-              : h('div', { key: 'gate', className: 'bl-fallback' }, [
-                h('div', { key: 'l1' }, '设置里关掉了内嵌播放，所以这里只给入口。'),
-                h('div', { key: 'l2', className: 'bl-hint' }, 'iframe 被 CSP 或者 B 站拦掉的时候，也走同一个「新标签打开」。'),
-                h('a', {
-                  key: 'go',
-                  className: 'bl-btn bl-btn-primary',
-                  style: { marginTop: '6px' },
-                  href: siteUrl(v.id),
-                  target: '_blank',
-                  rel: 'noreferrer',
-                }, '去 B 站看这条'),
-              ]),
+            playerNode(v),
             h('div', { key: 'foot', className: 'bl-dialog-foot' }, [
               h('span', { key: 'hint', className: 'bl-hint' }, '播放器走 player.bilibili.com，弹幕默认关；要弹幕就去新标签。'),
             ]),
@@ -1581,9 +1924,13 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
           ? renderPlan()
           : tab === 'watch'
             ? renderWatch()
-            : tab === 'lessons'
-              ? renderLessons()
-              : renderSettings()
+            : tab === 'learn'
+              ? renderLearn()
+              : tab === 'rewards'
+                ? renderRewards()
+                : tab === 'lessons'
+                  ? renderLessons()
+                  : renderSettings()
 
       return h('div', { className: 'bl-root' }, [
         h('header', { key: 'top', className: 'bl-top' }, [
