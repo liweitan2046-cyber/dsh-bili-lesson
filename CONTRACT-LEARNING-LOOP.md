@@ -23,10 +23,10 @@ rewards.json
 - 同一 lessonId 在同一 date 只给一次盒（第二次答题仍记录 attempts，但 boxGranted = false）
 - 抽盒只消耗 earned，不设上限；draws.length >= earned 时拒绝
 
-## 3 贴纸目录（写死在 src/rewards.js，供后端与导出共用）
+## 3 奖品目录（写死在 src/rewards.js，供后端与导出共用）
 
-8 个贴纸，字段 { id, name, emoji, rarity, weight }，rarity ∈ common / rare / epic。
-权重：common 5 个各 20，rare 2 个各 5，epic 1 个 2（总权重 112）。抽中按权重随机。
+54 条奖品（8 张贴纸 + 46 个小程序盲盒奖品），字段 { id, name, emoji, rarity, weight }，rarity ∈ common / rare / epic。
+权重：8 张贴纸 common 5×20 / rare 2×5 / epic 1×2；46 个小程序奖品按 tier 映射 starlight(16)→common 5、galaxy(16)→rare 3、crown(14)→epic 1。合计 54 条、总权重 254。抽中按权重随机。
 具体 id/name 由实现自拟中文（例：s_rocket / 小火箭 🚀）。
 
 ## 4 接口（PREFIX /bili-lesson，风格照 src/routes.js 现有分支）
@@ -49,11 +49,11 @@ GET  /export 现有响应追加两个字段：attempts（同 attempts.json 全�
 
 ## 5 界面（client.js，原生 React h() 风格，不改现有 5 个 tab 的任何行为）
 
-- 新增 tab「学习」，排在「课卡」之前：左列列出本周计划里的片子（复用现有 plan 数据），
+- 新增 tab「学习」，排在「课卡」之前：左列列出本周计划里的片子，外加有课卡但不在本周的片子（标记「不在本周计划里」），
   点一条 → 右侧 iframe 播放（复用 playerUrl/renderPlayer 的 embedPlay 逻辑）+ 下方该课卡的题目，
   逐题点选项作答，全部答完出现「交卷」→ 交卷后显示 correct/total、得分、错题解释，
   若 newBox 为真显示「抽一个盲盒」按钮（开盒动画可简化为一次点击 + 结果卡片）。
-- 新增 tab「奖励」，排在「学习」之后：贴纸收藏墙（未获得显示灰色问号）+ 可抽次数 + 抽盒按钮 + 最近 10 次抽奖记录。
+- 新增 tab「奖励」，排在「学习」之后：奖品收藏墙（未获得显示灰色问号）+ 可抽次数 + 抽盒按钮 + 最近 10 次抽奖记录。
 - 得盒条件、错题解释文案沿用课卡里的 hint / explanation 字段。
 - 语言、配色、类名前缀一律沿用现有 .bl- 约定。
 

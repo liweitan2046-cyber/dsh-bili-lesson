@@ -11,6 +11,8 @@ import { Store } from './src/store.js'
 import { Routes } from './src/routes.js'
 import {
   STICKERS,
+  PRIZES,
+  CATALOG,
   TOTAL_WEIGHT,
   pickSticker,
   localDay,
@@ -79,8 +81,10 @@ ok('one box per card per day', hasBoxOn(pastAttempt, 'ls_a', '2026-01-01') === t
 const oneDraw = [{ id: 'dr_1', at: 1, attemptId: 'at_1', itemId: 's_star' }]
 ok('available is earned minus used', earnedOf(pastAttempt) === 1 && availableOf(pastAttempt, []) === 1 && availableOf(pastAttempt, oneDraw) === 0 && availableOf(pastAttempt, [...oneDraw, ...oneDraw, ...oneDraw]) === 0)
 const view = rewardView(pastAttempt, oneDraw)
-ok('reward view aggregates draws', view.items.length === 8 && view.items.find(i => i.id === 's_star').count === 1 && view.items.filter(i => i.count === 0).length === 7 && view.earned === 1 && view.used === 1 && view.available === 0 && view.draws.length === 1, view)
-ok('sticker catalog weights', TOTAL_WEIGHT === 112 && STICKERS.length === 8 && STICKERS.filter(s => s.rarity === 'epic').length === 1)
+ok('reward view aggregates draws', view.items.length === CATALOG.length && view.items.find(i => i.id === 's_star').count === 1 && view.items.filter(i => i.count === 0).length === CATALOG.length - 1 && view.earned === 1 && view.used === 1 && view.available === 0 && view.draws.length === 1, { items: view.items.length })
+const epicWeight = CATALOG.filter(s => s.rarity === 'epic').reduce((sum, s) => sum + s.weight, 0)
+const commonWeight = CATALOG.filter(s => s.rarity === 'common').reduce((sum, s) => sum + s.weight, 0)
+ok('reward catalog weights', CATALOG.length === 54 && STICKERS.length === 8 && PRIZES.length === 46 && TOTAL_WEIGHT === 254 && CATALOG.filter(s => s.rarity === 'epic').length === 15 && epicWeight === 16 && commonWeight === 180, { catalog: CATALOG.length, total: TOTAL_WEIGHT })
 ok('local day is calendar date', /^\d{4}-\d{2}-\d{2}$/.test(localDay(new Date('2026-01-02T23:30:00').getTime())), localDay())
 let seed = 20261115
 const rand = () => {
@@ -92,10 +96,11 @@ for (let i = 0; i < 11200; i += 1) {
   const item = pickSticker(rand())
   tally[item.id] = (tally[item.id] || 0) + 1
 }
-const epicShare = (tally.s_unicorn || 0) / 11200
-const commonShare = ['s_rocket', 's_star', 's_apple', 's_balloon', 's_panda'].reduce((sum, id) => sum + (tally[id] || 0), 0) / 11200
-ok('weighted draw distribution', Object.keys(tally).length === 8 && Math.abs(epicShare - 2 / 112) < 0.006 && Math.abs(commonShare - 100 / 112) < 0.02, { epicShare, commonShare })
-ok('draw never leaves catalog', [0, 0.1, 0.5, 0.99, 1].every(r => STICKERS.some(s => s.id === pickSticker(r).id)))
+const shareOf = rarity => CATALOG.filter(s => s.rarity === rarity).reduce((sum, s) => sum + (tally[s.id] || 0), 0) / 11200
+const epicShare = shareOf('epic')
+const commonShare = shareOf('common')
+ok('weighted draw distribution', Object.keys(tally).length === 54 && Math.abs(epicShare - 16 / 254) < 0.01 && Math.abs(commonShare - 180 / 254) < 0.02, { epicShare, commonShare })
+ok('draw never leaves catalog', [0, 0.1, 0.5, 0.99, 1].every(r => CATALOG.some(s => s.id === pickSticker(r).id)))
 const health = await call('GET', '/health')
 ok('health', health.status === 200 && health.data.ok === true, health.data)
 
@@ -169,7 +174,7 @@ const card = cardCreate.data.item
 ok('learn card ready', cardCreate.status === 200 && card?.questions?.length === 3, cardCreate.data)
 
 const stock = await call('GET', '/rewards')
-ok('rewards stock empty', stock.status === 200 && stock.data.items?.length === 8 && stock.data.items.every(i => i.count === 0) && stock.data.earned === 0 && stock.data.used === 0 && stock.data.available === 0, stock.data)
+ok('rewards stock empty', stock.status === 200 && stock.data.items?.length === CATALOG.length && stock.data.items.every(i => i.count === 0) && stock.data.earned === 0 && stock.data.used === 0 && stock.data.available === 0, stock.data)
 
 const partialAnswers = card.questions.map((q, i) => ({
   qid: q.id,
@@ -194,7 +199,7 @@ const noCard = await call('POST', '/lessons/ls_missing/attempt', { answers: perf
 ok('attempt unknown card 404', noCard.status === 404, noCard.data)
 
 const draw = await call('POST', '/rewards/draw')
-ok('draw consumes box', draw.status === 200 && draw.data.ok === true && draw.data.available === 0 && STICKERS.some(s => s.id === draw.data.item?.id), draw.data)
+ok('draw consumes box', draw.status === 200 && draw.data.ok === true && draw.data.available === 0 && CATALOG.some(s => s.id === draw.data.item?.id), draw.data)
 const drawAgain = await call('POST', '/rewards/draw')
 ok('draw without box 409', drawAgain.status === 409 && drawAgain.data.ok === false, drawAgain.data)
 const afterDraw = await call('GET', '/rewards')
