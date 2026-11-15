@@ -918,7 +918,7 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
             title: '点开播放',
           }, [
             cover
-              ? h('img', { key: 'img', src: cover, alt: '', loading: 'lazy' })
+              ? h('img', { key: 'img', src: cover, alt: '', loading: 'lazy', referrerPolicy: 'no-referrer' })
               : h('div', { key: 'ph', className: 'bl-cover-ph' }, '没有封面'),
             v.duration ? h('span', { key: 'dur', className: 'bl-dur' }, fmtDur(v.duration)) : null,
             v.dead ? h('span', { key: 'dead', className: 'bl-dead' }, '已失效') : null,
@@ -1037,7 +1037,7 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
         return h('div', { key: day.date + '|' + videoId + '|' + index, className: 'bl-row' }, [
           h('div', { key: 'thumb', className: 'bl-mini' },
             v && coverUrl(v.cover)
-              ? h('img', { src: coverUrl(v.cover), alt: '' })
+              ? h('img', { src: coverUrl(v.cover), alt: '', referrerPolicy: 'no-referrer' })
               : h('span', { className: 'bl-mini-ph' }, '无图')),
           h('div', { key: 'main', className: 'bl-row-main' }, [
             h('button', {
@@ -1120,7 +1120,7 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
         return h('div', { key: date + '|' + videoId, className: 'bl-row' }, [
           h('div', { key: 'thumb', className: 'bl-mini' },
             v && coverUrl(v.cover)
-              ? h('img', { src: coverUrl(v.cover), alt: '' })
+              ? h('img', { src: coverUrl(v.cover), alt: '', referrerPolicy: 'no-referrer' })
               : h('span', { className: 'bl-mini-ph' }, '无图')),
           h('div', { key: 'main', className: 'bl-row-main' }, [
             h('button', {
@@ -1486,7 +1486,7 @@ background:#0e1014!important;color:#e8eaf0!important;font:13px/1.5 -apple-system
               h('button', { key: 'x', className: 'bl-btn bl-btn-sm', onClick: () => setEditing(null) }, '关闭'),
             ]),
             h('div', { key: 'body', className: 'bl-dialog-body' }, [
-              cover ? h('img', { key: 'cover', className: 'bl-cover-preview', src: cover, alt: '' }) : null,
+              cover ? h('img', { key: 'cover', className: 'bl-cover-preview', src: cover, alt: '', referrerPolicy: 'no-referrer' }) : null,
               h('div', { key: 'grid', className: 'bl-form-grid' }, [
                 h('div', { key: 'title', className: 'bl-field' }, [
                   h('span', { key: 'l', className: 'bl-label' }, '标题'),
