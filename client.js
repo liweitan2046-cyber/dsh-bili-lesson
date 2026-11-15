@@ -16,18 +16,51 @@ window.__ModuleLoader__.load({
     const API = '/bili-lesson'
     const LABEL = 'B 站课堂'
     const TABS = [
-      { id: 'library', label: '片库' },
-      { id: 'plan', label: '本周' },
-      { id: 'watch', label: '记录' },
-      { id: 'learn', label: '学习' },
-      { id: 'rewards', label: '奖励' },
-      { id: 'lessons', label: '课卡' },
-      { id: 'settings', label: '设置' },
+      { id: 'library', label: '舰桥首页' },
+      { id: 'plan', label: '本周航线' },
+      { id: 'learn', label: '训练舱' },
+      { id: 'watch', label: '航行记录' },
+      { id: 'rewards', label: '成就展厅' },
+      { id: 'lessons', label: '课卡工坊' },
+      { id: 'vault', label: '片库仓库' },
+      { id: 'settings', label: '舰桥设置' },
     ]
     const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
     const DIFFICULTY = { 1: '简单', 2: '适中', 3: '进阶' }
     const RARITY = { common: '常见', rare: '稀有', epic: '珍稀' }
     const DEFAULT_SETTINGS = { perDay: 2, maxAge: 6, embedPlay: false }
+
+    const XP_STEP = 200
+
+    const CAT_ICON = {
+      儿歌: '♪', 绘本: '❞', 数学: '∑', 英语: 'A', 科学启蒙: '⚛', 认知: '◈',
+      识字: '字', 安全: '⚠', 美术: '◐', 律动: '≈',
+    }
+
+    const TAB_TITLE = {
+      library: '舰桥首页', plan: '本周航线', watch: '航行记录', learn: '训练舱',
+      rewards: '成就展厅', lessons: '课卡工坊', settings: '舰桥设置',
+    }
+
+    const RAIL_ICONS = {
+      library: ['M4 4.6h6.2v6.2H4z', 'M13.8 4.6H20v6.2h-6.2z', 'M4 13.8h6.2V20H4z', 'M13.8 13.8H20V20h-6.2z'],
+      plan: ['M4 6.5h9.5', 'M4 12h6', 'M4 17.5h6.5', 'M15 9.5l4.2 4.2-4.2 4.2'],
+      watch: ['M12 7.4V12l3 1.9', 'M12 3.6a8.4 8.4 0 100 16.8 8.4 8.4 0 000-16.8z'],
+      learn: ['M9 7.6l7.4 4.4L9 16.4z', 'M4 4.8h16v14.4H4z'],
+      rewards: ['M12 3.4l7 7-7 10.2-7-10.2z', 'M5 10.4h14'],
+      lessons: ['M4.6 5.2h14.8v13.6H4.6z', 'M8 9h8', 'M8 12.8h5.4'],
+      settings: ['M4 7.6h6', 'M14 7.6h6', 'M4 16.4h9', 'M17 16.4h3', 'M11.2 5.2v4.8', 'M14.2 14v4.8'],
+    }
+
+    function RailIcon(props) {
+      const paths = RAIL_ICONS[props.name] || RAIL_ICONS.library
+      const size = props.size || 18
+      return h('svg', {
+        key: props.key,
+        width: size, height: size, viewBox: '0 0 24 24', fill: 'none',
+        stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round',
+      }, paths.map((d, i) => h('path', { key: 'p' + i, d })))
+    }
 
     /* ------------------------------------------------------------------ */
     /* 小工具                                                              */
@@ -436,6 +469,355 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
 .bl-planet-label{fill:#d6e8fb;font-size:12.5px;letter-spacing:.6px}
 .bl-planet-count{fill:#8ea7c3;font-size:10.5px;letter-spacing:.5px}
 .bl-map svg{overflow:visible}
+/* ===== v2 视觉覆盖：克制的舰桥 HUD（去霓虹堆叠，建立层级） ===== */
+.bl-root{--bl-void:#05080f;--bl-panel:#0b1622;--bl-panel-2:#0f1e2e;--bl-inset:#08111b;
+--bl-line:rgba(140,176,210,.14);--bl-line-2:rgba(140,176,210,.26);--bl-line-3:rgba(140,176,210,.40);
+--bl-cyan:#5cc8ff;--bl-cyan-2:#bfe8ff;--bl-gold:#f3b34c;--bl-green:#4fd8a6;--bl-amber:#f3a44c;--bl-red:#f0736f;
+--bl-text:#e3ebf5;--bl-muted:#8598ad;--bl-dim:#5f7387;--bl-r:12px;--bl-glow:none;
+--dsw-alias-bg-layer-1:#05080f;--dsw-alias-bg-layer-2:#0b1622;--dsw-alias-bg-layer-3:#0f1e2e;
+--dsw-alias-label-primary:#e3ebf5;--dsw-alias-label-secondary:#8598ad;--dsw-alias-label-dimmed:#5f7387;
+--dsw-alias-border-l2:rgba(140,176,210,.14);--dsw-alias-brand-primary:#5cc8ff;
+font:13.5px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+background:linear-gradient(180deg,rgba(5,8,15,.80),rgba(4,6,11,.94)),url('/bili-lesson/assets/deck-bg.jpg') center bottom/cover no-repeat fixed}
+
+/* 顶栏 */
+.bl-top{height:56px;padding:0 20px;gap:12px;background:rgba(7,12,20,.86)!important;border-bottom:1px solid var(--bl-line);box-shadow:none}
+.bl-top::after{display:none}
+.bl-brand{font-size:13.5px;font-weight:600;letter-spacing:.14em;color:#cfdceb}
+.bl-brand-dot{width:8px;height:8px;background:var(--bl-gold);box-shadow:none;animation:none}
+.bl-tabs{gap:2px;margin-left:14px;padding:3px;border-radius:10px;background:rgba(8,14,22,.7);border:1px solid var(--bl-line)}
+.bl-tab{height:28px;padding:0 12px;border-radius:8px;font-size:12.5px;letter-spacing:.02em;color:var(--bl-muted)}
+.bl-tab:hover{color:#dfeaf7;background:rgba(255,255,255,.04)}
+.bl-tab.on{background:rgba(92,200,255,.14);border-color:rgba(92,200,255,.30);color:#d9f1ff;font-weight:600;box-shadow:none}
+
+/* HUD 读数 */
+.bl-hud{gap:8px}
+.bl-hud-chip{align-items:center;gap:7px;padding:4px 10px;border-radius:8px;border:1px solid var(--bl-line);background:rgba(9,16,26,.72);
+font-size:9.5px;letter-spacing:.12em;color:var(--bl-dim)}
+.bl-hud-chip b{font-size:13px;font-weight:600;color:#dbe8f6;letter-spacing:0;text-shadow:none}
+.bl-hud-chip.gold b{color:var(--bl-gold)}
+.bl-hud-chip:hover{border-color:var(--bl-line-3);box-shadow:none;background:rgba(15,26,40,.8)}
+.bl-hud-bar{width:64px;height:4px;border-radius:2px;border:0;background:rgba(140,176,210,.16)}
+.bl-hud-bar i{background:var(--bl-gold);box-shadow:none}
+
+/* 主区 */
+.bl-body{padding:20px 24px 48px;scrollbar-color:rgba(140,176,210,.25) transparent}
+.bl-wrap{max-width:1180px;gap:18px}
+.bl-sec{padding:0 0 0 0;border-bottom:1px solid var(--bl-line);padding-bottom:10px;margin-bottom:2px}
+.bl-sec::before{display:none}
+.bl-sec h2{font-size:17px;font-weight:600;letter-spacing:.02em;color:#e9f2fb;text-shadow:none}
+.bl-sec h2 em{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--bl-dim);margin-left:10px;font-weight:500}
+
+/* 按钮 */
+.bl-btn{height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--bl-line-2);background:#111e2d;font-size:12.5px;letter-spacing:.01em}
+.bl-btn:hover{border-color:var(--bl-line-3);background:#16273a;box-shadow:none}
+.bl-btn-primary{background:#5cc8ff!important;border-color:#5cc8ff!important;color:#04202e!important;font-weight:600}
+.bl-btn-primary:hover{background:#7bd6ff!important;border-color:#7bd6ff!important;box-shadow:none!important}
+.bl-btn-danger{color:#f0a3a1;border-color:rgba(240,115,111,.34)}
+.bl-btn-sm{height:26px;padding:0 10px;font-size:11.5px;border-radius:7px}
+
+/* 输入 */
+.bl-input,.bl-textarea,.bl-select{background:#0a1521;border:1px solid var(--bl-line);border-radius:8px;font-size:12.5px}
+.bl-input:focus,.bl-textarea:focus{border-color:rgba(92,200,255,.5);box-shadow:0 0 0 3px rgba(92,200,255,.10)}
+.bl-input::placeholder{color:#4d5f73}
+
+/* 卡片 */
+.bl-card{border-radius:12px;border:1px solid var(--bl-line);background:#0b1622;box-shadow:none;overflow:hidden}
+.bl-card:hover{border-color:var(--bl-line-2);transform:translateY(-1px);box-shadow:0 12px 28px rgba(0,0,0,.38)}
+.bl-card-body{gap:7px;padding:11px 12px 12px}
+.bl-card-title{font-size:13.5px;font-weight:600;line-height:1.45;max-height:40px;color:#e6eef8}
+.bl-card-meta{gap:6px}
+.bl-tag{padding:1px 7px;border-radius:5px;background:rgba(92,200,255,.10);border:1px solid rgba(92,200,255,.22);color:#a9d9f5;font-size:10.5px;letter-spacing:.02em}
+.bl-tag-age{background:rgba(243,179,76,.10);border-color:rgba(243,179,76,.24);color:#f0c684}
+.bl-tag-dead{background:rgba(240,115,111,.12);border-color:rgba(240,115,111,.30);color:#f0a3a1}
+.bl-card-owner,.bl-card-reason{font-size:11px;color:var(--bl-dim)}
+.bl-card-id{color:#4c5f73;font-size:10px}
+
+/* 面板 / 日卡 / 统计 */
+.bl-panel,.bl-day,.bl-stat-box{border-radius:12px;border:1px solid var(--bl-line);background:#0b1622!important;box-shadow:none}
+.bl-panel{padding:14px}
+.bl-panel-head{gap:10px;margin-bottom:4px}
+.bl-day{padding:12px 14px}
+.bl-day-name{font-size:12.5px;letter-spacing:.02em;color:#dbe6f3}
+.bl-day-date{font-size:11px;color:var(--bl-dim)}
+.bl-week{padding-left:24px;gap:10px}
+.bl-week::before{background:var(--bl-line)}
+.bl-day::before{background:#0b1622;border:1.5px solid var(--bl-line-2);box-shadow:none;width:9px;height:9px;left:-25px}
+.bl-day.today::before{background:var(--bl-gold);border-color:var(--bl-gold);animation:none}
+.bl-day.today{border-color:rgba(243,179,76,.34)}
+
+/* 星域地图 */
+.bl-map{border-radius:14px;border:1px solid var(--bl-line);padding:10px 12px 2px;background:radial-gradient(120% 100% at 50% 0%,rgba(20,42,68,.55),rgba(7,13,22,.85))}
+.bl-map-legend{padding:0 2px 10px;font-size:11px;color:var(--bl-muted);letter-spacing:.02em}
+.bl-map-legend b{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9fb4c9;font-weight:600}
+.bl-planet-label{fill:#cfe0f2;font-size:12px;letter-spacing:.06em;font-weight:600}
+.bl-planet-count{fill:#7b90a6;font-size:10px;letter-spacing:.04em}
+.bl-planet:hover .bl-planet-body{filter:brightness(1.18)}
+.bl-map svg{overflow:visible}
+
+/* 学习步骤条 */
+.bl-steps{gap:6px}
+.bl-step{padding:6px 12px 6px 8px;border-radius:10px;border:1px solid var(--bl-line);background:rgba(9,16,26,.6);font-size:11.5px;color:var(--bl-muted)}
+.bl-step b{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:6px;background:rgba(140,176,210,.12);color:#b6c8da;font-size:10.5px;font-weight:600}
+.bl-step.now{border-color:rgba(243,179,76,.5);background:rgba(243,179,76,.10);color:#f4d5a5}
+.bl-step.now b{background:var(--bl-gold);color:#2b1a04}
+.bl-step.done{border-color:rgba(79,216,166,.32);color:#a8ebd0}
+.bl-step.done b{background:rgba(79,216,166,.20);color:#8defc5}
+.bl-step-arrow{color:rgba(140,176,210,.28);font-size:11px}
+
+/* 奖品格 */
+.bl-stickers{gap:10px;grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}
+.bl-sticker{padding:12px 6px 10px}
+.bl-sticker-emoji{font-size:24px;filter:none}
+.bl-sticker-name{font-size:12px;font-weight:600;color:#e2ecf7}
+.bl-sticker-meta{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--bl-dim)}
+.bl-sticker.locked .bl-sticker-emoji{filter:grayscale(1);opacity:.4}
+.bl-sticker.locked .bl-sticker-name{color:#6b7d90}
+.bl-ring{width:52px;height:52px;background:conic-gradient(var(--bl-gold) 0 var(--p,0%),rgba(140,176,210,.14) var(--p,0%) 100%)}
+.bl-ring::before{background:#0b1622}
+.bl-ring b{font-size:12px;color:#e9f2fb}
+
+/* 弹窗 */
+.bl-dialog{border-radius:14px;border:1px solid var(--bl-line-2);background:#0d1a28;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+/* ===== v3 舰桥外壳：左侧导航栏 + 顶部状态条 + 主区 ===== */
+.bl-root{--bl-rail:156px}
+.bl-shell{display:grid;grid-template-columns:var(--bl-rail) minmax(0,1fr);flex:1;min-height:0}
+.bl-rail{display:flex;flex-direction:column;gap:3px;padding:16px 10px 12px;border-right:1px solid var(--bl-line);background:linear-gradient(180deg,rgba(8,14,22,.94),rgba(5,9,15,.94))}
+.bl-rail-brand{display:flex;align-items:center;gap:9px;padding:0 6px 14px;margin-bottom:6px;border-bottom:1px solid var(--bl-line);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#b9cbdd;white-space:nowrap}
+.bl-rail-brand i{width:9px;height:9px;border-radius:2px;background:var(--bl-gold);flex:none}
+.bl-rail-item{appearance:none;position:relative;display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--bl-muted);font:inherit;font-size:12.5px;cursor:pointer;text-align:left;white-space:nowrap;transition:background .15s,color .15s,border-color .15s}
+.bl-rail-item svg{flex:none;opacity:.8}
+.bl-rail-item:hover{background:rgba(255,255,255,.045);color:#dbe8f6}
+.bl-rail-item.on{background:rgba(92,200,255,.12);border-color:rgba(92,200,255,.26);color:#dcf3ff;font-weight:600}
+.bl-rail-item.on svg{opacity:1}
+.bl-rail-item.on::before{content:"";position:absolute;left:-10px;top:9px;bottom:9px;width:2px;border-radius:2px;background:var(--bl-cyan)}
+.bl-rail-item em{margin-left:auto;font-style:normal;font-size:10.5px;color:var(--bl-dim);font-variant-numeric:tabular-nums}
+.bl-rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding:12px 8px 4px;border-top:1px solid var(--bl-line)}
+.bl-xp{display:flex;flex-direction:column;gap:6px}
+.bl-xp-head{display:flex;justify-content:space-between;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--bl-dim)}
+.bl-xp-head b{color:var(--bl-gold);font-size:10.5px;letter-spacing:0}
+.bl-bar{height:4px;border-radius:2px;background:rgba(140,176,210,.16);overflow:hidden}
+.bl-bar i{display:block;height:100%;border-radius:2px;background:var(--bl-cyan)}
+.bl-bar.gold i{background:var(--bl-gold)}
+.bl-bar.green i{background:var(--bl-green)}
+
+.bl-main{display:flex;flex-direction:column;min-width:0;min-height:0}
+.bl-top{display:flex;flex-direction:column;align-items:stretch;gap:10px;height:auto;flex:none;padding:16px 22px 0;background:transparent!important;border:0;box-shadow:none}
+.bl-top-row{display:flex;align-items:center;gap:10px;min-width:0}
+.bl-top-title{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--bl-dim);font-weight:600}
+.bl-hudstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bl-stat{appearance:none;position:relative;display:flex;flex-direction:column;gap:7px;padding:11px 13px 12px;border:1px solid var(--bl-line);border-radius:12px;background:#0b1622;text-align:left;font:inherit;color:inherit;cursor:pointer;overflow:hidden;transition:border-color .15s,background .15s}
+.bl-stat:hover{border-color:var(--bl-line-2);background:#0e1b29}
+.bl-stat-top{display:flex;align-items:center;gap:7px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--bl-dim);font-weight:600}
+.bl-stat-top svg{opacity:.8}
+.bl-stat-val{display:flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums}
+.bl-stat-val b{font-size:22px;line-height:1.05;font-weight:600;color:#e8f2fc;letter-spacing:-.01em}
+.bl-stat.gold .bl-stat-val b{color:var(--bl-gold)}
+.bl-stat.green .bl-stat-val b{color:var(--bl-green)}
+.bl-stat-val em{font-style:normal;font-size:11px;color:var(--bl-dim)}
+.bl-stat-note{font-size:10.5px;color:var(--bl-dim);letter-spacing:.01em}
+.bl-dots{display:flex;gap:4px}
+.bl-dots i{width:12px;height:12px;border-radius:3px;background:rgba(140,176,210,.18)}
+.bl-dots i.on{background:var(--bl-gold)}
+
+.bl-hero{display:grid;grid-template-columns:minmax(0,1fr) 306px;gap:12px;align-items:stretch}
+.bl-course{display:flex;flex-direction:column;gap:10px;padding:0;overflow:hidden}
+.bl-course-cover{position:relative;width:100%;aspect-ratio:16/7;background:#0a140f;overflow:hidden}
+.bl-course-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.bl-course-cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,11,18,0) 40%,rgba(6,11,18,.85))}
+.bl-course-body{display:flex;flex-direction:column;gap:9px;padding:0 13px 13px}
+.bl-course-title{font-size:14px;font-weight:600;line-height:1.4;color:#e9f2fb;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bl-course-kicker{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--bl-dim);font-weight:600}
+.bl-goals{display:flex;flex-direction:column;gap:5px;margin:0;padding:0;list-style:none}
+.bl-goals li{position:relative;padding-left:12px;font-size:11.5px;line-height:1.45;color:var(--bl-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-goals li::before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;border-radius:1px;background:rgba(140,176,210,.5)}
+.bl-reward-row{display:flex;gap:8px}
+.bl-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:7px;border:1px solid var(--bl-line);background:rgba(9,16,26,.6);font-size:11px;color:var(--bl-muted)}
+.bl-chip b{color:#e8f2fc;font-weight:600;font-variant-numeric:tabular-nums}
+.bl-chip.gold{border-color:rgba(243,179,76,.3);color:#f0c684}
+.bl-chip.gold b{color:var(--bl-gold)}
+.bl-course-cta{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+.bl-course-cta .bl-btn{height:34px;font-size:13px}
+.bl-grid-sm{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bl-bars{display:flex;align-items:flex-end;gap:5px;height:34px}
+.bl-bars i{flex:1;border-radius:2px 2px 0 0;background:rgba(92,200,255,.35);min-height:2px}
+.bl-bars i.on{background:var(--bl-cyan)}
+.bl-station-icon{fill:#f4f9ff;font-size:17px;font-weight:600}
+.bl-planet-label{font-weight:600}
+
+/* ===== v4 舰桥视觉体系（对齐参考稿：蓝金 + 切角 + 角标 + 状态条）===== */
+.bl-root{
+--bl-panel:#081426;--bl-panel-2:#0b1c31;--bl-inset:#06101e;
+--bl-line:rgba(94,162,226,.22);--bl-line-2:rgba(94,162,226,.4);--bl-line-3:rgba(128,200,255,.8);
+--bl-cyan:#3fa9ff;--bl-cyan-2:#9ad8ff;--bl-gold:#f5b333;--bl-green:#2fd39b;--bl-r:14px;
+--bl-cut:14px;--bl-hud-h:74px;
+background:radial-gradient(110% 80% at 78% -10%,rgba(28,80,140,.5),transparent 58%),radial-gradient(80% 60% at 6% 106%,rgba(24,74,132,.32),transparent 62%),linear-gradient(180deg,rgba(3,6,12,.7),rgba(2,5,11,.92)),url('/bili-lesson/assets/deck-bg.jpg') center bottom/cover no-repeat fixed;
+}
+/* 切角面板基类 */
+.bl-cut{clip-path:polygon(var(--bl-cut) 0,100% 0,100% calc(100% - var(--bl-cut)),calc(100% - var(--bl-cut)) 100%,0 100%,0 var(--bl-cut))}
+.bl-panelx{position:relative;border:1px solid var(--bl-line);border-radius:12px;background:linear-gradient(180deg,rgba(12,26,44,.92),rgba(6,14,26,.94));box-shadow:inset 0 1px 0 rgba(160,215,255,.08),0 14px 34px rgba(0,0,0,.34)}
+.bl-panelx::before{content:"";position:absolute;left:14px;top:0;width:74px;height:1px;background:linear-gradient(90deg,rgba(120,200,255,.9),transparent);pointer-events:none}
+
+/* 顶部状态条 */
+.bl-hud-bar-wrap{display:grid;grid-template-columns:minmax(200px,1.35fr) repeat(4,minmax(0,1fr))}
+.bl-hud-bar-wrap>.bl-cell+ .bl-cell{border-left:1px solid var(--bl-line)}
+.bl-hud-strip{position:relative;display:grid;grid-template-columns:minmax(200px,1.35fr) repeat(4,minmax(0,1fr));border:1px solid var(--bl-line);border-radius:14px;background:linear-gradient(180deg,rgba(13,29,50,.94),rgba(6,15,27,.96));box-shadow:inset 0 1px 0 rgba(150,205,255,.1),0 16px 40px rgba(0,0,0,.4);overflow:hidden}
+.bl-hud-strip::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(63,169,255,.07),transparent 26%),linear-gradient(270deg,rgba(245,179,51,.05),transparent 22%)}
+.bl-hud-id{display:flex;align-items:center;gap:11px;padding:9px 14px;border-right:1px solid var(--bl-line);min-width:0}
+.bl-avatar{position:relative;flex:none;width:54px;height:54px;display:flex;align-items:center;justify-content:center;
+clip-path:polygon(50% 0,94% 26%,94% 74%,50% 100%,6% 74%,6% 26%);
+background:linear-gradient(160deg,#3f86d8,#0e2b4d 62%,#0a1c33)}
+.bl-avatar::after{content:"";position:absolute;inset:3px;clip-path:inherit;border:1px solid rgba(150,210,255,.34)}
+.bl-avatar span{font-size:22px;font-weight:700;color:#dff1ff;text-shadow:0 0 16px rgba(120,200,255,.75);letter-spacing:-1px}
+.bl-id-name{display:flex;flex-direction:column;gap:3px;min-width:0}
+.bl-id-name b{font-size:14px;font-weight:700;color:#eaf4ff;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bl-id-lv{display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--bl-cyan-2);font-variant-numeric:tabular-nums}
+.bl-id-lv em{font-style:normal;color:var(--bl-dim);letter-spacing:.06em}
+.bl-xpbar{position:relative;height:7px;border-radius:4px;background:rgba(6,20,36,.9);border:1px solid rgba(94,162,226,.26);overflow:hidden;width:100%;max-width:172px}
+.bl-xpbar i{position:absolute;inset:0 auto 0 0;border-radius:4px;background:linear-gradient(90deg,#2f8fe0,#66d6ff);box-shadow:0 0 10px rgba(80,190,255,.7)}
+.bl-xpbar.gold i{background:linear-gradient(90deg,#e79a1f,#ffd782);box-shadow:0 0 10px rgba(245,179,51,.7)}
+
+.bl-cell{appearance:none;position:relative;display:flex;flex-direction:column;gap:5px;padding:9px 13px;border:0;background:transparent;font:inherit;color:inherit;text-align:left;cursor:pointer;min-width:0}
+.bl-cell:hover{background:rgba(63,169,255,.06)}
+.bl-cell-top{display:flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:.05em;color:#9fb6cd;white-space:nowrap}
+.bl-cell-top svg{opacity:.85;color:var(--bl-cyan-2)}
+.bl-cell-top span{font-weight:600;letter-spacing:.08em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis}
+.bl-cell-top em{font-style:normal;font-size:8.5px;color:#5f7a94;letter-spacing:.1em}
+.bl-cell-val{display:flex;align-items:baseline;gap:6px;font-variant-numeric:tabular-nums}
+.bl-cell-val b{font-size:19px;line-height:1.05;font-weight:700;color:#eaf4ff;letter-spacing:-.01em}
+.bl-cell.gold .bl-cell-val b{color:#ffd071}
+.bl-cell.green .bl-cell-val b{color:#63e6b4}
+.bl-cell-val em{font-style:normal;font-size:10.5px;color:#7f97af}
+.bl-cell-foot{font-size:9.5px;color:#6d86a0;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 左侧导航 */
+.bl-rail{background:linear-gradient(180deg,rgba(9,20,36,.78),rgba(4,10,20,.9));border-right:1px solid var(--bl-line);padding:12px 10px}
+.bl-rail-brand{font-size:10.5px;letter-spacing:.18em;color:#a8c2da;padding:2px 8px 13px;border-bottom:1px solid var(--bl-line)}
+.bl-rail-brand i{width:10px;height:10px;background:linear-gradient(140deg,#8fd8ff,#2f7fd0);box-shadow:0 0 10px rgba(80,180,255,.8);border-radius:2px}
+.bl-rail-item{height:44px;border-radius:10px;font-size:13px;gap:11px;padding:0 11px}
+.bl-rail-item.on{background:linear-gradient(90deg,rgba(46,120,200,.55),rgba(30,82,140,.24));border-color:rgba(120,200,255,.5);color:#eaf7ff;box-shadow:inset 0 1px 0 rgba(180,225,255,.22),0 0 18px rgba(50,140,220,.22)}
+.bl-rail-item.on::before{display:none}
+.bl-rail-item.on::after{content:"当前";position:absolute;right:8px;top:-1px;padding:0 5px;font-size:8.5px;line-height:13px;letter-spacing:.06em;color:#04202f;background:linear-gradient(180deg,#9fe6ff,#3fb2e8);border-radius:0 0 4px 4px}
+.bl-rail-item em{margin-left:auto;font-size:10px;color:#7f97af}
+.bl-rail-item.on em{color:#bfe6ff}
+.bl-rail-foot{padding-top:12px}
+
+/* 二级 tab（学习中心 / 我的课程） */
+.bl-subtabs{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bl-subtab{appearance:none;height:30px;padding:0 14px;border:1px solid var(--bl-line);border-bottom:0;border-radius:9px 9px 0 0;background:rgba(8,20,36,.7);color:#8fa8c0;font:inherit;font-size:12px;cursor:pointer;letter-spacing:.03em}
+.bl-subtab:hover{color:#d6ecff;background:rgba(20,44,72,.7)}
+.bl-subtab.on{background:linear-gradient(180deg,rgba(46,120,200,.42),rgba(10,26,44,.9));border-color:rgba(120,200,255,.45);color:#eaf7ff;font-weight:600;box-shadow:inset 0 1px 0 rgba(180,225,255,.24)}
+
+/* 区块标题 */
+.bl-head{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;padding:0 2px}
+.bl-head h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.06em;color:#eaf4ff}
+.bl-head p{margin:0;font-size:11px;color:#7d95ad;letter-spacing:.02em}
+.bl-head .bl-spacer{flex:1}
+.bl-link{appearance:none;border:0;background:transparent;color:#8fc7f0;font:inherit;font-size:11px;cursor:pointer;letter-spacing:.02em}
+.bl-link:hover{color:#cdeaff}
+
+/* 主区 */
+.bl-hero{grid-template-columns:minmax(0,1fr) 322px}
+.bl-course{border:1px solid var(--bl-line);border-radius:12px;background:linear-gradient(180deg,rgba(12,26,44,.94),rgba(6,14,26,.96));box-shadow:inset 0 1px 0 rgba(150,205,255,.1),0 14px 34px rgba(0,0,0,.34)}
+.bl-course-cover{aspect-ratio:16/8}
+.bl-course-cover::after{background:linear-gradient(180deg,rgba(4,10,18,.15) 30%,rgba(7,16,28,.96))}
+.bl-course-kicker{font-size:10px;letter-spacing:.16em;color:#89a4bd}
+.bl-course-title{font-size:15px;font-weight:700;letter-spacing:.01em}
+.bl-course-desc{font-size:11.5px;line-height:1.65;color:#a9c0d6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.bl-goals li{font-size:11.5px;color:#adc5db;white-space:normal}
+.bl-goals li::before{background:linear-gradient(180deg,#5cc8ff,#2f8fe0);box-shadow:0 0 6px rgba(90,190,255,.6);top:5px;width:4px;height:4px}
+.bl-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bl-tile{padding:8px 10px;border:1px solid var(--bl-line);border-radius:9px;background:rgba(8,20,36,.66)}
+.bl-tile span{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#7d95ad}
+.bl-tile b{display:block;margin-top:3px;font-size:12.5px;color:#e6f2ff;font-weight:600;letter-spacing:.02em}
+.bl-chips{display:flex;gap:7px;flex-wrap:wrap}
+.bl-chip{padding:5px 9px;border-radius:8px;font-size:11px}
+.bl-chip.gold{border-color:rgba(245,179,51,.42);background:rgba(245,179,51,.1);color:#ffd58a}
+.bl-course-cta{gap:8px}
+.bl-cta-main{position:relative;height:44px;border:0;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f2fbff;
+background:linear-gradient(180deg,#3fa9ff,#1d6fc0 62%,#155a9f);box-shadow:0 0 24px rgba(45,140,235,.55),inset 0 1px 0 rgba(200,240,255,.5);clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.bl-cta-main:hover{background:linear-gradient(180deg,#57bcff,#2484dc 62%,#1a68b4)}
+.bl-cta-sub{height:36px;border-radius:9px;border:1px solid rgba(120,200,255,.45);background:rgba(10,28,48,.7);color:#d3ebff;font-size:12.5px;font-weight:600;letter-spacing:.06em;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+
+/* 任务行 */
+.bl-tasks{display:flex;flex-direction:column;gap:9px}
+.bl-task{display:grid;grid-template-columns:52px minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:11px 14px;
+border:1px solid var(--bl-line);border-radius:12px;background:linear-gradient(90deg,rgba(14,32,54,.86),rgba(7,16,28,.9));transition:border-color .15s,background .15s}
+.bl-task:hover{border-color:var(--bl-line-2);background:linear-gradient(90deg,rgba(20,44,72,.9),rgba(8,18,32,.92))}
+.bl-task.done{opacity:.62}
+.bl-medal{position:relative;flex:none;width:52px;height:52px;display:flex;align-items:center;justify-content:center;
+clip-path:polygon(50% 0,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%);
+background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-shadow:inset 0 0 0 1px rgba(160,220,255,.35)}
+.bl-medal.gold{background:linear-gradient(160deg,rgba(220,150,40,.95),rgba(70,40,10,.95));box-shadow:inset 0 0 0 1px rgba(255,220,150,.5)}
+.bl-medal.gray{background:linear-gradient(160deg,rgba(48,66,88,.9),rgba(18,26,38,.95));box-shadow:inset 0 0 0 1px rgba(120,150,180,.25)}
+.bl-medal span{font-size:19px;color:#eaf7ff;text-shadow:0 0 12px rgba(140,215,255,.8)}
+.bl-medal.gold span{color:#ffe4b0;text-shadow:0 0 12px rgba(255,190,90,.85)}
+.bl-task-main{display:flex;flex-direction:column;gap:4px;min-width:0}
+.bl-task-title{font-size:13px;font-weight:600;color:#e9f4ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-task-sub{font-size:10.5px;color:#8ba4bd;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-task-prog{display:flex;align-items:center;gap:8px;font-size:10px;color:#7d95ad;min-width:120px}
+.bl-task-reward{display:flex;gap:6px}
+
+/* 底部四卡 */
+.bl-bottom{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.bl-mini{border:1px solid var(--bl-line);border-radius:12px;background:linear-gradient(180deg,rgba(12,26,44,.9),rgba(6,14,26,.94));padding:10px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.bl-mini-head{display:flex;align-items:center;gap:6px;font-size:11px;color:#c2d8ec;font-weight:600;letter-spacing:.02em}
+.bl-mini-head svg{color:var(--bl-cyan-2);opacity:.9}
+.bl-mini-big{display:flex;align-items:baseline;gap:5px;font-variant-numeric:tabular-nums}
+.bl-mini-big b{font-size:20px;font-weight:700;color:#eaf4ff}
+.bl-mini-big em{font-style:normal;font-size:10.5px;color:#7d95ad}
+.bl-bars{height:38px;gap:6px}
+.bl-bars i{background:linear-gradient(180deg,rgba(120,200,255,.85),rgba(40,110,190,.35));border-radius:2px}
+.bl-bars i.on{background:linear-gradient(180deg,#8fe0ff,#2f8fe0);box-shadow:0 0 10px rgba(90,190,255,.55)}
+
+/* 奖励页：六边形勋章墙 */
+.bl-hexgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.bl-hex{appearance:none;position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 6px 10px;border:1px solid var(--bl-line);border-radius:12px;background:rgba(8,20,36,.72);font:inherit;color:inherit;cursor:pointer}
+.bl-hex:hover{border-color:var(--bl-line-2);background:rgba(16,36,60,.8)}
+.bl-hex.on{border-color:rgba(120,200,255,.7);background:linear-gradient(180deg,rgba(40,100,170,.5),rgba(10,26,44,.9));box-shadow:0 0 20px rgba(50,140,220,.28)}
+.bl-hex-shield{position:relative;width:56px;height:56px;display:flex;align-items:center;justify-content:center;clip-path:polygon(50% 0,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%)}
+.bl-hex-shield span{font-size:20px}
+.bl-hex-name{font-size:10.5px;color:#c5d9ec;text-align:center;line-height:1.3}
+.bl-hex.locked .bl-hex-name{color:#6b8299}
+.bl-hex-shield.common{background:linear-gradient(160deg,rgba(70,120,175,.9),rgba(14,30,50,.95));box-shadow:inset 0 0 0 1px rgba(150,200,240,.3)}
+.bl-hex-shield.rare{background:linear-gradient(160deg,rgba(60,150,255,.95),rgba(12,38,74,.95));box-shadow:inset 0 0 0 1px rgba(170,225,255,.45),0 0 16px rgba(60,160,255,.35)}
+.bl-hex-shield.epic{background:linear-gradient(160deg,rgba(225,160,45,.95),rgba(72,42,8,.95));box-shadow:inset 0 0 0 1px rgba(255,225,160,.55),0 0 18px rgba(240,180,60,.4)}
+.bl-hex-shield.locked{background:linear-gradient(160deg,rgba(40,54,72,.9),rgba(12,18,28,.95));box-shadow:inset 0 0 0 1px rgba(110,140,170,.2);filter:grayscale(.6)}
+.bl-reward-detail{display:flex;flex-direction:column;gap:10px;padding:4px 2px}
+.bl-hex-big{width:98px;height:98px;margin:2px auto 0;display:flex;align-items:center;justify-content:center;clip-path:polygon(50% 0,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%)}
+.bl-hex-big span{font-size:40px}
+
+/* v5 视觉细节 */
+.bl-map{display:flex;flex-direction:column;justify-content:center;min-height:0;
+ background:
+   radial-gradient(150% 95% at 50% 0%,rgba(24,56,92,.62),rgba(5,10,18,.95)),
+   repeating-linear-gradient(0deg,rgba(120,190,255,.032) 0 1px,transparent 1px 36px),
+   repeating-linear-gradient(90deg,rgba(120,190,255,.032) 0 1px,transparent 1px 36px)}
+.bl-map svg{width:100%;height:auto;max-height:100%}
+.bl-planet-label{font-size:12.5px}
+/* v6 成就展厅 */
+.bl-nucleus{display:grid;grid-template-columns:196px minmax(0,1fr);gap:16px;align-items:start}
+.bl-nucleus-ring{position:relative;width:196px;height:196px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:conic-gradient(from -90deg,#3fa9ff var(--p,0%),rgba(84,124,164,.16) 0)}
+.bl-nucleus-ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:radial-gradient(circle at 50% 30%,rgba(26,58,94,.96),rgba(6,14,24,.98));box-shadow:inset 0 0 26px rgba(60,150,230,.28)}
+.bl-nucleus-ring>*{position:relative;z-index:1}
+.bl-nucleus-ring b{font-size:34px;font-weight:700;color:#eaf6ff;font-variant-numeric:tabular-nums;line-height:1.05}
+.bl-nucleus-ring b em{font-style:normal;font-size:13px;color:#8fb2cd;font-weight:500}
+.bl-nucleus-ring span{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#7d95ad}
+.bl-nucleus-ring i{font-style:normal;margin-top:6px;padding:3px 9px;border-radius:8px;font-size:10.5px;color:#ffd58a;border:1px solid rgba(245,179,51,.4);background:rgba(245,179,51,.1)}
+.bl-hex-count{position:absolute;top:6px;right:8px;font-size:10px;color:#9fe0ff;font-variant-numeric:tabular-nums}
+.bl-hex-big.common{background:linear-gradient(160deg,rgba(70,120,175,.9),rgba(14,30,50,.95));box-shadow:inset 0 0 0 1px rgba(150,200,240,.3)}
+.bl-hex-big.rare{background:linear-gradient(160deg,rgba(60,150,255,.95),rgba(12,38,74,.95));box-shadow:inset 0 0 0 1px rgba(170,225,255,.45),0 0 16px rgba(60,160,255,.35)}
+.bl-hex-big.epic{background:linear-gradient(160deg,rgba(225,160,45,.95),rgba(72,42,8,.95));box-shadow:inset 0 0 0 1px rgba(255,225,160,.55),0 0 18px rgba(240,180,60,.4)}
+.bl-hex-big.locked{background:linear-gradient(160deg,rgba(40,54,72,.9),rgba(12,18,28,.95));box-shadow:inset 0 0 0 1px rgba(110,140,170,.2);filter:grayscale(.6)}
+.bl-detail-name{font-size:17px;font-weight:700;color:#eef7ff;letter-spacing:.02em;text-align:center}
+.bl-detail-rows{display:flex;flex-direction:column;gap:7px;padding:10px 12px;border:1px solid var(--bl-line);border-radius:10px;background:rgba(8,20,36,.6)}
+.bl-detail-row{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:#8ba4bd}
+.bl-detail-row b{color:#dcecf9;font-weight:600;font-variant-numeric:tabular-nums}
+.bl-next{padding:10px 12px;border:1px solid var(--bl-line);border-radius:10px;background:rgba(8,20,36,.6);display:flex;flex-direction:column;gap:7px}
+.bl-next-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#8ba4bd}
+.bl-next-top b{color:#dcecf9;font-weight:600}
+.bl-bottom3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bl-mini .bl-draws .bl-draw-row{padding:4px 0}
 `
 
 
@@ -479,6 +861,8 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
 
     function BiliPanel() {
       const [tab, setTab] = useState('library')
+      const [homeView, setHomeView] = useState('map')
+      const [rewardPick, setRewardPick] = useState('')
       const [library, setLibrary] = useState({ items: [], categories: [], stats: { total: 0, dead: 0 } })
       const [allVideos, setAllVideos] = useState([])
       const [q, setQ] = useState('')
@@ -1091,9 +1475,9 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
         })
         const weekCount = (plan && plan.days ? plan.days : []).reduce((n, d) => n + (d.videoIds || []).length, 0)
         const cx = 500
-        const cy = 165
-        const rx = 386
-        const ry = 108
+        const cy = 236
+        const rx = 384
+        const ry = 150
         const nodes = cats.map((name, i) => {
           const angle = -Math.PI / 2 + (i / cats.length) * Math.PI * 2
           return {
@@ -1130,23 +1514,26 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
           stroke: n.on ? 'rgba(53,216,255,.55)' : 'rgba(96,176,255,.13)', strokeWidth: n.on ? 1.6 : 1,
         }))
         const hub = h('g', { key: 'hub', style: { cursor: 'pointer' }, onClick: () => setCategory('') }, [
-          h('circle', { key: 'halo', cx, cy, r: 58, fill: 'rgba(255,196,77,.12)' }),
-          h('circle', { key: 'ring', cx, cy, r: 44, fill: 'none', stroke: 'rgba(255,196,77,.55)', strokeWidth: 1.2, strokeDasharray: '4 6' }),
-          h('circle', { key: 'body', className: 'bl-hub-core', cx, cy, r: 36, fill: 'url(#blHub)', filter: 'url(#blGlow)' }),
-          h('text', { key: 't1', x: cx, y: cy + 4, textAnchor: 'middle', className: 'bl-planet-count', style: { fill: '#3a2400', fontWeight: 700, fontSize: '15px' } }, weekCount || 0),
-          h('text', { key: 't2', x: cx, y: cy + 70, textAnchor: 'middle', className: 'bl-planet-label', style: { fill: '#ffd88a' } }, '本周航线'),
-          h('text', { key: 't3', x: cx, y: cy + 86, textAnchor: 'middle', className: 'bl-planet-count' }, weekCount ? weekCount + ' 个任务' : '还没排片'),
+          h('circle', { key: 'halo', cx, cy, r: 74, fill: 'rgba(255,196,77,.10)' }),
+          h('circle', { key: 'ring', cx, cy, r: 56, fill: 'none', stroke: 'rgba(255,196,77,.55)', strokeWidth: 1.2, strokeDasharray: '4 6' }),
+          h('circle', { key: 'body', className: 'bl-hub-core', cx, cy, r: 46, fill: 'url(#blHub)', filter: 'url(#blGlow)' }),
+          h('text', { key: 't1', x: cx, y: cy + 6, textAnchor: 'middle', className: 'bl-planet-count', style: { fill: '#3a2400', fontWeight: 700, fontSize: '19px' } }, weekCount || 0),
+          h('text', { key: 't2', x: cx, y: cy + 88, textAnchor: 'middle', className: 'bl-planet-label', style: { fill: '#ffd88a', fontSize: '13px' } }, '本周航线'),
+          h('text', { key: 't3', x: cx, y: cy + 106, textAnchor: 'middle', className: 'bl-planet-count' }, weekCount ? weekCount + ' 个任务' : '还没排片'),
         ])
+        const plate = (x, y, s, cut) => 'M' + (x + cut) + ',' + y + 'H' + (x + s - cut) + 'L' + (x + s) + ',' + (y + cut) + 'V' + (y + s - cut) + 'L' + (x + s - cut) + ',' + (y + s) + 'H' + (x + cut) + 'L' + x + ',' + (y + s - cut) + 'V' + (y + cut) + 'Z'
         const planets = nodes.map((n, i) => h('g', {
           key: n.name,
           className: 'bl-planet' + (n.on ? ' on' : ''),
           style: { cursor: 'pointer' },
           onClick: () => setCategory(category === n.name ? '' : n.name),
         }, [
-          h('circle', { key: 'ring', className: 'bl-planet-ring', cx: n.x, cy: n.y, r: 30, fill: 'none', stroke: n.color, strokeOpacity: n.on ? 0.9 : 0.32, strokeWidth: 1, strokeDasharray: '3 7' }),
-          h('circle', { key: 'body', className: 'bl-planet-body', cx: n.x, cy: n.y, r: 17, fill: 'url(#blg' + i + ')', filter: 'url(#blGlow)' }),
-          h('text', { key: 'name', x: n.x, y: n.y + 46, textAnchor: 'middle', className: 'bl-planet-label', style: { fill: n.on ? '#cdf6ff' : '#d6e8fb' } }, n.name),
-          h('text', { key: 'count', x: n.x, y: n.y + 61, textAnchor: 'middle', className: 'bl-planet-count' }, n.count + ' 条'),
+          h('ellipse', { key: 'sh', cx: n.x, cy: n.y + 56, rx: 30, ry: 6, fill: 'rgba(0,0,0,.45)' }),
+          h('path', { key: 'plate', d: plate(n.x - 33, n.y - 33, 66, 13), fill: n.on ? 'rgba(63,169,255,.22)' : 'rgba(11,26,44,.94)', stroke: n.on ? 'rgba(140,215,255,.95)' : 'rgba(94,162,226,.34)', strokeWidth: n.on ? 1.8 : 1.2 }),
+          h('path', { key: 'inner', d: plate(n.x - 26, n.y - 26, 52, 11), fill: 'url(#blg' + i + ')', opacity: n.on ? 1 : 0.92 }),
+          h('text', { key: 'icon', x: n.x, y: n.y + 9, textAnchor: 'middle', className: 'bl-station-icon', style: { fontSize: '22px' } }, CAT_ICON[n.name] || '✦'),
+          h('text', { key: 'name', x: n.x, y: n.y + 60, textAnchor: 'middle', className: 'bl-planet-label', style: { fill: n.on ? '#dcf2ff' : '#c9dcef', fontSize: '13px' } }, n.name),
+          h('text', { key: 'count', x: n.x, y: n.y + 76, textAnchor: 'middle', className: 'bl-planet-count', style: { fontSize: '11px', fill: '#8ba4bd' } }, n.count + ' 条'),
         ]))
         return h('div', { key: 'map', className: 'bl-map' }, [
           h('div', { key: 'legend', className: 'bl-map-legend' }, [
@@ -1155,11 +1542,269 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
             h('div', { key: 'sp', className: 'bl-spacer' }),
             h('span', { key: 's2' }, category ? '当前：' + category + '（再点一次取消）' : '点星球筛选分类'),
           ]),
-          h('svg', { key: 'svg', viewBox: '0 0 1000 330', 'aria-hidden': 'true' }, [defs, orbits, spokes, hub, planets]),
+          h('svg', { key: 'svg', viewBox: '0 0 1000 470', 'aria-hidden': 'true' }, [defs, orbits, spokes, hub, planets]),
         ])
       }
 
-      function renderLibrary() {
+
+      function renderHudCells() {
+        const day = ((plan && plan.days) || []).find((d) => d.date === today) || null
+        const ids = day ? (day.videoIds || []) : []
+        const todayDoneIds = (watchIndex.byDate[today] || []).filter((id) => ids.indexOf(id) !== -1)
+        const xp = doneTotal * 40
+        const level = 1 + Math.floor(xp / XP_STEP)
+        const xpIn = xp % XP_STEP
+        const sparks = rewards ? (Number(rewards.earned) || 0) : 0
+        const drawLeft = rewards ? (Number(rewards.available) || 0) : 0
+        const cell = (props) => h('button', {
+          key: props.k,
+          className: 'bl-cell' + (props.tone ? ' ' + props.tone : ''),
+          onClick: props.onClick,
+          title: props.foot || props.label,
+        }, [
+          h('div', { key: 't', className: 'bl-cell-top' }, [
+            RailIcon({ key: 'i', name: props.icon, size: 13 }),
+            h('span', { key: 'l' }, props.label),
+            props.en ? h('em', { key: 'e' }, props.en) : null,
+          ]),
+          h('div', { key: 'v', className: 'bl-cell-val' }, [
+            h('b', { key: 'b' }, props.value),
+            props.unit ? h('em', { key: 'u' }, props.unit) : null,
+          ]),
+          props.mode === 'bar'
+            ? h('div', { key: 'bar', className: 'bl-xpbar' + (props.tone === 'gold' ? ' gold' : '') }, h('i', { style: { width: Math.round(props.ratio * 100) + '%' } }))
+            : h('div', { key: 'f', className: 'bl-cell-foot' }, props.foot || ''),
+        ])
+        return h('div', { key: 'hud', className: 'bl-hud-strip' }, [
+          h('div', { key: 'id', className: 'bl-hud-id' }, [
+            h('div', { key: 'av', className: 'bl-avatar' }, h('span', { key: 's' }, '学')),
+            h('div', { key: 'n', className: 'bl-id-name' }, [
+              h('b', { key: 'b' }, '课堂小队长'),
+              h('div', { key: 'lv', className: 'bl-id-lv' }, [
+                h('span', { key: 'l' }, 'Lv.' + level),
+                h('em', { key: 'e' }, xpIn + ' / ' + XP_STEP),
+              ]),
+              h('div', { key: 'xp', className: 'bl-xpbar' }, h('i', { style: { width: Math.round((xpIn / XP_STEP) * 100) + '%' } })),
+            ]),
+          ]),
+          cell({
+            k: 'e', icon: 'learn', label: '能量', en: 'ENERGY',
+            value: ids.length ? String(todayDoneIds.length) + ' / ' + ids.length : '0', unit: ids.length ? '条' : '条',
+            mode: 'bar', ratio: ids.length ? todayDoneIds.length / ids.length : 0,
+            foot: ids.length ? (todayDoneIds.length >= ids.length ? '今日任务已清空' : '还剩 ' + (ids.length - todayDoneIds.length) + ' 条') : '今天没排片',
+            onClick: () => setTab('plan'),
+          }),
+          cell({
+            k: 'w', icon: 'plan', label: '本周', en: 'WEEK',
+            value: weekDone + ' / ' + weekTasks, unit: '条', tone: 'gold', mode: 'bar', ratio: weekRatio,
+            foot: weekTasks ? '完成 ' + Math.round(weekRatio * 100) + '%' : '还没排片',
+            onClick: () => setTab('plan'),
+          }),
+          cell({
+            k: 's', icon: 'rewards', label: '星火', en: 'SPARK',
+            value: String(sparks), unit: '枚', tone: 'gold', mode: 'note',
+            foot: drawLeft > 0 ? '有 ' + drawLeft + ' 个盲盒可抽' : '答满分卡拿盲盒',
+            onClick: () => setTab('rewards'),
+          }),
+          cell({
+            k: 'l', icon: 'library', label: '片库', en: 'LIBRARY',
+            value: String(allVideos.length), unit: '条', mode: 'note',
+            foot: (library.categories || []).length + ' 个分类 · 课卡 ' + lessons.length + ' 套',
+            onClick: () => setTab('vault'),
+          }),
+        ])
+      }
+      function renderCoursePanel() {
+        const days = (plan && plan.days) || []
+        const cands = []
+        days.forEach((d) => {
+          (d.videoIds || []).forEach((id) => {
+            const v = pick(id)
+            if (v) cands.push({ date: d.date, id, video: v, done: (watchIndex.byDate[d.date] || []).indexOf(id) !== -1 })
+          })
+        })
+        const cur = cands.find((c) => !c.done && c.date === today) || cands.find((c) => !c.done) || cands[0] || null
+        const lesson = cur ? lessons.find((l) => l.videoId === cur.id) : null
+        const dayList = cur ? (((days.find((d) => d.date === cur.date) || {}).videoIds) || []) : []
+        const dayDone = cur ? dayList.filter((id) => (watchIndex.byDate[cur.date] || []).indexOf(id) !== -1).length : 0
+        const dayRatio = dayList.length ? dayDone / dayList.length : 0
+        const goals = lesson && Array.isArray(lesson.questions) ? lesson.questions.slice(0, 3) : []
+
+        return h('div', { key: 'course', className: 'bl-panel bl-course' }, [
+          cur && cur.video.cover
+            ? h('div', { key: 'cov', className: 'bl-course-cover' }, h('img', {
+              src: cur.video.cover, alt: '', referrerPolicy: 'no-referrer',
+            }))
+            : null,
+          h('div', { key: 'b', className: 'bl-course-body' }, [
+            h('div', { key: 'k', className: 'bl-course-kicker' }, cur
+              ? (cur.done ? '已看完 · 可复习' : cur.date === today ? '今日课程' : '本周待看')
+              : '当前课程'),
+            h('div', { key: 't', className: 'bl-course-title' }, cur ? (cur.video.title || cur.id) : '本周还没排片，去航线里自动排一下'),
+            h('div', { key: 'tags', className: 'bl-reward-row' }, cur ? [
+              h('span', { key: 'c', className: 'bl-chip' }, cur.video.category || '未分类'),
+              cur.video.duration ? h('span', { key: 'd', className: 'bl-chip' }, fmtDur(cur.video.duration)) : null,
+              lesson ? h('span', { key: 'l', className: 'bl-chip gold' }, '课卡 ' + (lesson.questions || []).length + ' 题') : null,
+              cur.video.minAge ? h('span', { key: 'a', className: 'bl-chip' }, cur.video.minAge + ' 岁+') : null,
+            ] : null),
+            goals.length
+              ? h('ul', { key: 'g', className: 'bl-goals' }, goals.map((q, i) => h('li', { key: 'q' + i, title: q.prompt }, q.prompt || '看一遍这一集')))
+              : h('div', { key: 'ng', className: 'bl-stat-note' }, cur ? '这条还没做课卡，先看一遍也行。' : '点「自动排本周」把片库排进航线。'),
+            h('div', { key: 'p', className: 'bl-xp' }, [
+              h('div', { key: 'h', className: 'bl-xp-head' }, [
+                h('span', { key: 'l' }, '今日进度'),
+                h('b', { key: 'v' }, cur ? dayDone + ' / ' + (dayList.length || 0) : '0 / 0'),
+              ]),
+              h('div', { key: 'bar', className: 'bl-bar' }, h('i', { style: { width: Math.round(dayRatio * 100) + '%' } })),
+            ]),
+            h('div', { key: 'rw', className: 'bl-reward-row' }, [
+              h('span', { key: 'x', className: 'bl-chip' }, ['奖励 ', h('b', { key: 'b' }, '+' + (goals.length ? '40' : '20'))]),
+              h('span', { key: 's', className: 'bl-chip gold' }, ['星火 ', h('b', { key: 'b' }, '+10')]),
+            ]),
+            h('div', { key: 'cta', className: 'bl-course-cta' }, [
+              h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: () => setTab('learn') }, goals.length ? '去答题拿星火' : '去学习舱看片'),
+              h('button', { key: 'pl', className: 'bl-btn bl-btn-sm', onClick: () => setTab('plan') }, '看本周航线'),
+            ]),
+          ]),
+        ])
+      }
+
+      function renderBridge() {
+        const days = (plan && plan.days) || []
+        const day = days.find((d) => d.date === today) || null
+        const todayIds = day ? (day.videoIds || []) : []
+        const doneToday = (watchIndex.byDate[today] || []).filter((id) => todayIds.indexOf(id) !== -1)
+        const pending = []
+        days.forEach((d) => {
+          (d.videoIds || []).forEach((id) => {
+            if ((watchIndex.byDate[d.date] || []).indexOf(id) === -1) pending.push({ date: d.date, id })
+          })
+        })
+        const rows = todayIds.length ? todayIds.map((id) => ({ date: today, id })) : pending.slice(0, 3)
+        const weekVideos = []
+        const seen = {}
+        days.forEach((d) => (d.videoIds || []).forEach((id) => {
+          if (seen[id]) return
+          const v = pick(id)
+          if (v) { seen[id] = true; weekVideos.push(v) }
+        }))
+
+        const taskRow = (row) => {
+          const v = pick(row.id)
+          if (!v) return null
+          const done = (watchIndex.byDate[row.date] || []).indexOf(row.id) !== -1
+          const lesson = lessons.find((l) => l.videoId === row.id)
+          return h('div', { key: row.date + row.id, className: 'bl-task' + (done ? ' done' : '') }, [
+            h('div', { key: 'm', className: 'bl-medal' + (done ? ' gold' : '') }, h('span', { key: 's' }, CAT_ICON[v.category || ''] || '✦')),
+            h('div', { key: 'main', className: 'bl-task-main' }, [
+              h('div', { key: 't', className: 'bl-task-title', title: v.title || row.id }, v.title || row.id),
+              h('div', { key: 's', className: 'bl-task-sub' }, [
+                v.category || '未分类',
+                v.duration ? fmtDur(v.duration) : '',
+                lesson ? '课卡 ' + (lesson.questions || []).length + ' 题' : '还没做课卡',
+              ].filter(Boolean).join(' · ')),
+            ]),
+            h('div', { key: 'p', className: 'bl-task-prog' }, [
+              h('div', { key: 'bar', className: 'bl-xpbar' + (done ? ' gold' : '') }, h('i', { style: { width: done ? '100%' : '0%' } })),
+              h('span', { key: 't' }, done ? '已完成' : '0 / 1'),
+            ]),
+            h('div', { key: 'r', className: 'bl-task-reward' }, [
+              h('span', { key: 'xp', className: 'bl-chip' }, ['XP ', h('b', { key: 'b' }, lesson ? '+40' : '+20')]),
+              h('span', { key: 'sp', className: 'bl-chip gold' }, ['星火 ', h('b', { key: 'b' }, '+10')]),
+              h('button', {
+                key: 'go',
+                className: done ? 'bl-btn bl-cta-sub' : 'bl-btn bl-cta-main',
+                style: { height: '34px', padding: '0 18px', fontSize: '12.5px' },
+                onClick: () => (lesson ? setTab('learn') : setPlayer(v)),
+              }, done ? '复习' : (lesson ? '去答题' : '看片')),
+            ]),
+          ])
+        }
+
+        const bar = (i) => {
+          const key = addDays(today, -6 + i)
+          const n = (watchIndex.byDate[key] || []).length
+          return h('i', { key, className: n ? 'on' : '', style: { height: Math.max(4, Math.min(38, n * 14 + 4)) + 'px' }, title: key + ' · ' + n + ' 条' })
+        }
+        const recent = []
+        for (let i = 6; i >= 0; i -= 1) {
+          const key = addDays(today, -i)
+          recent.push({ key: key.slice(8), on: (watchIndex.byDate[key] || []).length > 0 })
+        }
+        const owned = rewards ? rewards.items.filter((it) => it.count > 0) : []
+        const meds = (rewards ? rewards.items : []).filter((it) => it.count > 0).slice(0, 3)
+
+        const mini = (key, icon, title, right, body) => h('div', { key, className: 'bl-mini' }, [
+          h('div', { key: 'h', className: 'bl-mini-head' }, [
+            RailIcon({ key: 'i', name: icon, size: 13 }),
+            h('span', { key: 'l' }, title),
+            h('div', { key: 'sp', className: 'bl-spacer' }),
+            right || null,
+          ]),
+        ].concat(body))
+
+        const bottom = h('div', { key: 'bottom', className: 'bl-bottom' }, [
+          mini('rep', 'watch', '学习报告', h('span', { key: 'r', className: 'bl-hint' }, '近 7 天'), [
+            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(doneTotal)), h('em', { key: 'u' }, '条累计')]),
+            h('div', { key: 'bars', className: 'bl-bars' }, [0, 1, 2, 3, 4, 5, 6].map(bar)),
+          ]),
+          mini('cat', 'library', '今日分类', null, [
+            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(doneToday.length) + ' / ' + String(todayIds.length)), h('em', { key: 'u' }, '条')]),
+            h('div', { key: 'c', className: 'bl-chips' }, todayIds.slice(0, 4).map((id) => {
+              const v = pick(id)
+              return h('span', { key: id, className: 'bl-chip' }, (v && v.category) || '未分类')
+            }).concat(todayIds.length ? [] : [h('span', { key: 'none', className: 'bl-empty' }, '今天没排片')])),
+          ]),
+          mini('st', 'rewards', '连续学习', null, [
+            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(streak)), h('em', { key: 'u' }, '天')]),
+            h('div', { key: 'd', className: 'bl-dots' }, recent.map((r) => h('i', { key: r.key, className: r.on ? 'on' : '', title: r.key }))),
+          ]),
+          mini('med', 'lessons', '勋章成就', h('button', { key: 'all', className: 'bl-link', onClick: () => setTab('rewards') }, '查看全部 →'), [
+            h('div', { key: 'b', className: 'bl-mini-big' }, [h('b', { key: 'v' }, String(owned.length)), h('em', { key: 'u' }, '/ ' + String(rewards ? rewards.items.length : 0) + ' 枚')]),
+            meds.length
+              ? h('div', { key: 'm', style: { display: 'flex', gap: '6px' } }, meds.map((it) => h('div', {
+                key: it.id,
+                className: 'bl-medal ' + (it.rarity === 'epic' ? 'gold' : ''),
+                style: { width: '38px', height: '38px' },
+                title: it.name + ' ×' + it.count,
+              }, h('span', { key: 's', style: { fontSize: '17px' } }, it.emoji))))
+              : h('div', { key: 'none', className: 'bl-empty' }, '还没抽到勋章，去答一套课卡'),
+          ]),
+        ])
+
+        const hero = h('div', { key: 'hero', className: 'bl-hero' }, [
+          renderStarMap() || h('div', { key: 'nomap', className: 'bl-empty-panel' }, '片库还没分类，先去「片库仓库」加几条片子。'),
+          renderCoursePanel(),
+        ])
+
+        const mine = h('div', { key: 'mine', className: 'bl-panelx', style: { padding: '12px' } }, [
+          weekVideos.length
+            ? h('div', { key: 'g', className: 'bl-grid' }, weekVideos.map(renderCard))
+            : h('div', { key: 'empty', className: 'bl-empty-panel' }, '本周还没排片。去「本周航线」点一下自动排片，或者手动加两集。'),
+        ])
+
+        return [
+          h('div', { key: 'subtabs', className: 'bl-subtabs' }, [
+            h('button', { key: 'map', className: 'bl-subtab' + (homeView === 'map' ? ' on' : ''), onClick: () => setHomeView('map') }, '星域地图'),
+            h('button', { key: 'mine', className: 'bl-subtab' + (homeView === 'mine' ? ' on' : ''), onClick: () => setHomeView('mine') }, '我的课程'),
+            h('div', { key: 'sp', className: 'bl-spacer' }),
+            h('button', { key: 'vault', className: 'bl-link', onClick: () => setTab('vault') }, '片库仓库 ' + allVideos.length + ' 条 →'),
+          ]),
+          homeView === 'mine' ? mine : hero,
+          h('div', { key: 'tasks', className: 'bl-panelx', style: { padding: '12px 14px 14px' } }, [
+            h('div', { key: 'h', className: 'bl-head', style: { marginBottom: '10px' } }, [
+              h('h2', { key: 't' }, todayIds.length ? '今日任务' : '接下来这几集'),
+              h('p', { key: 's' }, todayIds.length ? '排在本周的今日航线上 · 完成一条拿一份奖励' : '今天的航线是空的，先看本周还没看的'),
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              h('button', { key: 'plan', className: 'bl-link', onClick: () => setTab('plan') }, '本周航线 →'),
+            ]),
+            h('div', { key: 'list', className: 'bl-tasks' }, rows.map(taskRow).filter(Boolean)),
+            rows.length ? null : h('div', { key: 'empty', className: 'bl-empty' }, '还没有可看的片子。先去「片库仓库」加两条。'),
+          ]),
+          bottom,
+        ]
+      }
+      function renderVault() {
         const items = library.items || []
         const stats = library.stats || { total: 0, dead: 0 }
         const filtered = Boolean(q.trim() || category)
@@ -1168,7 +1813,6 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
           : '片库还是空的。把想给他看的 B 站链接粘到上面那行，点「加一条」，服务端会自己去拉标题、封面和时长。'
         return [
           sec('sec', '片库 · 素材库', (stats.total || items.length) + ' 条片子 · ' + (library.categories || []).length + ' 个分类'),
-          renderStarMap(),
           h('div', { key: 'add', className: 'bl-toolbar' }, [
             h('input', {
               key: 'value',
@@ -1844,17 +2488,60 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
         if (!view) return [h('div', { key: 'loading', className: 'bl-empty-panel' }, '正在读奖励账本…')]
         const byItem = {}
         for (const item of view.items) byItem[item.id] = item
-        const wall = view.items.map((item) => h('div', {
-          key: item.id,
-          className: 'bl-sticker ' + (item.rarity || 'common') + (item.count > 0 ? '' : ' locked'),
-          title: item.name,
-        }, [
-          h('span', { key: 'e', className: 'bl-sticker-emoji' }, item.count > 0 ? item.emoji : '？'),
-          h('span', { key: 'n', className: 'bl-sticker-name' }, item.count > 0 ? item.name : '还没抽到'),
-          h('span', { key: 'm', className: 'bl-sticker-meta' }, RARITY[item.rarity] || '奖品'),
-          h('span', { key: 'c', className: 'bl-sticker-count' }, item.count > 0 ? ('×' + item.count) : '—'),
-        ]))
-        const recent = (view.draws || []).slice(0, 10).map((row) => {
+        const owned = view.items.filter((item) => item.count > 0).length
+        const total = view.items.length
+        const pct = total ? (owned / total) * 100 : 0
+        const totalWeight = view.items.reduce((sum, item) => sum + (Number(item.weight) || 0), 0) || 1
+        const lastAt = {}
+        for (const row of (view.draws || [])) {
+          if (!row.itemId) continue
+          const at = Number(row.at) || 0
+          if (!lastAt[row.itemId] || at > lastAt[row.itemId]) lastAt[row.itemId] = at
+        }
+        const sel = (rewardPick && byItem[rewardPick]) || view.items.find((item) => item.count > 0) || view.items[0] || null
+        const nextLocked = view.items.find((item) => item.count === 0) || null
+
+        const wall = view.items.map((item) => {
+          const has = item.count > 0
+          return h('button', {
+            key: item.id,
+            className: 'bl-hex' + (has ? '' : ' locked') + (sel && sel.id === item.id ? ' on' : ''),
+            title: has ? item.name : '还没抽到',
+            onClick: () => setRewardPick(item.id),
+          }, [
+            h('span', { key: 'sh', className: 'bl-hex-shield ' + (item.rarity || 'common') + (has ? '' : ' locked') }, h('span', { key: 'e' }, has ? item.emoji : '？')),
+            h('span', { key: 'n', className: 'bl-hex-name' }, has ? item.name : '未点亮'),
+            has && item.count > 1 ? h('span', { key: 'c', className: 'bl-hex-count' }, '×' + item.count) : null,
+          ])
+        })
+
+        const detailRows = sel ? [
+          h('div', { key: 'r1', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '获得时间'), h('b', { key: 'v' }, sel.count > 0 && lastAt[sel.id] ? timeText(lastAt[sel.id]) : '还没抽到')]),
+          h('div', { key: 'r2', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '抽中概率'), h('b', { key: 'v' }, ((Number(sel.weight) || 0) / totalWeight * 100).toFixed(0) + '%')]),
+          h('div', { key: 'r3', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '已收集'), h('b', { key: 'v' }, sel.count > 0 ? '×' + sel.count : '0')]),
+        ] : []
+
+        const detail = sel ? h('div', { key: 'detail', className: 'bl-panelx bl-reward-detail' }, [
+          h('div', { key: 'k', className: 'bl-course-kicker' }, '勋章详情 MEDAL'),
+          h('div', { key: 'big', className: 'bl-hex-big ' + (sel.rarity || 'common') + (sel.count > 0 ? '' : ' locked') }, h('span', { key: 'e' }, sel.count > 0 ? sel.emoji : '？')),
+          h('div', { key: 'n', className: 'bl-detail-name' }, sel.count > 0 ? sel.name : '未点亮'),
+          h('div', { key: 'chips', className: 'bl-chips' }, [
+            h('span', { key: 'r', className: 'bl-chip' }, RARITY[sel.rarity] || '奖品'),
+            h('span', { key: 'c', className: 'bl-chip gold' }, sel.count > 0 ? '已点亮' : '待点亮'),
+          ]),
+          h('div', { key: 'rows', className: 'bl-detail-rows' }, detailRows),
+          h('div', { key: 'next', className: 'bl-next' }, [
+            h('div', { key: 'top', className: 'bl-next-top' }, [
+              h('span', { key: 'l' }, '下一枚勋章进度'),
+              h('b', { key: 'v' }, owned + ' / ' + total),
+            ]),
+            h('i', { key: 'bar', className: 'bl-bar', style: { '--p': pct.toFixed(1) + '%' } }),
+            h('div', { key: 'hint', className: 'bl-hint' }, nextLocked ? ('再点亮「' + nextLocked.name + '」就离集齐更近一步') : '整面墙都点亮了'),
+          ]),
+          h('button', { key: 'go', className: 'bl-cta-main', onClick: () => setTab('learn') }, '去答题拿盲盒'),
+        ]) : null
+
+        const recentList = (view.draws || []).slice(0, 5).map((row) => {
           const item = byItem[row.itemId] || null
           return h('div', { key: row.id || String(row.at), className: 'bl-draw-row' }, [
             h('span', { key: 'e', className: 'bl-sticker-emoji' }, item ? item.emoji : '🎁'),
@@ -1862,47 +2549,61 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
             h('span', { key: 't', className: 'bl-hint' }, timeText(row.at)),
           ])
         })
-        const owned = view.items.filter((item) => item.count > 0).length
+
+        const stat = h('div', { key: 'stat', className: 'bl-mini' }, [
+          h('div', { key: 'h', className: 'bl-mini-head' }, '盲盒 BONUS'),
+          h('div', { key: 'big', className: 'bl-mini-big' }, [h('b', { key: 'n' }, String(view.available)), h('em', { key: 'u' }, '个可抽 · 累计 ' + view.earned + ' / 抽掉 ' + view.used)]),
+          renderDrawCard(),
+          h('button', {
+            key: 'draw',
+            className: 'bl-cta-main',
+            disabled: rewardBusy || view.available <= 0,
+            onClick: drawBox,
+          }, rewardBusy ? '开盒中…' : (view.available > 0 ? ('抽一个盲盒（' + view.available + '）') : '没有可抽的盲盒了')),
+          h('div', { key: 'note', className: 'bl-hint' }, '看完片把课卡答到 80 分，每天给一个盲盒。'),
+        ])
+
+        const challenge = h('div', { key: 'ch', className: 'bl-mini' }, [
+          h('div', { key: 'h', className: 'bl-mini-head' }, '本周挑战 CHALLENGE'),
+          h('div', { key: 'rows', className: 'bl-detail-rows' }, [
+            h('div', { key: 'a', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '本周看片'), h('b', { key: 'v' }, weekDone + ' / ' + weekTasks)]),
+            h('div', { key: 'b', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '累计看片'), h('b', { key: 'v' }, String(doneTotal))]),
+            h('div', { key: 'c', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '连续学习'), h('b', { key: 'v' }, streak + ' 天')]),
+            h('div', { key: 'd', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '勋章集齐'), h('b', { key: 'v' }, owned + ' / ' + total)]),
+          ]),
+        ])
+
         return [
-          sec('sec', '成就展厅', '奖品墙 ' + view.items.length + ' 格 · 已集齐 ' + owned),
-          h('div', { key: 'wallet', className: 'bl-panel' }, [
-            h('div', { key: 'head', className: 'bl-panel-head' }, [
-              h('b', { key: 't' }, '盲盒'),
-              h('div', { key: 'sp', className: 'bl-spacer' }),
-              h('button', {
-                key: 'draw',
-                className: 'bl-btn bl-btn-primary',
-                disabled: rewardBusy || view.available <= 0,
-                onClick: drawBox,
-              }, rewardBusy ? '开盒中…' : (view.available > 0 ? ('抽一个盲盒（' + view.available + '）') : '没有可抽的盲盒了')),
-            ]),
-            h('div', { key: 'stats', className: 'bl-stats' }, [
-              h('div', { key: 'a', className: 'bl-stat-box' }, [h('b', { key: 'n' }, String(view.available)), h('span', { key: 'l' }, '可抽次数')]),
-              h('div', { key: 'e', className: 'bl-stat-box' }, [h('b', { key: 'n' }, String(view.earned)), h('span', { key: 'l' }, '累计得到')]),
-              h('div', { key: 'u', className: 'bl-stat-box' }, [h('b', { key: 'n' }, String(view.used)), h('span', { key: 'l' }, '已经抽掉')]),
-            ]),
-            renderDrawCard(),
-            h('div', { key: 'note', className: 'bl-note' }, '看完视频把课卡题目答完，得分到 80 就能拿一个盲盒；同一套课卡每天只给一个。抽到的奖品都收在这面墙上。'),
+          h('div', { key: 'head', className: 'bl-head' }, [
+            h('h2', { key: 't' }, '星际成就展厅'),
+            h('p', { key: 'p' }, '点亮每一次学习火种 · 已点亮 ' + owned + ' / ' + total),
+            h('div', { key: 'sp', className: 'bl-spacer' }),
+            h('button', { key: 'v', className: 'bl-link', onClick: () => setTab('vault') }, '片库仓库 ' + allVideos.length + ' 条 →'),
           ]),
-          h('div', { key: 'wall', className: 'bl-panel' }, [
-            h('div', { key: 'head', className: 'bl-panel-head' }, [
-              h('b', { key: 't' }, '奖品墙'),
-              h('span', { key: 'h', className: 'bl-hint' }, owned + ' / ' + view.items.length + ' 集齐'),
-              h('div', { key: 'sp', className: 'bl-spacer' }),
-              h('span', {
-                key: 'ring',
-                className: 'bl-ring',
-                style: { '--p': ((owned / Math.max(1, view.items.length)) * 100).toFixed(1) + '%' },
-                title: '集齐进度',
-              }, h('b', {}, Math.round((owned / Math.max(1, view.items.length)) * 100) + '%')),
+          h('div', { key: 'hero', className: 'bl-hero' }, [
+            h('div', { key: 'nucleus', className: 'bl-panelx' }, [
+              h('div', { key: 'h', className: 'bl-head' }, [
+                h('h2', { key: 't' }, '总成就核'),
+                h('p', { key: 'p' }, '抽到的勋章都收在这面墙上'),
+              ]),
+              h('div', { key: 'body', className: 'bl-nucleus' }, [
+                h('div', { key: 'ring', className: 'bl-nucleus-ring', style: { '--p': pct.toFixed(1) + '%' } }, [
+                  h('b', { key: 'n' }, [String(owned), h('em', { key: 'd' }, ' / ' + total)]),
+                  h('span', { key: 'l' }, 'COLLECTED'),
+                  h('i', { key: 'g' }, owned >= total ? '星海收藏家' : (owned >= total * 0.6 ? '星际探索者' : '见习领航员')),
+                ]),
+                h('div', { key: 'grid', className: 'bl-hexgrid' }, wall),
+              ]),
             ]),
-            h('div', { key: 'grid', className: 'bl-stickers' }, wall),
+            detail,
           ]),
-          h('div', { key: 'recent', className: 'bl-panel' }, [
-            h('div', { key: 'head', className: 'bl-panel-head' }, [h('b', { key: 't' }, '最近抽到的')]),
-            recent.length
-              ? h('div', { key: 'list', className: 'bl-draws' }, recent)
-              : h('div', { key: 'empty', className: 'bl-empty' }, '还没抽过。答完一套课卡，来开第一个盲盒。'),
+          h('div', { key: 'bottom', className: 'bl-bottom3' }, [
+            stat,
+            h('div', { key: 'recent', className: 'bl-mini' }, [
+              h('div', { key: 'h', className: 'bl-mini-head' }, '最近解锁 UNLOCKED'),
+              recentList.length ? h('div', { key: 'l', className: 'bl-draws' }, recentList) : h('div', { key: 'e', className: 'bl-empty' }, '还没抽过。答完一套课卡，来开第一个盲盒。'),
+            ]),
+            challenge,
           ]),
         ]
       }
@@ -2129,7 +2830,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
       /* ------------------------------------------------------------------ */
 
       const body = tab === 'library'
-        ? renderLibrary()
+        ? renderBridge()
         : tab === 'plan'
           ? renderPlan()
           : tab === 'watch'
@@ -2140,40 +2841,67 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
                 ? renderRewards()
                 : tab === 'lessons'
                   ? renderLessons()
-                  : renderSettings()
+                  : tab === 'vault'
+                    ? renderVault()
+                    : renderSettings()
+
+      const xp = doneTotal * 40
+      const level = 1 + Math.floor(xp / XP_STEP)
+      const xpIn = xp % XP_STEP
+      const railCount = (id) => id === 'library' ? String(allVideos.length)
+        : id === 'plan' ? weekDone + '/' + weekTasks
+          : id === 'watch' ? String(streak)
+            : id === 'lessons' ? String(lessons.length)
+              : id === 'vault' ? String(allVideos.length)
+                : ''
 
       return h('div', { className: 'bl-root' }, [
-        h('header', { key: 'top', className: 'bl-top' }, [
-          h('div', { key: 'brand', className: 'bl-brand' }, [
-            h('span', { key: 'dot', className: 'bl-brand-dot' }),
-            h('span', { key: 'label' }, LABEL),
-          ]),
-          h('div', { key: 'tabs', className: 'bl-tabs' }, TABS.map((item) => h('button', {
+        h('div', { key: 'shell', className: 'bl-shell' }, [
+          h('nav', { key: 'rail', className: 'bl-rail' }, [
+            h('div', { key: 'brand', className: 'bl-rail-brand' }, [h('i', { key: 'd' }), h('span', { key: 'l' }, 'B 站课堂 · 舰桥')]),
+          ].concat(TABS.map((item) => h('button', {
             key: item.id,
-            className: 'bl-tab' + (tab === item.id ? ' on' : ''),
+            className: 'bl-rail-item' + (tab === item.id ? ' on' : ''),
             onClick: () => setTab(item.id),
-          }, item.label))),
-          h('div', { key: 'sp', className: 'bl-spacer' }),
-          notice ? h('span', { key: 'notice', className: 'bl-notice', title: notice }, notice) : null,
-          h('div', { key: 'hud', className: 'bl-hud' }, [
-            h('button', { key: 'v', className: 'bl-hud-chip', title: '去片库', onClick: () => setTab('library') }, ['片库', h('b', { key: 'n' }, String(allVideos.length))]),
-            h('button', { key: 'w', className: 'bl-hud-chip gold', title: '去本周', onClick: () => setTab('plan') }, [
-              '本周',
-              h('b', { key: 'n' }, String(weekDone) + '/' + String(weekTasks)),
-              h('i', { key: 'bar', className: 'bl-hud-bar' }, h('i', { style: { width: (weekRatio * 100).toFixed(0) + '%' } })),
+            title: item.label,
+          }, [
+            RailIcon({ key: 'i', name: item.id, size: 17 }),
+            h('span', { key: 'l' }, item.label),
+            railCount(item.id) ? h('em', { key: 'c' }, railCount(item.id)) : null,
+          ]))).concat([
+            h('div', { key: 'foot', className: 'bl-rail-foot' }, [
+              h('div', { key: 'xp', className: 'bl-xp' }, [
+                h('div', { key: 'h', className: 'bl-xp-head' }, [
+                  h('span', { key: 'l' }, 'Lv.' + level),
+                  h('b', { key: 'v' }, xpIn + ' / ' + XP_STEP),
+                ]),
+                h('div', { key: 'bar', className: 'bl-xpbar gold' }, h('i', { style: { width: Math.round((xpIn / XP_STEP) * 100) + '%' } })),
+              ]),
+              h('div', { key: 'st', className: 'bl-xp-head' }, [
+                h('span', { key: 'l' }, '连续打卡'),
+                h('b', { key: 'v' }, streak + ' 天'),
+              ]),
             ]),
-            h('button', { key: 's', className: 'bl-hud-chip', title: '去记录', onClick: () => setTab('watch') }, ['打卡', h('b', { key: 'n' }, String(streak))]),
-            h('button', { key: 'l', className: 'bl-hud-chip', title: '去课卡', onClick: () => setTab('lessons') }, ['课卡', h('b', { key: 'n' }, String(lessons.length))]),
+          ])),
+          h('div', { key: 'main', className: 'bl-main' }, [
+            h('div', { key: 'top', className: 'bl-top' }, [
+              notice ? h('div', { key: 'n', className: 'bl-top-row' }, [
+                h('span', { key: 't', className: 'bl-top-title' }, TAB_TITLE[tab] || ''),
+                h('div', { key: 'sp', className: 'bl-spacer' }),
+                h('span', { key: 'msg', className: 'bl-notice', title: notice }, notice),
+              ]) : null,
+              renderHudCells(),
+            ]),
+            error
+              ? h('div', { key: 'err', className: 'bl-err' }, [
+                h('b', { key: 'l' }, '出错了'),
+                h('span', { key: 'm', className: 'bl-msg', title: error }, error),
+                h('button', { key: 'x', className: 'bl-btn bl-btn-sm', onClick: () => setError('') }, '知道了'),
+              ])
+              : null,
+            h('div', { key: 'body', className: 'bl-body' }, h('div', { className: 'bl-wrap' }, body)),
           ]),
         ]),
-        error
-          ? h('div', { key: 'err', className: 'bl-err' }, [
-            h('b', { key: 'l' }, '出错了'),
-            h('span', { key: 'm', className: 'bl-msg', title: error }, error),
-            h('button', { key: 'x', className: 'bl-btn bl-btn-sm', onClick: () => setError('') }, '知道了'),
-          ])
-          : null,
-        h('div', { key: 'body', className: 'bl-body' }, h('div', { className: 'bl-wrap' }, body)),
         player ? renderPlayer() : null,
         editing ? renderVideoEditor() : null,
       ])
