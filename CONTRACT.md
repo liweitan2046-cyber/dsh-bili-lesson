@@ -77,7 +77,7 @@ Question {                 // 字段对齐小步乐园 src/content/curriculum.ts
 
 - 注册方式照抄 `D:\claude\Dev\dsh-workspace\dsh-wanfeng-studio\client.js:2237-2253`：
   `window.__ModuleLoader__.load({ id: 'dsh-bili-lesson', factory }) → return { isPlugin: true, inject: ['slots'], apply(ctx) { ... } }`，
-  `ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name, id: 'bili-lesson', order: 40, label: () => 'B 站课堂' }, Icon))`，
+  `ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name, id: 'bili-lesson', order: 40, label: () => '星火课堂' }, Icon))`，
   `ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'bili-lesson' }, Panel))`。
 - 只用 `require('react')` + `React.createElement`（无 JSX、无第三方依赖），样式用 `<style>` 注入一次（参考 `ensureCss()`）。
 - 5 个 tab：片库 / 本周 / 记录 / 课卡 / 设置。点某条视频 → 弹层里 `iframe src=https://player.bilibili.com/player.html?bvid=<id>&high_quality=1&danmaku=0&autoplay=1&as_wide=1`，并给「新标签打开」兜底按钮（CSP 拦住也不至于没路走）。

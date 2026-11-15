@@ -1,6 +1,6 @@
-# dsh-bili-lesson · B 站课堂
+# dsh-bili-lesson · 星火课堂
 
-给自家孩子用的一个 DSH 插件：**家长挑片 → 排本周计划 → 看的时候打勾 → 配一张课卡 → 导出成小步乐园能吃的题目 JSON**。
+给自家孩子用的一个 DSH 插件：**家长挑片 → 排本周计划 → 看的时候打勾 → 配一张课卡**。题目字段沿用「小步乐园」的 `CurriculumQuestion`，需要喂给下游时走服务端 `GET /bili-lesson/export`（面板不提供导出入口）。
 
 片源沿用 [bilipicks](https://github.com/limin112/bilipicks) 那套（B 站官方播放器，无推荐算法、家长手选），学习框架沿用自家「小步乐园」的 `CurriculumQuestion` 字段。插件本身只做中间那台转换机和家长控制台，不改那两个项目。
 
@@ -23,7 +23,7 @@ pwsh -ExecutionPolicy Bypass -File D:\claude\Dev\dsh-workspace\dsh-bili-lesson\i
 #    dsh.profile.bundles: 末尾加 "@local/dsh-bili-lesson"
 # 2. 装（link 依赖也要 pnpm 生成一次链接）
 cd "$env:USERPROFILE\.dsh\profiles\desktop"; pnpm install
-# 3. 重启 DSH 桌面端，侧栏出现「B 站课堂」
+# 3. 重启 DSH 桌面端，侧栏出现「星火课堂」
 ```
 
 不想手改就删掉 `dependencies` 和 `bundles` 里那两行、再 `pnpm install`。
@@ -37,9 +37,9 @@ cd "$env:USERPROFILE\.dsh\profiles\desktop"; pnpm install
 - **奖励**：奖品墙 54 张（8 张贴纸 + 46 个小程序盲盒奖品，常见 / 稀有 / 珍稀），没抽到的是灰问号；上面是剩余可抽次数和开盒按钮，下面列最近 10 次记录。抽奖权重在后端，前端只拿结果。
 - **课卡**：一条视频配 3-5 道题，字段就是 `CurriculumQuestion`（`prompt / spokenPrompt / options / answer / hint / explanation / difficulty / variant / mode`）。
 - **设置**：每天几条、片库默认年龄、点开是否直接内嵌播放。
-- **导出**：`GET /bili-lesson/export` 出本周计划 + 视频 + 课卡，面板里一键复制。
+- **导出接口**：`GET /bili-lesson/export` 出本周计划 + 视频 + 课卡（0.4.2 起面板不再提供导出按钮，接口仍可用）。
 
-## 界面（0.4.1 舰桥版式）
+## 界面（0.4.2 舰桥版式）
 
 面板是深色「舰桥」风：整页一张星域底图（`assets/deck-bg.jpg`，1600×1066，91 KB）+ 青蓝玻璃面板 + 内联线性图标（不引 CDN）。
 

@@ -1,7 +1,7 @@
 /**
- * B 站课堂 · 浏览器半边
+ * 星火课堂 · 浏览器半边
  *
- * 侧栏加一个「B 站课堂」入口，主区域是原生 React 面板（不是 iframe）：
+ * 侧栏加一个「星火课堂」入口，主区域是原生 React 面板（不是 iframe）：
  *   片库 / 本周 / 记录 / 课卡 / 设置
  * 业务数据全部落在服务端 /bili-lesson 接口，前端不写 localStorage。
  */
@@ -14,7 +14,7 @@ window.__ModuleLoader__.load({
 
     const PANEL = 'bili-lesson'
     const API = '/bili-lesson'
-    const LABEL = 'B 站课堂'
+    const LABEL = '星火课堂'
     const TABS = [
       { id: 'library', label: '舰桥首页' },
       { id: 'plan', label: '本周航线' },
@@ -493,7 +493,6 @@ background:linear-gradient(180deg,rgba(16,30,50,.86),rgba(8,16,28,.92))!importan
 .bl-opts{display:flex;flex-direction:column;gap:6px}
 .bl-opt-row{display:flex;align-items:center;gap:8px}
 .bl-opt-row input[type=radio]{accent-color:#35d8ff;width:14px;height:14px;flex:none;cursor:pointer}
-.bl-export{font-family:ui-monospace,Consolas,monospace;font-size:11px;min-height:170px;background:rgba(3,8,16,.92)!important}
 .bl-modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 40%,rgba(10,30,50,.72),rgba(2,4,8,.92));backdrop-filter:blur(3px)}
 .bl-dialog::before{content:"";position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-top:2px solid var(--bl-line-3);border-left:2px solid var(--bl-line-3);border-top-left-radius:12px;pointer-events:none;z-index:2}
 .bl-dialog::after{content:"";position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-bottom:2px solid var(--bl-line-3);border-right:2px solid var(--bl-line-3);border-bottom-right-radius:12px;pointer-events:none;z-index:2}
@@ -1087,7 +1086,6 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [rewards, setRewards] = useState(null)
       const [rewardBusy, setRewardBusy] = useState(false)
       const [lastDraw, setLastDraw] = useState(null)
-      const [exportText, setExportText] = useState('')
       const [settings, setSettings] = useState(DEFAULT_SETTINGS)
       const [settingsBusy, setSettingsBusy] = useState(false)
       const [error, setError] = useState('')
@@ -1433,7 +1431,6 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const existing = lessons.find((l) => l.videoId === videoId)
         setLessonVideo(videoId)
         setLessonDraft(existing ? draftOf(existing) : blankDraft(videoId))
-        setExportText('')
       }
 
       function setDraftField(patch) {
@@ -1560,32 +1557,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           await send('/lessons/' + encodeURIComponent(draft.id), 'DELETE')
           setLessons((prev) => prev.filter((l) => l.id !== draft.id))
           setLessonDraft(blankDraft(draft.videoId))
-          setExportText('')
           flash('课卡已删，这条视频回到待写')
-        } catch (e) {
-          fail(e)
-        }
-      }
-
-      async function copyExport() {
-        setError('')
-        try {
-          const suffix = plan && plan.weekStart ? '?weekStart=' + encodeURIComponent(plan.weekStart) : ''
-          const data = await api('/export' + suffix)
-          const text = JSON.stringify(data, null, 2)
-          setExportText(text)
-          let copied = false
-          try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              await navigator.clipboard.writeText(text)
-              copied = true
-            }
-          } catch (clipError) {
-            copied = false
-          }
-          flash(copied
-            ? '已复制导出 JSON（' + (text.length / 1024).toFixed(1) + ' KB）'
-            : '浏览器没让写剪贴板，全文放在下面了，点一下全选手动复制')
         } catch (e) {
           fail(e)
         }
@@ -2620,24 +2592,6 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               list.length ? list : [h('div', { key: 'e', className: 'bl-empty' }, '片库还没片子，先去「片库」加一条')]),
             renderLessonEditor(),
           ]),
-          h('div', { key: 'export', className: 'bl-panel' }, [
-            h('div', { key: 'head', className: 'bl-panel-head' }, [
-              h('b', { key: 't' }, '导出'),
-              h('span', { key: 'h', className: 'bl-hint' }, '格式对齐小步乐园的课程 JSON，直接粘过去就能用'),
-              h('div', { key: 'sp', className: 'bl-spacer' }),
-              h('button', { key: 'copy', className: 'bl-btn bl-btn-primary', onClick: copyExport }, '复制导出 JSON'),
-            ]),
-            exportText
-              ? h('textarea', {
-                key: 'ta',
-                className: 'bl-textarea bl-export',
-                value: exportText,
-                readOnly: true,
-                spellCheck: false,
-                onFocus: (e) => e.target.select(),
-              })
-              : h('div', { key: 'note', className: 'bl-note' }, '点「复制导出 JSON」会调 GET /export 并写进剪贴板；剪贴板被拦的话，全文会留在下面这块。'),
-          ]),
         ]
       }
 
@@ -3297,7 +3251,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       return h('div', { className: 'bl-root' }, [
         h('div', { key: 'shell', className: 'bl-shell' }, [
           h('nav', { key: 'rail', className: 'bl-rail' }, [
-            h('div', { key: 'brand', className: 'bl-rail-brand' }, [h('i', { key: 'd' }), h('span', { key: 'l' }, 'B 站课堂 · 舰桥')]),
+            h('div', { key: 'brand', className: 'bl-rail-brand' }, [h('i', { key: 'd' }), h('span', { key: 'l' }, '星火课堂 · 舰桥')]),
           ].concat(TABS.map((item) => h('button', {
             key: item.id,
             className: 'bl-rail-item' + (tab === item.id ? ' on' : ''),

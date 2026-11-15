@@ -1,4 +1,4 @@
-# 安装「B 站课堂」到 DSH 桌面 profile，然后需要重启 DSH。
+# 安装「星火课堂」到 DSH 桌面 profile，然后需要重启 DSH。
 # 用法：pwsh -ExecutionPolicy Bypass -File .\install.ps1          （卸载加 -Uninstall）
 param([switch]$Uninstall, [switch]$SkipInstall)
 
@@ -36,5 +36,5 @@ if (Test-Path $linked) { Write-Host '链接就位：' $linked -ForegroundColor G
 else { Write-Host '链接还没生成，检查上面的 pnpm 输出。' -ForegroundColor Yellow }
 
 Write-Host ''
-Write-Host '下一步：完全退出并重开 DSH 桌面端，左侧栏会出现「B 站课堂」。' -ForegroundColor Cyan
+Write-Host '下一步：完全退出并重开 DSH 桌面端，左侧栏会出现「星火课堂」。' -ForegroundColor Cyan
 Write-Host '撤销：pwsh -ExecutionPolicy Bypass -File .\install.ps1 -Uninstall' -ForegroundColor DarkGray
