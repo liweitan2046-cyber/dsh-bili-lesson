@@ -1041,6 +1041,24 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-pin-input{width:180px;text-align:center;letter-spacing:8px;font-size:18px;height:44px}
 .bl-pin-err{color:#ff9d9d;font-size:12px}
 .bl-subtab-lock{margin-left:auto;border-color:rgba(243,179,76,.4);color:#ffd79a}
+.bl-learn-stats{display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding:7px 12px;border:1px solid var(--bl-line);border-radius:var(--bl-r);background:rgba(10,22,34,.72)!important;font-size:11.5px;color:rgba(160,190,214,.8)}
+.bl-lstat{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.bl-lstat svg{color:rgba(160,196,224,.8)}
+.bl-lstat b{font-size:14px;color:#eaf4ff;font-variant-numeric:tabular-nums}
+.bl-lstat em{font-style:normal;color:rgba(160,190,214,.65);font-size:11px}
+.bl-learn-split{display:grid;grid-template-columns:296px minmax(0,1fr);gap:12px;align-items:stretch;height:calc(100vh - 392px);min-height:380px}
+.bl-learn-left{display:flex;flex-direction:column;gap:10px;min-width:0;height:100%;min-height:0;overflow:auto}
+.bl-learn-left .bl-list{max-height:none;flex:0 0 auto;min-height:120px}
+.bl-learn-player .bl-panel-head{flex-wrap:nowrap;min-width:0}
+.bl-learn-player .bl-panel-head b{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-learn-date{margin:-2px 0 8px}
+.bl-learn-sheet{min-width:0;height:100%;min-height:0;overflow:auto;border-radius:var(--bl-r)}
+.bl-todayfill{min-height:calc(100vh - 320px)}
+.bl-today-next{margin-top:14px;padding-top:12px;border-top:1px solid rgba(140,176,210,.12)}
+.bl-today-nexthead{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.bl-today-nexthead b{font-size:12.5px;letter-spacing:.4px;color:#dbeaf8}
+.bl-today-nexthead .bl-hint{font-size:11px}
+@media(max-width:1080px){.bl-learn-split{grid-template-columns:minmax(0,1fr);height:auto;min-height:0}.bl-learn-sheet{height:auto;max-height:none}.bl-learn-left{height:auto;overflow:visible}.bl-learn-left .bl-list{max-height:240px}}
 .bl-admin-list{display:flex;flex-direction:column;max-height:520px;overflow:auto;padding-right:2px}
 .bl-prow{display:grid;grid-template-columns:44px minmax(110px,1fr) 148px 66px 72px 44px 40px;gap:6px;align-items:center;padding:5px 0;border-top:1px solid rgba(140,176,210,.1)}
 .bl-prow:first-child{border-top:0}
@@ -1976,7 +1994,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             key: 'rn' + n0.t.date + n0.t.id,
             className: 'bl-station' + (n0.on ? ' on' : '') + (n0.done ? ' done' : ''),
             style: { cursor: 'pointer', opacity: n0.done || n0.on ? 1 : 0.78, filter: n0.on ? 'url(#blRouteGlow)' : undefined },
-            onClick: () => (lessons.some((l) => l.videoId === n0.t.id) ? setTab('learn') : setPlayer(n0.t.video)),
+            onClick: () => { if (lessons.some((l) => l.videoId === n0.t.id)) { setLearnPick(n0.t.id); setTab('learn') } else setPlayer(n0.t.video) },
           }, [
             h('ellipse', { key: 'sh', cx: n0.x, cy: n0.y + n0.h / 2 + 5, rx: 30, ry: 3, fill: 'rgba(0,0,0,.22)' }),
             n0.on ? h('circle', { key: 'pulse', className: 'bl-pulse', cx: n0.x, cy: n0.y, r: 48, fill: 'rgba(243,179,76,.14)', stroke: 'rgba(243,179,76,.4)', strokeWidth: 1 }) : null,
@@ -2094,7 +2112,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             value: ids.length ? String(todayDoneIds.length) + ' / ' + ids.length : '0', unit: ids.length ? '条' : '条',
             mode: 'bar', ratio: ids.length ? todayDoneIds.length / ids.length : 0,
             foot: ids.length ? (todayDoneIds.length >= ids.length ? '今日任务已清空' : '还剩 ' + (ids.length - todayDoneIds.length) + ' 条') : '今天没排片',
-            onClick: () => setTab('plan'),
+            onClick: () => { setTab('library'); setHomeView('today') },
           }),
           cell({
             k: 'w', icon: 'plan', label: '本周', en: 'WEEK',
@@ -2176,7 +2194,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               h('span', { key: 's', className: 'bl-chip gold' }, ['星火 ', h('b', { key: 'b' }, '+10')]),
             ]),
             h('div', { key: 'cta', className: 'bl-course-cta' }, [
-              h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: () => setTab('learn') }, goals.length ? '去答题拿星火' : '去学习舱看片'),
+              h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: () => { if (cur) setLearnPick(cur.id); setTab('learn') } }, cur ? '开始学习' : '去训练舱'),
               h('button', { key: 'pl', className: 'bl-btn bl-btn-sm', onClick: () => setTab('plan') }, '看本周航线'),
             ]),
           ]),
@@ -2229,7 +2247,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                 key: 'go',
                 className: done ? 'bl-btn bl-cta-sub' : 'bl-btn bl-cta-main',
                 style: { height: '34px', padding: '0 18px', fontSize: '12.5px' },
-                onClick: () => (lesson ? setTab('learn') : setPlayer(v)),
+                onClick: () => { if (lesson) { setLearnPick(row.id); setTab('learn') } else setPlayer(v) },
               }, done ? '复习' : (lesson ? '去答题' : '看片')),
             ]),
           ])
@@ -2309,26 +2327,43 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             : h('div', { key: 'empty', className: 'bl-empty-panel' }, '本周还没排片。去「本周航线」点一下自动排片，或者手动加两集。'),
         ])
 
+        const nextRows = todayIds.length
+          ? pending.filter((row) => !(row.date === today && todayIds.indexOf(row.id) !== -1)).slice(0, 3)
+          : []
+        const todayPanel = h('div', { key: 'tasks', className: 'bl-panelx bl-todayfill', style: { padding: '12px 14px 14px' } }, [
+          h('div', { key: 'h', className: 'bl-head', style: { marginBottom: '10px' } }, [
+            h('h2', { key: 't' }, todayIds.length ? '今日任务' : '接下来这几集'),
+            h('p', { key: 's' }, todayIds.length ? '排在本周的今日航线上 · 完成一条拿一份奖励' : '今天的航线是空的，先看本周还没看的'),
+            h('div', { key: 'sp', className: 'bl-spacer' }),
+            h('span', { key: 'n', className: 'bl-chip' + (doneToday.length && doneToday.length >= todayIds.length ? ' gold' : '') },
+              todayIds.length ? '完成 ' + doneToday.length + ' / ' + todayIds.length : '今天没排片'),
+            h('button', { key: 'plan', className: 'bl-link', onClick: () => setTab('plan') }, '本周航线 →'),
+          ]),
+          h('div', { key: 'list', className: 'bl-tasks' }, rows.map(taskRow).filter(Boolean)),
+          rows.length ? null : h('div', { key: 'empty', className: 'bl-empty' }, '还没有可看的片子。先去「片库仓库」加两条。'),
+          nextRows.length
+            ? h('div', { key: 'next', className: 'bl-today-next' }, [
+              h('div', { key: 'h', className: 'bl-today-nexthead' }, [
+                h('b', { key: 't' }, '接下来'),
+                h('span', { key: 's', className: 'bl-hint' }, '今天没排上的，从本周剩下的里挑'),
+              ]),
+              h('div', { key: 'l', className: 'bl-tasks' }, nextRows.map(taskRow).filter(Boolean)),
+            ])
+            : null,
+        ])
+
         return [
           h('div', { key: 'subtabs', className: 'bl-subtabs' }, [
+            h('button', { key: 'today', className: 'bl-subtab' + (homeView === 'today' ? ' on' : ''), onClick: () => setHomeView('today') },
+              '今日任务' + (todayIds.length ? ' ' + doneToday.length + '/' + todayIds.length : '')),
             h('button', { key: 'route', className: 'bl-subtab' + (homeView === 'route' ? ' on' : ''), onClick: () => setHomeView('route') }, '本周航线'),
             h('button', { key: 'map', className: 'bl-subtab' + (homeView === 'map' ? ' on' : ''), onClick: () => setHomeView('map') }, '分类星图'),
             h('button', { key: 'mine', className: 'bl-subtab' + (homeView === 'mine' ? ' on' : ''), onClick: () => setHomeView('mine') }, '我的课程'),
             h('div', { key: 'sp', className: 'bl-spacer' }),
             h('button', { key: 'vault', className: 'bl-link', onClick: () => setTab('vault') }, '片库仓库 ' + allVideos.length + ' 条 →'),
           ]),
-          homeView === 'mine' ? mine : hero,
-          h('div', { key: 'tasks', className: 'bl-panelx', style: { padding: '12px 14px 14px' } }, [
-            h('div', { key: 'h', className: 'bl-head', style: { marginBottom: '10px' } }, [
-              h('h2', { key: 't' }, todayIds.length ? '今日任务' : '接下来这几集'),
-              h('p', { key: 's' }, todayIds.length ? '排在本周的今日航线上 · 完成一条拿一份奖励' : '今天的航线是空的，先看本周还没看的'),
-              h('div', { key: 'sp', className: 'bl-spacer' }),
-              h('button', { key: 'plan', className: 'bl-link', onClick: () => setTab('plan') }, '本周航线 →'),
-            ]),
-            h('div', { key: 'list', className: 'bl-tasks' }, rows.map(taskRow).filter(Boolean)),
-            rows.length ? null : h('div', { key: 'empty', className: 'bl-empty' }, '还没有可看的片子。先去「片库仓库」加两条。'),
-          ]),
-          bottom,
+          homeView === 'today' ? todayPanel : homeView === 'mine' ? mine : hero,
+          homeView === 'today' ? null : bottom,
         ]
       }
       function renderVault() {
@@ -3043,20 +3078,20 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ])
         })
 
-        const right = learnVideo
-          ? h('div', { key: 'main', className: 'bl-panel' }, [
+        const playerBox = learnVideo
+          ? h('div', { key: 'main', className: 'bl-panel bl-learn-player' }, [
             h('div', { key: 'head', className: 'bl-panel-head' }, [
-              h('b', { key: 't' }, learnVideo.title || learnVideo.id),
-              h('span', { key: 'd', className: 'bl-hint' }, learnRow ? (learnRow.date ? (weekdayLabel(learnRow.date) + ' ' + shortDate(learnRow.date)) : '不在本周计划里') : ''),
+              h('b', { key: 't', title: learnVideo.title || learnVideo.id }, learnVideo.title || learnVideo.id),
               h('div', { key: 'sp', className: 'bl-spacer' }),
-              h('a', { key: 'tab', className: 'bl-btn bl-btn-sm', href: siteUrl(learnVideo.id), target: '_blank', rel: 'noreferrer' }, '新标签打开'),
+              h('a', { key: 'tab', className: 'bl-btn bl-btn-sm', href: siteUrl(learnVideo.id), target: '_blank', rel: 'noreferrer' }, '新标签'),
             ]),
+            h('div', { key: 'd', className: 'bl-hint bl-learn-date' }, learnRow ? (learnRow.date ? (weekdayLabel(learnRow.date) + ' ' + shortDate(learnRow.date)) : '不在本周计划里') : ''),
             playerNode(learnVideo),
-            learnLesson
-              ? renderAnswerSheet()
-              : h('div', { key: 'nocard', className: 'bl-empty-panel' }, '这条片子还没写课卡。去「课卡」tab 给它配 3 到 5 道题，回来就能边看边答。'),
           ])
           : h('div', { key: 'none', className: 'bl-empty-panel' }, '本周计划还是空的。先去「本周」排片，再看这里。')
+        const sheet = learnLesson
+          ? h('div', { key: 'sheet', className: 'bl-learn-sheet' }, renderAnswerSheet())
+          : h('div', { key: 'nocard', className: 'bl-empty-panel' }, learnVideo ? '这条片子还没写课卡。去「课卡」tab 给它配 3 到 8 道题，回来就能边看边答。' : '选一条片子，右边会显示课卡和题目。')
 
         const qTotal = learnLesson ? learnLesson.questions.length : 0
         const qAnswered = learnLesson ? learnLesson.questions.filter((q) => Number.isInteger(learned[q.id])).length : 0
@@ -3073,18 +3108,21 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ])
         return [
           pageHead('TRAINING · 训练舱', '训练舱', '看片 → 逐题作答 → 交卷结算 → 开盲盒'),
-          h('div', { key: 'kpis', className: 'bl-kpis' }, [
-            kpi('k1', '本周待学', Math.max(0, weekTasks - weekDone), '条', '计划 ' + weekTasks + ' 条 · 已看 ' + weekDone + ' 条'),
-            kpi('k2', '可复习', lessons.length, '套', '有课卡就能随时重做', 'gold'),
-            kpi('k3', '连续打卡', streak, '天', '答题也会续上', 'green'),
-            kpi('k4', '累计星火', doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0), '点', '每看一条 +40 · 勋章另外加 · 等级 ' + (1 + Math.floor((doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0)) / XP_STEP)), 'cyan'),
+          h('div', { key: 'kpis', className: 'bl-learn-stats' }, [
+            h('span', { key: 'k1', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'plan', size: 12 }), '待学 ', h('b', { key: 'b' }, String(Math.max(0, weekTasks - weekDone))), h('em', { key: 'e' }, '条 / 本周 ' + weekTasks)]),
+            h('span', { key: 'k2', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'lessons', size: 12 }), '可复习 ', h('b', { key: 'b' }, String(lessons.length)), h('em', { key: 'e' }, '套')]),
+            h('span', { key: 'k3', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'watch', size: 12 }), '连续 ', h('b', { key: 'b' }, String(streak)), h('em', { key: 'e' }, '天')]),
+            h('span', { key: 'k4', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'rewards', size: 12 }), '星火 ', h('b', { key: 'b' }, String(doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0))), h('em', { key: 'e' }, '点 · Lv.' + (1 + Math.floor((doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0)) / XP_STEP)))]),
           ]),
           steps,
-          h('div', { key: 'split', className: 'bl-split' }, [
-            h('div', { key: 'left', className: 'bl-list' }, rows.length
-              ? rows
-              : [h('div', { key: 'e', className: 'bl-empty' }, '还没有能学的片子：先去「本周」排片，或去「片库」加片')]),
-            right,
+          h('div', { key: 'split', className: 'bl-learn-split' }, [
+            h('div', { key: 'left', className: 'bl-learn-left' }, [
+              playerBox,
+              h('div', { key: 'list', className: 'bl-list' }, rows.length
+                ? rows
+                : [h('div', { key: 'e', className: 'bl-empty' }, '还没有能学的片子：先去「本周」排片，或去「片库」加片')]),
+            ]),
+            sheet,
           ]),
         ]
       }
