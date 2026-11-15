@@ -1034,6 +1034,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-topcard{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11.5px;color:rgba(190,212,232,.85);border-top:1px solid rgba(140,176,210,.1)}
 .bl-topcard:first-child{border-top:0}
 .bl-topcard em{margin-left:auto;font-style:normal;color:rgba(160,190,214,.7);font-variant-numeric:tabular-nums}
+.bl-row-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.bl-pinlock{display:flex;flex-direction:column;align-items:center;gap:10px;padding:44px 24px;text-align:center}
+.bl-pinlock-ic{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;color:#ffd79a;background:rgba(243,179,76,.08);border:1px solid rgba(243,179,76,.32)}
+.bl-pinlock-t{font-size:14px;letter-spacing:.5px}
+.bl-pin-input{width:180px;text-align:center;letter-spacing:8px;font-size:18px;height:44px}
+.bl-pin-err{color:#ff9d9d;font-size:12px}
+.bl-subtab-lock{margin-left:auto;border-color:rgba(243,179,76,.4);color:#ffd79a}
 .bl-admin-list{display:flex;flex-direction:column;max-height:520px;overflow:auto;padding-right:2px}
 .bl-prow{display:grid;grid-template-columns:44px minmax(110px,1fr) 148px 66px 72px 44px 40px;gap:6px;align-items:center;padding:5px 0;border-top:1px solid rgba(140,176,210,.1)}
 .bl-prow:first-child{border-top:0}
@@ -1130,6 +1137,15 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [adminBusy, setAdminBusy] = useState(false)
       const [settings, setSettings] = useState(DEFAULT_SETTINGS)
       const [settingsBusy, setSettingsBusy] = useState(false)
+      const [pinSet, setPinSet] = useState(false)
+      const [pinUnlocked, setPinUnlocked] = useState(() => {
+        try { return Number(globalThis.sessionStorage?.getItem('bl-pin-until') || 0) > Date.now() } catch { return false }
+      })
+      const [pinEntry, setPinEntry] = useState('')
+      const [pinErr, setPinErr] = useState('')
+      const [pinBusy, setPinBusy] = useState(false)
+      const [pinNew, setPinNew] = useState('')
+      const [pinOld, setPinOld] = useState('')
       const [error, setError] = useState('')
       const [notice, setNotice] = useState('')
 
@@ -1228,7 +1244,10 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           .catch(fail)
 
         api('/settings')
-          .then((d) => setSettings(normalizeSettings(d.settings || d)))
+          .then((d) => {
+            setSettings(normalizeSettings(d.settings || d))
+            setPinSet(Boolean((d.settings || d).parentPinSet))
+          })
           .catch(fail)
       }, [fail, loadAllVideos])
 
@@ -1628,6 +1647,77 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         } finally {
           setSettingsBusy(false)
         }
+      }
+
+      /* ---------------- 家长锁 ---------------- */
+
+      function pinUntil() {
+        try { return Number(globalThis.sessionStorage?.getItem('bl-pin-until') || 0) } catch { return 0 }
+      }
+
+      function markUnlocked() {
+        try { globalThis.sessionStorage?.setItem('bl-pin-until', String(Date.now() + 30 * 60 * 1000)) } catch {}
+        setPinUnlocked(true)
+      }
+
+      async function unlockWithPin() {
+        setPinErr('')
+        setPinBusy(true)
+        try {
+          const data = await send('/settings/pin', 'POST', { action: 'verify', pin: pinEntry })
+          if (!data || !data.ok) {
+            setPinErr('PIN 不对，再试一次')
+            setPinEntry('')
+            return
+          }
+          setPinEntry('')
+          markUnlocked()
+          flash('已解锁，30 分钟内不用再输')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setPinBusy(false)
+        }
+      }
+
+      async function savePin() {
+        setPinErr('')
+        setPinBusy(true)
+        try {
+          const data = await send('/settings/pin', 'POST', { action: 'set', pin: pinNew, currentPin: pinOld })
+          setPinSet(Boolean(data && data.parentPinSet))
+          setPinNew('')
+          setPinOld('')
+          markUnlocked()
+          flash('家长锁已开启')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setPinBusy(false)
+        }
+      }
+
+      async function clearPin() {
+        setPinErr('')
+        setPinBusy(true)
+        try {
+          const data = await send('/settings/pin', 'POST', { action: 'clear', currentPin: pinOld })
+          setPinSet(Boolean(data && data.parentPinSet))
+          setPinOld('')
+          setPinNew('')
+          flash('家长锁已关闭')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setPinBusy(false)
+        }
+      }
+
+      function lockNow() {
+        try { globalThis.sessionStorage?.removeItem('bl-pin-until') } catch {}
+        setPinUnlocked(false)
+        setPinEntry('')
+        flash('已锁定')
       }
 
       /* ------------------------------------------------------------------ */
@@ -3205,15 +3295,49 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       /* ------------------------------------------------------------------ */
 
       function renderSettings() {
+        if (pinSet && !pinUnlocked) return renderPinLock()
         const tabs = [['base', '基础设置'], ['prizes', '奖品池'], ['medals', '勋章规则']]
         return [
           pageHead('CONFIG · 舰桥设置', '舰桥设置', '家长设置：排片默认值、盲盒奖品池、勋章规则，都存在 ~/.dsh/bili-lesson/'),
-          h('div', { key: 'subtabs', className: 'bl-subtabs' }, tabs.map((row) => h('button', {
-            key: row[0],
-            className: 'bl-subtab' + (confView === row[0] ? ' on' : ''),
-            onClick: () => setConfView(row[0]),
-          }, row[1]))),
+          h('div', { key: 'subtabs', className: 'bl-subtabs' }, [
+            ...tabs.map((row) => h('button', {
+              key: row[0],
+              className: 'bl-subtab' + (confView === row[0] ? ' on' : ''),
+              onClick: () => setConfView(row[0]),
+            }, row[1])),
+            pinSet ? h('button', { key: 'lock', className: 'bl-subtab bl-subtab-lock', onClick: lockNow }, '锁定') : null,
+          ]),
           confView === 'prizes' ? renderPrizeAdmin() : confView === 'medals' ? renderMedalAdmin() : renderBaseSettings(),
+        ]
+      }
+
+      function renderPinLock() {
+        return [
+          pageHead('CONFIG · 舰桥设置', '舰桥设置', '这一页被家长锁保护：输 4 位 PIN 才能改奖品池、勋章门槛和排片默认值。'),
+          h('div', { key: 'lock', className: 'bl-panel bl-pinlock' }, [
+            h('div', { key: 'ic', className: 'bl-pinlock-ic' }, h(Glyph, { name: 'shield', size: 30 })),
+            h('b', { key: 't', className: 'bl-pinlock-t' }, '输入家长 PIN'),
+            h('div', { key: 'hint', className: 'bl-hint' }, '解锁后 30 分钟内不用重复输入；忘记 PIN 可以在 ~/.dsh/bili-lesson/settings.json 里删掉 parentPin 字段。'),
+            h('input', {
+              key: 'i',
+              className: 'bl-input bl-pin-input',
+              type: 'password',
+              inputMode: 'numeric',
+              maxLength: 4,
+              value: pinEntry,
+              placeholder: '••••',
+              autoFocus: true,
+              onChange: (e) => { setPinEntry(e.target.value.replace(/\D/g, '').slice(0, 4)); setPinErr('') },
+              onKeyDown: (e) => { if (e.key === 'Enter' && pinEntry.length === 4) unlockWithPin() },
+            }),
+            pinErr ? h('div', { key: 'err', className: 'bl-pin-err' }, pinErr) : null,
+            h('button', {
+              key: 'go',
+              className: 'bl-btn bl-btn-primary',
+              onClick: unlockWithPin,
+              disabled: pinBusy || pinEntry.length !== 4,
+            }, pinBusy ? '校验中…' : '解锁'),
+          ]),
         ]
       }
 
@@ -3278,6 +3402,56 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('div', { key: 'body', className: 'bl-note' },
               '片库 ' + allVideos.length + ' 条 · 课卡 ' + lessons.length + ' 套 · 本周从 ' + weekStart + ' 开始'),
             h('div', { key: 'hint', className: 'bl-hint' }, '数据都在服务端的 ~/.dsh/bili-lesson/ 里，换浏览器不会丢。'),
+          ]),
+          h('div', { key: 'pin', className: 'bl-panel' }, [
+            h('div', { key: 'head', className: 'bl-panel-head' }, [
+              h('b', { key: 't' }, '家长锁'),
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              pinSet ? h('button', { key: 'lock', className: 'bl-btn', onClick: lockNow }, '立即锁定') : null,
+            ]),
+            pinSet
+              ? [
+                h('div', { key: 'on', className: 'bl-note' }, '家长锁已开启：孩子进「舰桥设置」要输 4 位 PIN，改不了奖品池与勋章门槛。'),
+                h('div', { key: 'grid', className: 'bl-form-grid' }, [
+                  h('div', { key: 'old', className: 'bl-field' }, [
+                    h('span', { key: 'l', className: 'bl-label' }, '当前 PIN'),
+                    h('input', {
+                      key: 'i', className: 'bl-input', type: 'password', inputMode: 'numeric', maxLength: 4,
+                      value: pinOld,
+                      onChange: (e) => setPinOld(e.target.value.replace(/\D/g, '').slice(0, 4)),
+                    }),
+                  ]),
+                  h('div', { key: 'new', className: 'bl-field' }, [
+                    h('span', { key: 'l', className: 'bl-label' }, '新 PIN（4 位数字）'),
+                    h('input', {
+                      key: 'i', className: 'bl-input', type: 'password', inputMode: 'numeric', maxLength: 4,
+                      value: pinNew,
+                      onChange: (e) => setPinNew(e.target.value.replace(/\D/g, '').slice(0, 4)),
+                    }),
+                  ]),
+                ]),
+                pinErr ? h('div', { key: 'err', className: 'bl-pin-err' }, pinErr) : null,
+                h('div', { key: 'acts', className: 'bl-row-actions' }, [
+                  h('button', { key: 'save', className: 'bl-btn bl-btn-primary', onClick: savePin, disabled: pinBusy || pinOld.length !== 4 || pinNew.length !== 4 }, pinBusy ? '保存中…' : '修改 PIN'),
+                  h('button', { key: 'off', className: 'bl-btn', onClick: clearPin, disabled: pinBusy || pinOld.length !== 4 }, '关闭家长锁'),
+                ]),
+              ]
+              : [
+                h('div', { key: 'off', className: 'bl-note' }, '还没有设家长锁。孩子现在可以自己改奖品池、把勋章门槛调成 1。设一个 4 位 PIN 就能挡住。'),
+                h('div', { key: 'grid', className: 'bl-form-grid' }, [
+                  h('div', { key: 'new', className: 'bl-field' }, [
+                    h('span', { key: 'l', className: 'bl-label' }, '新 PIN（4 位数字）'),
+                    h('input', {
+                      key: 'i', className: 'bl-input', type: 'password', inputMode: 'numeric', maxLength: 4,
+                      value: pinNew,
+                      onChange: (e) => setPinNew(e.target.value.replace(/\D/g, '').slice(0, 4)),
+                    }),
+                  ]),
+                ]),
+                h('div', { key: 'acts', className: 'bl-row-actions' }, [
+                  h('button', { key: 'on', className: 'bl-btn bl-btn-primary', onClick: savePin, disabled: pinBusy || pinNew.length !== 4 }, pinBusy ? '保存中…' : '开启家长锁'),
+                ]),
+              ],
           ]),
         ]
       }

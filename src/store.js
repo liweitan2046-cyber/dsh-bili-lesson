@@ -24,6 +24,7 @@ export const DEFAULT_SETTINGS = {
   maxAge: 6,
   embedPlay: true,
   weeklyBoxLimit: 0,
+  parentPin: '',
 }
 
 const EMPTY = {

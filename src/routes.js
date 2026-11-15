@@ -3,7 +3,7 @@
  * 每个请求先过 connection 的 Host/Origin 与登录凭证检查（照抄 dsh-wanfeng-studio/src/routes.js:152-176）。
  * 数据全在本机 JSON 里，接口只做增删改查与一次 B 站校验，不落任何远端。
  */
-import { randomUUID } from 'node:crypto'
+import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -221,6 +221,11 @@ export class Routes {
   async settings() {
     const saved = await this.store.read('settings')
     return { ...DEFAULT_SETTINGS, ...(saved || {}) }
+  }
+
+  async publicSettings() {
+    const { parentPin, ...rest } = await this.settings()
+    return { ...rest, parentPinSet: Boolean(parentPin) }
   }
 
   async dispatch(route, url, req, res) {
@@ -712,10 +717,37 @@ export class Routes {
     /* ---------------- 设置 ---------------- */
 
     if (head === 'settings') {
-      if (method === 'GET') return json(res, 200, settings)
+      if (tail === 'pin') {
+        if (method !== 'POST') throw Object.assign(new Error('不支持的方法'), { status: 405 })
+        const body = await readJson(req)
+        const current = await this.settings()
+        const action = String(body.action || 'verify')
+        if (action === 'verify') return json(res, 200, { ok: pinMatches(current.parentPin, body.pin) })
+        if (action === 'set') {
+          const pin = String(body.pin || '').trim()
+          if (!/^\d{4}$/.test(pin)) throw Object.assign(new Error('PIN 必须是 4 位数字'), { status: 400 })
+          if (current.parentPin && !pinMatches(current.parentPin, body.currentPin)) {
+            throw Object.assign(new Error('当前 PIN 不正确'), { status: 400 })
+          }
+          const salt = randomBytes(8).toString('hex')
+          const saved = await this.store.update('settings', (s) => ({ ...s, parentPin: salt + ':' + pinHash(pin, salt) }))
+          return json(res, 200, { ok: true, parentPinSet: Boolean(saved.parentPin) })
+        }
+        if (action === 'clear') {
+          if (current.parentPin && !pinMatches(current.parentPin, body.currentPin)) {
+            throw Object.assign(new Error('当前 PIN 不正确'), { status: 400 })
+          }
+          const saved = await this.store.update('settings', (s) => ({ ...s, parentPin: '' }))
+          return json(res, 200, { ok: true, parentPinSet: Boolean(saved.parentPin) })
+        }
+        throw Object.assign(new Error('未知的 PIN 操作'), { status: 400 })
+      }
+      if (method === 'GET') return json(res, 200, await this.publicSettings())
       if (method === 'PUT') {
         const body = await readJson(req)
         const saved = await this.store.update('settings', current => ({
+          ...current,
+          parentPin: current.parentPin || '',
           perDay: Math.max(1, Math.min(6, Number(body.perDay) || current.perDay || 2)),
           maxAge: Math.max(1, Math.min(12, Number(body.maxAge) || current.maxAge || 6)),
           embedPlay: typeof body.embedPlay === 'boolean' ? body.embedPlay : (current.embedPlay !== false),
@@ -723,7 +755,8 @@ export class Routes {
             ? (Number(current.weeklyBoxLimit) || 0)
             : Math.max(0, Math.min(20, Math.round(Number(body.weeklyBoxLimit) || 0))),
         }))
-        return json(res, 200, saved)
+        const { parentPin, ...rest } = saved
+        return json(res, 200, { ...rest, parentPinSet: Boolean(parentPin) })
       }
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
     }
@@ -758,6 +791,17 @@ export class Routes {
 
     throw Object.assign(new Error('没有这个接口：' + (route || '/')), { status: 404 })
   }
+}
+
+function pinHash(pin, salt) {
+  return createHash('sha256').update(salt + '|' + String(pin)).digest('hex')
+}
+
+function pinMatches(stored, pin) {
+  if (!stored || !pin) return false
+  const [salt, hash] = String(stored).split(':')
+  if (!salt || !hash) return false
+  return pinHash(pin, salt) === hash
 }
 
 function summarize(records) {

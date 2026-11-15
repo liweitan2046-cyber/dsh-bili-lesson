@@ -162,6 +162,25 @@ ok('refresh single', refreshed.data.checked === 1 && refreshed.data.remaining ==
 const settings = await call('PUT', '/settings', { perDay: 3, maxAge: 5, embedPlay: false })
 ok('settings save', settings.data.perDay === 3 && settings.data.embedPlay === false, settings.data)
 
+const pinPublic = await call('GET', '/settings')
+ok('settings hides pin hash', pinPublic.status === 200 && pinPublic.data.parentPinSet === false && pinPublic.data.parentPin === undefined, pinPublic.data)
+const pinBadSet = await call('POST', '/settings/pin', { action: 'set', pin: '12' })
+ok('pin must be 4 digits', pinBadSet.status === 400, pinBadSet.data)
+const pinSetRes = await call('POST', '/settings/pin', { action: 'set', pin: '2468' })
+ok('pin set', pinSetRes.status === 200 && pinSetRes.data.parentPinSet === true, pinSetRes.data)
+const pinAgain = await call('GET', '/settings')
+ok('settings reports pin set without hash', pinAgain.data.parentPinSet === true && pinAgain.data.parentPin === undefined, pinAgain.data)
+const pinWrong = await call('POST', '/settings/pin', { action: 'verify', pin: '1111' })
+ok('wrong pin rejected', pinWrong.status === 200 && pinWrong.data.ok === false, pinWrong.data)
+const pinRight = await call('POST', '/settings/pin', { action: 'verify', pin: '2468' })
+ok('right pin accepted', pinRight.data.ok === true, pinRight.data)
+const pinKeep = await call('PUT', '/settings', { perDay: 3, maxAge: 5, embedPlay: false })
+ok('settings PUT keeps pin', pinKeep.status === 200 && pinKeep.data.parentPinSet === true && pinKeep.data.perDay === 3, pinKeep.data)
+const pinClearBad = await call('POST', '/settings/pin', { action: 'clear', currentPin: '0000' })
+ok('clear rejects wrong current pin', pinClearBad.status === 400, pinClearBad.data)
+const pinClear = await call('POST', '/settings/pin', { action: 'clear', currentPin: '2468' })
+ok('pin cleared', pinClear.status === 200 && pinClear.data.parentPinSet === false, pinClear.data)
+
 /* ---- 学习闭环：答题判分 → 盲盒 → 抽奖 ---- */
 const cardCreate = await call('POST', '/lessons', {
   videoId: BV,
