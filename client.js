@@ -1046,13 +1046,16 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-lstat svg{color:rgba(160,196,224,.8)}
 .bl-lstat b{font-size:14px;color:#eaf4ff;font-variant-numeric:tabular-nums}
 .bl-lstat em{font-style:normal;color:rgba(160,190,214,.65);font-size:11px}
-.bl-learn-split{display:grid;grid-template-columns:296px minmax(0,1fr);gap:12px;align-items:stretch;height:calc(100vh - 392px);min-height:380px}
+.bl-learn-split{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:12px;align-items:stretch;height:calc(100vh - 392px);min-height:380px}
 .bl-learn-left{display:flex;flex-direction:column;gap:10px;min-width:0;height:100%;min-height:0;overflow:auto}
 .bl-learn-left .bl-list{max-height:none;flex:0 0 auto;min-height:120px}
 .bl-learn-player .bl-panel-head{flex-wrap:nowrap;min-width:0}
 .bl-learn-player .bl-panel-head b{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bl-learn-date{margin:-2px 0 8px}
 .bl-learn-sheet{min-width:0;height:100%;min-height:0;overflow:auto;border-radius:var(--bl-r)}
+.bl-learn-split.big{grid-template-columns:minmax(0,1fr);height:auto;align-items:start}
+.bl-learn-split.big .bl-learn-left{height:auto;overflow:visible;gap:10px}
+.bl-learn-strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 2px}
 .bl-todayfill{min-height:calc(100vh - 320px)}
 .bl-today-next{margin-top:14px;padding-top:12px;border-top:1px solid rgba(140,176,210,.12)}
 .bl-today-nexthead{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
@@ -1140,6 +1143,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [lessonDraft, setLessonDraft] = useState(null)
       const [lessonBusy, setLessonBusy] = useState(false)
       const [learnPick, setLearnPick] = useState('')
+      const [learnBig, setLearnBig] = useState(false)
       const [learnPicks, setLearnPicks] = useState({})
       const [learnOutcome, setLearnOutcome] = useState(null)
       const [learnBusy, setLearnBusy] = useState(false)
@@ -3083,6 +3087,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('div', { key: 'head', className: 'bl-panel-head' }, [
               h('b', { key: 't', title: learnVideo.title || learnVideo.id }, learnVideo.title || learnVideo.id),
               h('div', { key: 'sp', className: 'bl-spacer' }),
+              h('button', { key: 'big', className: 'bl-btn bl-btn-sm', onClick: () => setLearnBig((prev) => !prev) }, learnBig ? '收小' : '放大'),
               h('a', { key: 'tab', className: 'bl-btn bl-btn-sm', href: siteUrl(learnVideo.id), target: '_blank', rel: 'noreferrer' }, '新标签'),
             ]),
             h('div', { key: 'd', className: 'bl-hint bl-learn-date' }, learnRow ? (learnRow.date ? (weekdayLabel(learnRow.date) + ' ' + shortDate(learnRow.date)) : '不在本周计划里') : ''),
@@ -3097,7 +3102,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const qAnswered = learnLesson ? learnLesson.questions.filter((q) => Number.isInteger(learned[q.id])).length : 0
         const attemptNow = learnResult && learnResult.attempt ? learnResult.attempt : null
         const stepCls = (state) => 'bl-step' + (state === 'done' ? ' done' : state === 'now' ? ' now' : '')
-        const steps = h('div', { key: 'steps', className: 'bl-steps' }, [
+        const steps = h('div', { key: 'steps', className: 'bl-steps', style: learnBig ? { display: 'none' } : undefined }, [
           h('span', { key: 's1', className: stepCls('done') }, [h('i', { key: 'i' }, '1'), '看片']),
           h('span', { key: 'a1', className: 'bl-step-arrow' }, '▸'),
           h('span', { key: 's2', className: stepCls(attemptNow ? 'done' : qTotal ? 'now' : '') }, [h('i', { key: 'i' }, '2'), '答题 ' + qAnswered + '/' + qTotal]),
@@ -3108,22 +3113,36 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ])
         return [
           pageHead('TRAINING · 训练舱', '训练舱', '看片 → 逐题作答 → 交卷结算 → 开盲盒'),
-          h('div', { key: 'kpis', className: 'bl-learn-stats' }, [
+          h('div', { key: 'kpis', className: 'bl-learn-stats', style: learnBig ? { display: 'none' } : undefined }, [
             h('span', { key: 'k1', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'plan', size: 12 }), '待学 ', h('b', { key: 'b' }, String(Math.max(0, weekTasks - weekDone))), h('em', { key: 'e' }, '条 / 本周 ' + weekTasks)]),
             h('span', { key: 'k2', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'lessons', size: 12 }), '可复习 ', h('b', { key: 'b' }, String(lessons.length)), h('em', { key: 'e' }, '套')]),
             h('span', { key: 'k3', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'watch', size: 12 }), '连续 ', h('b', { key: 'b' }, String(streak)), h('em', { key: 'e' }, '天')]),
             h('span', { key: 'k4', className: 'bl-lstat' }, [RailIcon({ key: 'i', name: 'rewards', size: 12 }), '星火 ', h('b', { key: 'b' }, String(doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0))), h('em', { key: 'e' }, '点 · Lv.' + (1 + Math.floor((doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0)) / XP_STEP)))]),
           ]),
           steps,
-          h('div', { key: 'split', className: 'bl-learn-split' }, [
-            h('div', { key: 'left', className: 'bl-learn-left' }, [
-              playerBox,
-              h('div', { key: 'list', className: 'bl-list' }, rows.length
-                ? rows
-                : [h('div', { key: 'e', className: 'bl-empty' }, '还没有能学的片子：先去「本周」排片，或去「片库」加片')]),
+          h('div', { key: 'split', className: 'bl-learn-split' + (learnBig ? ' big' : '') }, learnBig
+            ? [
+              h('div', { key: 'left', className: 'bl-learn-left' }, [
+                playerBox,
+                h('div', { key: 'strip', className: 'bl-learn-strip' }, learnRows.map((row) => h('div', {
+                  key: row.video.id,
+                  className: 'bl-list-item' + (learnPick === row.video.id ? ' on' : ''),
+                  style: { flex: '0 0 auto', maxWidth: '260px' },
+                  title: row.video.title || row.video.id,
+                  onClick: () => setLearnPick(row.video.id),
+                }, [h('span', { key: 't', className: 'bl-list-title' }, row.video.title || row.video.id)]))),
+                h('div', { key: 'hint', className: 'bl-hint' }, '放大看片时题目先收起，点「收小」回到答题版式。'),
+              ]),
+            ]
+            : [
+              h('div', { key: 'left', className: 'bl-learn-left' }, [
+                playerBox,
+                h('div', { key: 'list', className: 'bl-list' }, rows.length
+                  ? rows
+                  : [h('div', { key: 'e', className: 'bl-empty' }, '还没有能学的片子：先去「本周」排片，或去「片库」加片')]),
+              ]),
+              sheet,
             ]),
-            sheet,
-          ]),
         ]
       }
 
