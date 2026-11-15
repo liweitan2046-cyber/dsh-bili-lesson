@@ -15,15 +15,26 @@ export const FILES = {
   watch: 'watch.json',
   lessons: 'lessons.json',
   settings: 'settings.json',
+  prizes: 'prizes.json',
+  medals: 'medals.json',
 }
 
 export const DEFAULT_SETTINGS = {
   perDay: 2,
   maxAge: 6,
   embedPlay: true,
+  weeklyBoxLimit: 0,
 }
 
-const EMPTY = { videos: {}, plans: {}, watch: [], lessons: [], settings: DEFAULT_SETTINGS }
+const EMPTY = {
+  videos: {},
+  plans: {},
+  watch: [],
+  lessons: [],
+  settings: DEFAULT_SETTINGS,
+  prizes: { items: [] },
+  medals: { items: [] },
+}
 
 export class Store {
   constructor(dir = DATA_DIR) {

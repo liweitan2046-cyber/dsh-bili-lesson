@@ -21,6 +21,8 @@ import {
   pickSticker,
   rewardView,
 } from './rewards.js'
+import { RARITY_KEYS, RARITY_LABEL, RARITY_WEIGHT, countUsage, defaultPool, drawable, normalizePool, pickPrize, poolOf, prizeView } from './prizes.js'
+import { medalView, mergeMedals, normalizeMedals, progressOf, studyStats } from './medals.js'
 
 export const PREFIX = '/bili-lesson'
 const MAX_JSON = 1_000_000
@@ -28,7 +30,7 @@ const ASSET_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
 const ASSETS = { 'deck-bg.jpg': 'image/jpeg' }
 
 /** 学习闭环新增的两个数据文件，沿用 Store 的 tmp + rename 与串行写。 */
-const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json' }
+const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json', honors: 'honors.json' }
 
 class LedgerStore extends Store {
   path(name) {
@@ -108,6 +110,87 @@ export class Routes {
   async draws() {
     const data = await this.ledger.read('rewards')
     return data && Array.isArray(data.draws) ? data.draws : []
+  }
+
+  /** 奖品池（没存过就用默认 54 格目录）。 */
+  async prizePool() {
+    return poolOf(await this.store.read('prizes'))
+  }
+
+  async prizeItems() {
+    return (await this.prizePool()).items
+  }
+
+  /** 勋章配置：内置 8 枚 + 家长改过的阈值与奖励。 */
+  async medalConfig() {
+    const saved = await this.store.read('medals')
+    const ids = new Set((await this.prizeItems()).map(item => item.id))
+    return mergeMedals(saved, ids)
+  }
+
+  /** honors.json：星火点数与已得勋章。 */
+  async honors() {
+    const data = await this.ledger.read('honors')
+    return {
+      xp: Number(data && data.xp) || 0,
+      earned: data && Array.isArray(data.earned) ? data.earned : [],
+    }
+  }
+
+  /** 抽中记录 + 勋章赠送，都算奖品消耗（[{ itemId, date }]）。 */
+  prizeEvents(draws, honors) {
+    const rows = []
+    for (const row of draws || []) {
+      if (row && row.itemId) rows.push({ itemId: row.itemId, date: localDay(Number(row.at) || 0) })
+    }
+    for (const row of (honors && honors.earned) || []) {
+      if (row && row.prizeId) rows.push({ itemId: row.prizeId, date: localDay(Number(row.at) || 0) })
+    }
+    return rows
+  }
+
+  async studyStats() {
+    const [videos, watch, attempts] = await Promise.all([
+      this.store.read('videos'),
+      this.store.read('watch'),
+      this.attempts(),
+    ])
+    return studyStats({
+      videos: Object.values(videos || {}).map(cleanVideo),
+      watch: Array.isArray(watch) ? watch : [],
+      attempts,
+    })
+  }
+
+  /**
+   * 结算勋章：条件满足且还没得过就记一条 honors，并累加星火。
+   * 幂等：同一枚只记一次。
+   */
+  async settleMedals() {
+    const config = await this.medalConfig()
+    const stats = await this.studyStats()
+    const current = await this.honors()
+    const had = new Set(current.earned.map(row => row && row.id).filter(Boolean))
+    const fresh = config.items
+      .filter(medal => medal.enabled !== false && !had.has(medal.id))
+      .filter(medal => progressOf(medal, stats).earned)
+    if (!fresh.length) return current
+    return this.ledger.update('honors', data => {
+      const next = {
+        xp: Number(data && data.xp) || 0,
+        earned: data && Array.isArray(data.earned) ? data.earned.slice() : [],
+      }
+      const seen = new Set(next.earned.map(row => row && row.id).filter(Boolean))
+      let changed = false
+      for (const medal of fresh) {
+        if (seen.has(medal.id)) continue
+        seen.add(medal.id)
+        next.xp += Number(medal.xp) || 0
+        next.earned.push({ id: medal.id, at: Date.now(), xp: Number(medal.xp) || 0, prizeId: medal.prizeId || '' })
+        changed = true
+      }
+      return changed ? next : undefined
+    })
   }
 
   rejection(req) {
@@ -473,8 +556,32 @@ export class Routes {
 
     if (head === 'rewards' && !tail) {
       if (method === 'GET') {
-        const [attempts, draws] = await Promise.all([this.attempts(), this.draws()])
-        return json(res, 200, rewardView(attempts, draws))
+        const honors = await this.settleMedals()
+        const weekStart = mondayOf(localDay())
+        const [attempts, draws, items, config] = await Promise.all([
+          this.attempts(),
+          this.draws(),
+          this.prizeItems(),
+          this.medalConfig(),
+        ])
+        const usage = countUsage(this.prizeEvents(draws, honors), weekStart)
+        const view = rewardView(attempts, draws)
+        const counts = {}
+        for (const row of view.draws) if (row.itemId) counts[row.itemId] = (counts[row.itemId] || 0) + 1
+        const pool = prizeView(items, usage, weekStart).map(row => ({
+          ...row,
+          count: row.used,
+          drawn: counts[row.id] || 0,
+        }))
+        const limit = Number(settings.weeklyBoxLimit) || 0
+        const weekDraws = (draws || []).filter(row => localDay(Number(row.at) || 0) >= weekStart).length
+        return json(res, 200, {
+          ...view,
+          items: pool,
+          medals: medalView(config, await this.studyStats(), honors),
+          xpBonus: honors.xp,
+          limits: { weeklyBoxLimit: limit, weekDraws, weeklyRemaining: limit ? Math.max(0, limit - weekDraws) : null },
+        })
       }
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
     }
@@ -482,6 +589,10 @@ export class Routes {
     if (head === 'rewards' && tail === 'draw') {
       if (method !== 'POST') throw Object.assign(new Error('抽盒请用 POST'), { status: 405 })
       const attempts = await this.attempts()
+      const honors = await this.settleMedals()
+      const items = await this.prizeItems()
+      const weekStart = mondayOf(localDay())
+      const limit = Number(settings.weeklyBoxLimit) || 0
       let refusal = ''
       let drawn = null
       const saved = await this.ledger.update('rewards', current => {
@@ -490,20 +601,112 @@ export class Routes {
           refusal = '没有可抽的盲盒了'
           return undefined
         }
-        const item = pickSticker()
-        const draw = { id: newId('dr_'), at: Date.now(), attemptId: nextAttemptId(attempts, list), itemId: item.id }
+        const weekDraws = list.filter(row => localDay(Number(row.at) || 0) >= weekStart).length
+        if (limit > 0 && weekDraws >= limit) {
+          refusal = '本周的抽盒次数已经用完（' + weekDraws + '/' + limit + '）'
+          return undefined
+        }
+        const usage = countUsage(this.prizeEvents(list, honors), weekStart)
+        const pool = drawable(items, usage)
+        if (!pool.length) {
+          refusal = '奖品池里没有可抽的奖品了：都被抽完或本周到上限了'
+          return undefined
+        }
+        const item = pickPrize(pool)
+        const draw = {
+          id: newId('dr_'),
+          at: Date.now(),
+          attemptId: nextAttemptId(attempts, list),
+          itemId: item.id,
+          rarity: item.rarity,
+        }
         list.push(draw)
         drawn = { item, draw }
         return { draws: list }
       })
       if (refusal) return json(res, 409, { ok: false, error: refusal })
       const draws = saved && Array.isArray(saved.draws) ? saved.draws : []
+      const weekDraws = draws.filter(row => localDay(Number(row.at) || 0) >= weekStart).length
       return json(res, 200, {
         ok: true,
         item: drawn.item,
         draw: drawn.draw,
         available: availableOf(attempts, draws),
+        limits: { weeklyBoxLimit: limit, weekDraws, weeklyRemaining: limit ? Math.max(0, limit - weekDraws) : null },
       })
+    }
+
+    /* ---------------- 奖品池（家长设置） ---------------- */
+
+    if (head === 'prizes' && !tail) {
+      const weekStart = mondayOf(localDay())
+      if (method === 'GET') {
+        const [items, draws, honors] = await Promise.all([this.prizeItems(), this.draws(), this.honors()])
+        const usage = countUsage(this.prizeEvents(draws, honors), weekStart)
+        const rows = prizeView(items, usage, weekStart)
+        const limit = Number(settings.weeklyBoxLimit) || 0
+        const weekDraws = (draws || []).filter(row => localDay(Number(row.at) || 0) >= weekStart).length
+        return json(res, 200, {
+          items: rows,
+          rarities: RARITY_KEYS.map(key => ({ key, label: RARITY_LABEL[key], weight: RARITY_WEIGHT[key] })),
+          limits: { weeklyBoxLimit: limit, weekDraws, weeklyRemaining: limit ? Math.max(0, limit - weekDraws) : null },
+          stats: {
+            total: rows.length,
+            enabled: rows.filter(row => row.enabled).length,
+            drawable: drawable(items, usage).length,
+          },
+        })
+      }
+      if (method === 'PUT') {
+        const body = await readJson(req)
+        const saved = await this.store.write('prizes', normalizePool(body.items))
+        return json(res, 200, { ok: true, items: saved.items })
+      }
+      if (method === 'POST') {
+        const body = await readJson(req)
+        if (text(body.action) === 'reset') {
+          const saved = await this.store.write('prizes', { version: 1, items: defaultPool() })
+          return json(res, 200, { ok: true, items: saved.items })
+        }
+        throw Object.assign(new Error('只认 action: reset'), { status: 400 })
+      }
+      throw Object.assign(new Error('不支持的方法'), { status: 405 })
+    }
+
+    /* ---------------- 勋章与规则（家长设置） ---------------- */
+
+    if (head === 'medals' && !tail) {
+      if (method === 'GET') {
+        const [config, items] = await Promise.all([this.medalConfig(), this.prizeItems()])
+        const honors = await this.settleMedals()
+        const stats = await this.studyStats()
+        const view = medalView(config, stats, honors)
+        const names = {}
+        const emojis = {}
+        for (const item of items) {
+          names[item.id] = item.name
+          emojis[item.id] = item.emoji
+        }
+        return json(res, 200, {
+          ...view,
+          items: view.items.map(row => ({
+            ...row,
+            prizeName: row.prizeId ? (names[row.prizeId] || '') : '',
+            prizeEmoji: row.prizeId ? (emojis[row.prizeId] || '') : '',
+          })),
+          stats,
+          prizes: items.map(item => ({ id: item.id, name: item.name, emoji: item.emoji, rarity: item.rarity })),
+        })
+      }
+      if (method === 'PUT') {
+        const body = await readJson(req)
+        const ids = new Set((await this.prizeItems()).map(item => item.id))
+        const saved = await this.store.write('medals', normalizeMedals(body.items, ids))
+        const honors = await this.settleMedals()
+        const stats = await this.studyStats()
+        return json(res, 200, { ok: true, ...medalView(saved, stats, honors) })
+      }
+      throw Object.assign(new Error('不支持的方法'), { status: 405 })
     }
 
     /* ---------------- 设置 ---------------- */
@@ -516,6 +719,9 @@ export class Routes {
           perDay: Math.max(1, Math.min(6, Number(body.perDay) || current.perDay || 2)),
           maxAge: Math.max(1, Math.min(12, Number(body.maxAge) || current.maxAge || 6)),
           embedPlay: typeof body.embedPlay === 'boolean' ? body.embedPlay : (current.embedPlay !== false),
+          weeklyBoxLimit: body.weeklyBoxLimit === undefined
+            ? (Number(current.weeklyBoxLimit) || 0)
+            : Math.max(0, Math.min(20, Math.round(Number(body.weeklyBoxLimit) || 0))),
         }))
         return json(res, 200, saved)
       }

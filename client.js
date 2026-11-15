@@ -28,7 +28,7 @@ window.__ModuleLoader__.load({
     const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
     const DIFFICULTY = { 1: '简单', 2: '适中', 3: '进阶' }
     const RARITY = { common: '常见', rare: '稀有', epic: '珍稀' }
-    const DEFAULT_SETTINGS = { perDay: 2, maxAge: 6, embedPlay: false }
+    const DEFAULT_SETTINGS = { perDay: 2, maxAge: 6, embedPlay: false, weeklyBoxLimit: 0 }
 
     const XP_STEP = 200
 
@@ -264,6 +264,7 @@ window.__ModuleLoader__.load({
         perDay: Number(s.perDay) > 0 ? Number(s.perDay) : DEFAULT_SETTINGS.perDay,
         maxAge: Number(s.maxAge) > 0 ? Number(s.maxAge) : DEFAULT_SETTINGS.maxAge,
         embedPlay: s.embedPlay === true,
+        weeklyBoxLimit: Math.max(0, Number(s.weeklyBoxLimit) || 0),
       }
     }
 
@@ -840,6 +841,21 @@ background:linear-gradient(160deg,#3f86d8,#0e2b4d 62%,#0a1c33)}
 .bl-pulse{transform-box:fill-box;transform-origin:center;animation:blPulse 2.6s ease-out infinite}
 @keyframes blPulse{0%{opacity:.42;transform:scale(.84)}72%{opacity:0;transform:scale(1.24)}100%{opacity:0;transform:scale(1.24)}}
 @media (prefers-reduced-motion: reduce){.bl-pulse{animation:none;opacity:.28}}
+.bl-dash{animation:blFlow 1.6s linear infinite}
+@keyframes blFlow{to{stroke-dashoffset:-24}}
+.bl-star{animation:blTwinkle 3.4s ease-in-out infinite}
+@keyframes blTwinkle{0%,100%{opacity:.15}50%{opacity:.75}}
+.bl-ring-spin{transform-box:fill-box;transform-origin:center;animation:blSpin 22s linear infinite}
+@keyframes blSpin{to{transform:rotate(360deg)}}
+.bl-station:hover path{stroke-opacity:1}
+.bl-station:hover text{fill:#ffffff}
+.bl-arrow{animation:blBreath 2.6s ease-in-out infinite}
+.bl-arrow.on{animation-duration:1.7s}
+@keyframes blBreath{0%,100%{opacity:.32}50%{opacity:.95}}
+.bl-comet{filter:url(#blRouteGlow)}
+.bl-legend-chip{display:inline-flex;align-items:center;gap:5px}
+.bl-legend-dot{width:7px;height:7px;border-radius:50%;display:inline-block}
+@media (prefers-reduced-motion: reduce){.bl-dash,.bl-star,.bl-ring-spin,.bl-arrow{animation:none}}
 .bl-rail-sec{margin-top:10px;padding-top:10px;border-top:1px solid var(--bl-line);display:flex;flex-direction:column;gap:2px}
 .bl-rail-sech{padding:0 10px 6px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#6d87a0}
 .bl-rail-cat{height:32px;font-size:12px;padding:0 10px}
@@ -892,6 +908,10 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
 /* 奖励页：六边形勋章墙 */
 .bl-hexgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.bl-hero>.bl-panelx{display:flex;flex-direction:column;min-height:0}
+.bl-hero>.bl-panelx>.bl-hexgrid{flex:1;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(78px,1fr);gap:10px;align-content:stretch}
+.bl-hero>.bl-panelx>.bl-hexgrid .bl-hex{justify-content:center}
+.bl-hero>.bl-panelx>.bl-hexgrid .bl-hex-shield{width:62px;height:62px}
 .bl-hex{appearance:none;position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 6px 10px;border:1px solid var(--bl-line);border-radius:12px;background:rgba(8,20,36,.72);font:inherit;color:inherit;cursor:pointer}
 .bl-hex:hover{border-color:var(--bl-line-2);background:rgba(16,36,60,.8)}
 .bl-hex.on{border-color:rgba(120,200,255,.7);background:linear-gradient(180deg,rgba(40,100,170,.5),rgba(10,26,44,.9));box-shadow:0 0 20px rgba(50,140,220,.28)}
@@ -1014,6 +1034,21 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-topcard{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11.5px;color:rgba(190,212,232,.85);border-top:1px solid rgba(140,176,210,.1)}
 .bl-topcard:first-child{border-top:0}
 .bl-topcard em{margin-left:auto;font-style:normal;color:rgba(160,190,214,.7);font-variant-numeric:tabular-nums}
+.bl-admin-list{display:flex;flex-direction:column;max-height:520px;overflow:auto;padding-right:2px}
+.bl-prow{display:grid;grid-template-columns:44px minmax(110px,1fr) 148px 66px 72px 44px 40px;gap:6px;align-items:center;padding:5px 0;border-top:1px solid rgba(140,176,210,.1)}
+.bl-prow:first-child{border-top:0}
+.bl-prow .bl-input{height:28px;padding:0 8px;font-size:12px;min-width:0}
+.bl-prow-emoji{text-align:center}
+.bl-prow-on{display:flex;align-items:center;justify-content:center}
+.bl-prow-head{font-size:10px;letter-spacing:.5px;color:rgba(160,190,214,.6);padding-bottom:6px;text-transform:uppercase}
+.bl-prow-head span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bl-prow-medal{grid-template-columns:32px minmax(110px,1fr) 72px 66px 138px 62px}
+.bl-prow-glyph{display:flex;align-items:center;justify-content:center;color:#a9dcff}
+.bl-prow-name{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bl-prow-name b{font-size:12.5px;color:#eaf7ff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-prow-name em{font-style:normal;font-size:10.5px;color:rgba(160,190,214,.66)}
+.bl-hex-shield.earned{color:#ffe2ae}
+@media (max-width:880px){.bl-prow{grid-template-columns:1fr 1fr;row-gap:4px}.bl-prow-head{display:none}.bl-prow-medal{grid-template-columns:30px minmax(90px,1fr) 64px 60px 120px 56px}}
 @media (max-width:880px){.bl-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 `
 
@@ -1086,6 +1121,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [rewards, setRewards] = useState(null)
       const [rewardBusy, setRewardBusy] = useState(false)
       const [lastDraw, setLastDraw] = useState(null)
+      const [prizes, setPrizes] = useState(null)
+      const [medalBook, setMedalBook] = useState(null)
+      const [medalPick, setMedalPick] = useState('')
+      const [confView, setConfView] = useState('base')
+      const [prizeDraft, setPrizeDraft] = useState(null)
+      const [medalDraft, setMedalDraft] = useState(null)
+      const [adminBusy, setAdminBusy] = useState(false)
       const [settings, setSettings] = useState(DEFAULT_SETTINGS)
       const [settingsBusy, setSettingsBusy] = useState(false)
       const [error, setError] = useState('')
@@ -1420,6 +1462,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         try {
           const data = await send('/watch', 'POST', { videoId, date, done })
           setWatch((prev) => mergeWatch(prev, data))
+          loadRewards().catch(() => {})
         } catch (e) {
           fail(e)
         }
@@ -1573,9 +1616,12 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             perDay: Number(settings.perDay) || DEFAULT_SETTINGS.perDay,
             maxAge: Number(settings.maxAge) || DEFAULT_SETTINGS.maxAge,
             embedPlay: Boolean(settings.embedPlay),
+            weeklyBoxLimit: Number(settings.weeklyBoxLimit) || 0,
           }
           const data = await send('/settings', 'PUT', payload)
           setSettings(normalizeSettings(data.settings || data))
+          loadRewards().catch(() => {})
+          if (prizes) loadPrizes().catch(() => {})
           flash('设置已保存')
         } catch (e) {
           fail(e)
@@ -1776,7 +1822,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const W = Math.max(320, Math.round(mapBox.w || 1000))
         const H = Math.max(240, Math.round(mapBox.h || 470))
         const cx = W / 2
-        const amp = Math.min(190, Math.max(70, W * 0.3))
+        const amp = Math.min(210, Math.max(78, W * 0.34))
         const top = 84
         const bottom = 78
         const n = shown.length
@@ -1787,14 +1833,14 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           const side = i % 2 === 0 ? -1 : 1
           const x = n > 1 ? cx + side * amp : cx
           const on = i === curIndex
-          return { t, i, x, y, on, side, done: t.done, w: on ? 148 : 134, h: on ? 70 : 64 }
+          return { t, i, x, y, on, side, done: t.done, w: on ? 160 : 144, h: on ? 78 : 70 }
         })
         const segmentD = (a, b) => {
           const midY = Math.round((a.y + b.y) / 2)
           return 'M' + a.x + ',' + a.y + ' C' + a.x + ',' + midY + ' ' + b.x + ',' + midY + ' ' + b.x + ',' + b.y
         }
         const segments = []
-        for (let i = 1; i < pts.length; i += 1) segments.push({ from: pts[i - 1], to: pts[i], key: 'seg' + i })
+        for (let i = 1; i < pts.length; i += 1) segments.push({ from: pts[i - 1], to: pts[i], key: 'seg' + i, id: 'blseg' + i })
         const arrows = segments.map((s) => {
           const my = Math.round((s.from.y + s.to.y) / 2)
           const mx = Math.round((s.from.x + s.to.x) / 2)
@@ -1804,6 +1850,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             d: 'M-5,-5L0,0L-5,5',
             transform: 'translate(' + mx + ',' + my + ') rotate(' + ang + ')',
             fill: 'none',
+            className: 'bl-arrow' + (s.to.done ? ' on' : ''),
             stroke: s.to.done ? 'rgba(92,200,255,.7)' : 'rgba(140,176,210,.35)',
             strokeWidth: 1.6,
             strokeLinecap: 'round',
@@ -1811,9 +1858,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         })
         const lines = segments.map((s) => h('path', {
           key: s.key,
+          id: s.id,
+          className: s.to.done ? null : 'bl-dash',
           d: segmentD(s.from, s.to),
           fill: 'none',
-          stroke: s.to.done ? 'rgba(92,200,255,.55)' : 'rgba(140,176,210,.18)',
+          stroke: s.to.done ? 'rgba(92,200,255,.55)' : 'rgba(140,176,210,.22)',
           strokeWidth: 2,
           strokeDasharray: s.to.done ? null : '5 7',
           strokeLinecap: 'round',
@@ -1826,8 +1875,10 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           strokeWidth: 9,
           strokeLinecap: 'round',
         }))
-        const nodes = pts.map((n0) => {
+        const nodes = pts.map((n0, ni) => {
           const color = n0.on ? '#f3b34c' : n0.done ? '#4fd8a6' : '#7e97ad'
+          const catIdx = Math.max(0, (library.categories || []).indexOf(n0.t.video.category))
+          const tint = PLANET_COLORS[catIdx % PLANET_COLORS.length]
           const stroke = n0.on ? 'rgba(243,179,76,.95)' : n0.done ? 'rgba(79,216,166,.6)' : 'rgba(140,176,210,.3)'
           const title = (n0.t.video.title || n0.t.id || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '').replace(/\s+/g, ' ').trim()
           const label = title.length > 9 ? title.slice(0, 9) + '…' : title
@@ -1840,28 +1891,71 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('ellipse', { key: 'sh', cx: n0.x, cy: n0.y + n0.h / 2 + 5, rx: 30, ry: 3, fill: 'rgba(0,0,0,.22)' }),
             n0.on ? h('circle', { key: 'pulse', className: 'bl-pulse', cx: n0.x, cy: n0.y, r: 48, fill: 'rgba(243,179,76,.14)', stroke: 'rgba(243,179,76,.4)', strokeWidth: 1 }) : null,
             n0.on ? h('circle', { key: 'ring', cx: n0.x, cy: n0.y, r: 54, fill: 'none', stroke: 'rgba(243,179,76,.3)', strokeWidth: 1, strokeDasharray: '2 6' }) : null,
-            h('path', { key: 'plate', d: rrect(n0.x - n0.w / 2, n0.y - n0.h / 2, n0.w, n0.h, 12), fill: n0.on ? 'rgba(56,50,26,.9)' : 'rgba(9,22,38,.94)', stroke, strokeWidth: n0.on ? 1.7 : 1.15 }),
-            h('path', { key: 'inner', d: rrect(n0.x - n0.w / 2 + 6, n0.y - n0.h / 2 + 6, n0.w - 12, n0.h - 12, 8), fill: n0.on ? 'rgba(96,74,26,.5)' : 'rgba(8,20,34,.9)', stroke: color, strokeOpacity: n0.on ? 0.5 : n0.done ? 0.32 : 0.2, strokeWidth: 1 }),
-            h(Glyph, { key: 'ic', name: catGlyph(n0.t.video.category), x: n0.x - 10, y: n0.y - n0.h / 2 + 8, width: 20, height: 20, sw: 1.8, style: { color } }),
-            h('text', { key: 'lb', x: n0.x, y: n0.y + n0.h / 2 - 11, textAnchor: 'middle', style: { fill: n0.on ? '#ffe3ad' : n0.done ? '#cdeadf' : '#b3c6d6', fontSize: '9.5px', fontWeight: 600 } }, label),
-            h('text', { key: 'dt', x: n0.x, y: n0.y - n0.h / 2 - 7, textAnchor: 'middle', style: { fill: 'rgba(150,180,206,.55)', fontSize: '9px', letterSpacing: '.08em' } }, n0.t.date.slice(5) + (n0.done ? ' · 已看' : n0.on ? ' · 现在' : '')),
+            h('path', { key: 'plate', d: rrect(n0.x - n0.w / 2, n0.y - n0.h / 2, n0.w, n0.h, 12), fill: 'url(#blsg' + ni + ')', stroke, strokeWidth: n0.on ? 1.7 : 1.15, style: n0.on ? { filter: 'url(#blRouteGlow)' } : undefined }),
+            h('path', { key: 'inner', d: rrect(n0.x - n0.w / 2 + 6, n0.y - n0.h / 2 + 6, n0.w - 12, n0.h - 12, 8), fill: 'rgba(8,20,34,.38)', stroke: color, strokeOpacity: n0.on ? 0.5 : n0.done ? 0.32 : 0.2, strokeWidth: 1 }),
+            h('path', { key: 'edge', d: 'M' + (n0.x - n0.w / 2 + 12) + ',' + (n0.y - n0.h / 2 + 1.2) + 'H' + (n0.x + n0.w / 2 - 12), stroke: tint, strokeOpacity: n0.on ? 0.85 : n0.done ? 0.6 : 0.38, strokeWidth: 1.6, strokeLinecap: 'round' }),
+            n0.done ? h('g', { key: 'ok' }, [
+              h('circle', { key: 'c', cx: n0.x + n0.w / 2 - 14, cy: n0.y - n0.h / 2 + 1, r: 7, fill: 'rgba(7,20,26,.95)', stroke: 'rgba(79,216,166,.85)', strokeWidth: 1.2 }),
+              h('path', { key: 'p', d: 'M' + (n0.x + n0.w / 2 - 17.4) + ',' + (n0.y - n0.h / 2 + 1) + 'l2.4,2.6l4,-5', fill: 'none', stroke: '#8ff0cd', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' }),
+            ]) : null,
+            h(Glyph, { key: 'ic', name: catGlyph(n0.t.video.category), x: n0.x - 11, y: n0.y - n0.h / 2 + 9, width: 22, height: 22, sw: 1.8, style: { color: n0.on ? '#ffe3ad' : tint } }),
+            h('text', { key: 'lb', x: n0.x, y: n0.y + n0.h / 2 - 12, textAnchor: 'middle', style: { fill: n0.on ? '#ffe3ad' : n0.done ? '#d8efe6' : '#c3d4e2', fontSize: '10.5px', fontWeight: 600 } }, label),
+            h('text', { key: 'dt', x: n0.x, y: n0.y - n0.h / 2 - 8, textAnchor: 'middle', style: { fill: 'rgba(158,188,214,.62)', fontSize: '9.5px', letterSpacing: '.08em' } }, n0.t.date.slice(5) + (n0.done ? ' · 已看' : n0.on ? ' · 现在' : '')),
           ])
         })
         const legend = h('div', { key: 'legend', className: 'bl-map-legend' }, [
           h('b', { key: 'l' }, '本周航线'),
           h('span', { key: 's1' }, '已看 ' + doneCount + ' / ' + tasks.length + ' 条' + (rest > 0 ? ' · 还有 ' + rest + ' 条在后面' : '')),
           h('div', { key: 'sp', className: 'bl-spacer' }),
-          h('span', { key: 's2' }, curIndex >= 0 ? '金色是现在这条' : '本周全看完了'),
+          h('span', { key: 's2', className: 'bl-legend-chip' }, [h('i', { key: 'd', className: 'bl-legend-dot', style: { background: '#4fd8a6' } }), h('span', { key: 't' }, '已看 ' + doneCount)]),
+          h('span', { key: 's3', className: 'bl-legend-chip' }, [h('i', { key: 'd', className: 'bl-legend-dot', style: { background: '#f3b34c' } }), h('span', { key: 't' }, curIndex >= 0 ? '现在' : '全部完成')]),
+          h('span', { key: 's4', className: 'bl-legend-chip' }, [h('i', { key: 'd', className: 'bl-legend-dot', style: { background: '#7e97ad' } }), h('span', { key: 't' }, '未看 ' + (tasks.length - doneCount))]),
         ])
         const defs = h('defs', { key: 'defs' }, [
           h('filter', { key: 'glow', id: 'blRouteGlow', x: '-40%', y: '-60%', width: '180%', height: '220%' }, [
             h('feGaussianBlur', { key: 'b', stdDeviation: '7', result: 'blur' }),
             h('feMerge', { key: 'm' }, [h('feMergeNode', { key: '1', in: 'blur' }), h('feMergeNode', { key: '2', in: 'SourceGraphic' })]),
           ]),
-        ])
+          h('radialGradient', { key: 'aura', id: 'blRouteAura' }, [
+            h('stop', { key: 'a', offset: '0%', stopColor: '#f3b34c', stopOpacity: '.22' }),
+            h('stop', { key: 'b', offset: '60%', stopColor: '#f3b34c', stopOpacity: '.06' }),
+            h('stop', { key: 'c', offset: '100%', stopColor: '#f3b34c', stopOpacity: '0' }),
+          ]),
+          h('radialGradient', { key: 'vign', id: 'blRouteVign', cx: '50%', cy: '48%', r: '72%' }, [
+            h('stop', { key: 'a', offset: '0%', stopColor: '#12243a', stopOpacity: '.75' }),
+            h('stop', { key: 'b', offset: '62%', stopColor: '#0a1726', stopOpacity: '.4' }),
+            h('stop', { key: 'c', offset: '100%', stopColor: '#050c15', stopOpacity: '.9' }),
+          ]),
+        ].concat(pts.map((p, i) => h('linearGradient', { key: 'sg' + i, id: 'blsg' + i, x1: '0%', y1: '0%', x2: '0%', y2: '100%' }, [
+          h('stop', { key: 'a', offset: '0%', stopColor: p.done ? '#1a4b3f' : p.on ? '#4a3a16' : '#16304a', stopOpacity: p.done || p.on ? '.95' : '.85' }),
+          h('stop', { key: 'b', offset: '100%', stopColor: p.done ? '#0a1a1c' : p.on ? '#231a08' : '#0a1622', stopOpacity: '.95' }),
+        ]))))
+        const rand = (i) => {
+          const x = Math.sin(i * 12.9898) * 43758.5453
+          return x - Math.floor(x)
+        }
+        const stars = Array.from({ length: 46 }, (_, i) => {
+          const px = Math.round(rand(i + 3) * W)
+          const py = Math.round(rand(i + 97) * H)
+          const rr = 0.5 + rand(i + 191) * 1.1
+          return h('circle', {
+            key: 'st' + i, className: 'bl-star', cx: px, cy: py, r: rr.toFixed(2),
+            fill: '#cfe8ff', opacity: 0.3, style: { animationDelay: (rand(i + 307) * 3.4).toFixed(2) + 's' },
+          })
+        })
+        const backdrop = h('g', { key: 'bg' }, [
+          h('rect', { key: 'v', x: 0, y: 0, width: W, height: H, fill: 'url(#blRouteVign)' }),
+          h('ellipse', { key: 'gl', cx, cy: H + 26, rx: Math.round(W * 0.58), ry: 74, fill: 'rgba(243,179,76,.055)' }),
+        ].concat(stars))
+        const curPt = pts.find((p) => p.on)
+        const aura = curPt ? h('ellipse', { key: 'aura', cx: curPt.x, cy: curPt.y, rx: 150, ry: 96, fill: 'url(#blRouteAura)' }) : null
+        const comets = segments.filter((s) => s.to.done).map((s) => h('g', { key: 'cm' + s.key }, [
+          h('circle', { key: 'h', r: 8, fill: 'rgba(110,200,255,.18)', className: 'bl-comet' }, h('animateMotion', { key: 'm', dur: '4.2s', repeatCount: 'indefinite' }, h('mpath', { key: 'p', href: '#' + s.id }))),
+          h('circle', { key: 'c', r: 2.8, fill: '#d8f3ff' }, h('animateMotion', { key: 'm2', dur: '4.2s', repeatCount: 'indefinite' }, h('mpath', { key: 'p2', href: '#' + s.id }))),
+        ]))
         return h('div', { key: 'route', className: 'bl-map' }, [
           legend,
-          h('svg', { key: 'svg', ref: mapSvgRef, viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': 'true' }, [defs].concat(halos).concat(lines).concat(arrows).concat(nodes)),
+          h('svg', { key: 'svg', ref: mapSvgRef, viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': 'true' }, [defs, backdrop, aura].concat(halos).concat(lines).concat(comets).concat(arrows).concat(nodes)),
         ])
       }
 
@@ -1869,7 +1963,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const day = ((plan && plan.days) || []).find((d) => d.date === today) || null
         const ids = day ? (day.videoIds || []) : []
         const todayDoneIds = (watchIndex.byDate[today] || []).filter((id) => ids.indexOf(id) !== -1)
-        const xp = doneTotal * 40
+        const xp = doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0)
         const level = 1 + Math.floor(xp / XP_STEP)
         const xpIn = xp % XP_STEP
         const sparks = rewards ? (Number(rewards.earned) || 0) : 0
@@ -2628,10 +2722,53 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         return data
       }, [])
 
+      const draftOfPrize = (row) => ({
+        id: row.id || '',
+        name: row.name || '',
+        emoji: row.emoji || '',
+        rarity: row.rarity || 'common',
+        note: row.note || '',
+        stock: row.stock === null || row.stock === undefined ? '' : String(row.stock),
+        weeklyCap: row.weeklyCap === null || row.weeklyCap === undefined ? '' : String(row.weeklyCap),
+        enabled: row.enabled !== false,
+      })
+
+      const loadPrizes = useCallback(async () => {
+        const data = await api('/prizes')
+        setPrizes(data && Array.isArray(data.items) ? data : null)
+        if (data && Array.isArray(data.items)) setPrizeDraft(data.items.map(draftOfPrize))
+        return data
+      }, [])
+
+      const draftOfMedal = (row) => ({
+        id: row.id || '',
+        name: row.name || '',
+        target: Number(row.target) || 1,
+        xp: Number(row.xp) || 0,
+        prizeId: row.prizeId || '',
+      })
+
+      const loadMedals = useCallback(async () => {
+        const data = await api('/medals')
+        setMedalBook(data && Array.isArray(data.items) ? data : null)
+        if (data && Array.isArray(data.items)) setMedalDraft(data.items.map(draftOfMedal))
+        return data
+      }, [])
+
       useEffect(() => {
-        if (tab !== 'learn' && tab !== 'rewards') return
         loadRewards().catch((e) => fail(e))
-      }, [tab, loadRewards, fail])
+      }, [loadRewards, fail])
+
+      useEffect(() => {
+        if (tab !== 'rewards') return
+        loadRewards().catch(() => {})
+      }, [tab, loadRewards])
+
+      useEffect(() => {
+        if (tab !== 'settings') return
+        if (confView === 'prizes' && !prizes) loadPrizes().catch((e) => fail(e))
+        if (confView === 'medals' && !medalBook) loadMedals().catch((e) => fail(e))
+      }, [tab, confView, prizes, medalBook, loadPrizes, loadMedals, fail])
 
       useEffect(() => {
         if (tab !== 'learn' || learnRows.length === 0) return
@@ -2850,7 +2987,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             kpi('k1', '本周待学', Math.max(0, weekTasks - weekDone), '条', '计划 ' + weekTasks + ' 条 · 已看 ' + weekDone + ' 条'),
             kpi('k2', '可复习', lessons.length, '套', '有课卡就能随时重做', 'gold'),
             kpi('k3', '连续打卡', streak, '天', '答题也会续上', 'green'),
-            kpi('k4', '累计星火', doneTotal * 40, '点', '每看一条 +40 · 等级 ' + (1 + Math.floor((doneTotal * 40) / XP_STEP)), 'cyan'),
+            kpi('k4', '累计星火', doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0), '点', '每看一条 +40 · 勋章另外加 · 等级 ' + (1 + Math.floor((doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0)) / XP_STEP)), 'cyan'),
           ]),
           steps,
           h('div', { key: 'split', className: 'bl-split' }, [
@@ -2862,60 +2999,125 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ]
       }
 
+      /* ---------------- 家长端：奖品池 / 勋章规则 ---------------- */
+
+      async function savePrizes() {
+        if (!prizeDraft || adminBusy) return
+        setError('')
+        setAdminBusy(true)
+        try {
+          const payload = prizeDraft.map((row) => ({
+            id: row.id || undefined,
+            name: row.name,
+            emoji: row.emoji,
+            rarity: row.rarity,
+            note: row.note,
+            stock: row.stock === '' ? null : Number(row.stock),
+            weeklyCap: row.weeklyCap === '' ? null : Number(row.weeklyCap),
+            enabled: row.enabled,
+          }))
+          await send('/prizes', 'PUT', { items: payload })
+          await loadPrizes()
+          loadRewards().catch(() => {})
+          flash('奖品池已保存：' + payload.length + ' 件')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setAdminBusy(false)
+        }
+      }
+
+      async function resetPrizes() {
+        if (adminBusy) return
+        setError('')
+        setAdminBusy(true)
+        try {
+          await send('/prizes', 'POST', { action: 'reset' })
+          await loadPrizes()
+          loadRewards().catch(() => {})
+          flash('奖品池已恢复成默认 54 件')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setAdminBusy(false)
+        }
+      }
+
+      async function saveMedals() {
+        if (!medalDraft || adminBusy) return
+        setError('')
+        setAdminBusy(true)
+        try {
+          const payload = medalDraft.map((row) => ({
+            id: row.id,
+            name: row.name,
+            target: Number(row.target) || 1,
+            xp: Number(row.xp) || 0,
+            prizeId: row.prizeId || '',
+          }))
+          await send('/medals', 'PUT', { items: payload })
+          await loadMedals()
+          loadRewards().catch(() => {})
+          flash('勋章规则已保存')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setAdminBusy(false)
+        }
+      }
+
       function renderRewards() {
         const view = rewards
         if (!view) return [h('div', { key: 'loading', className: 'bl-empty-panel' }, '正在读奖励账本…')]
-        const byItem = {}
-        for (const item of view.items) byItem[item.id] = item
-        const owned = view.items.filter((item) => item.count > 0).length
-        const total = view.items.length
+        const book = view.medals || { items: [], xp: 0, earnedCount: 0, totalCount: 0 }
+        const medalRows = book.items || []
+        const owned = medalRows.filter((row) => row.earned).length
+        const total = medalRows.length
         const pct = total ? (owned / total) * 100 : 0
-        const totalWeight = view.items.reduce((sum, item) => sum + (Number(item.weight) || 0), 0) || 1
-        const lastAt = {}
-        for (const row of (view.draws || [])) {
-          if (!row.itemId) continue
-          const at = Number(row.at) || 0
-          if (!lastAt[row.itemId] || at > lastAt[row.itemId]) lastAt[row.itemId] = at
-        }
-        const sel = (rewardPick && byItem[rewardPick]) || view.items.find((item) => item.count > 0) || view.items[0] || null
-        const nextLocked = view.items.find((item) => item.count === 0) || null
+        const sel = (medalPick && medalRows.find((row) => row.id === medalPick)) || medalRows.find((row) => row.earned) || medalRows.find((row) => !row.earned) || medalRows[0] || null
+        const pool = view.items || []
+        const byItem = {}
+        for (const item of pool) byItem[item.id] = item
+        const got = pool.filter((item) => item.count > 0)
+        const openPool = pool.filter((item) => item.enabled !== false
+          && (item.remaining === null || item.remaining === undefined || item.remaining > 0)
+          && (item.weeklyCap === null || item.weeklyCap === undefined || item.weekUsed < item.weeklyCap))
+        const limits = view.limits || {}
+        const weekCap = Number(limits.weeklyBoxLimit) || 0
 
-        const wall = view.items.map((item) => {
-          const has = item.count > 0
-          return h('button', {
-            key: item.id,
-            className: 'bl-hex' + (has ? '' : ' locked') + (sel && sel.id === item.id ? ' on' : ''),
-            title: has ? item.name : '还没抽到',
-            onClick: () => setRewardPick(item.id),
-          }, [
-            h('span', { key: 'sh', className: 'bl-hex-shield ' + (item.rarity || 'common') + (has ? '' : ' locked') }, h(Glyph, { key: 'e', name: has ? rewardGlyph(item.id) : 'question', size: 22, sw: 1.7 })),
-            h('span', { key: 'n', className: 'bl-hex-name' }, has ? item.name : '未点亮'),
-            has && item.count > 1 ? h('span', { key: 'c', className: 'bl-hex-count' }, '×' + item.count) : null,
-          ])
-        })
-
-        const detailRows = sel ? [
-          h('div', { key: 'r1', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '获得时间'), h('b', { key: 'v' }, sel.count > 0 && lastAt[sel.id] ? timeText(lastAt[sel.id]) : '还没抽到')]),
-          h('div', { key: 'r2', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '抽中概率'), h('b', { key: 'v' }, ((Number(sel.weight) || 0) / totalWeight * 100).toFixed(0) + '%')]),
-          h('div', { key: 'r3', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '已收集'), h('b', { key: 'v' }, sel.count > 0 ? '×' + sel.count : '0')]),
-        ] : []
+        const wall = medalRows.map((row) => h('button', {
+          key: row.id,
+          className: 'bl-hex' + (row.earned ? '' : ' locked') + (sel && sel.id === row.id ? ' on' : ''),
+          title: row.earned ? row.name : (row.metricLabel + ' ' + row.target),
+          onClick: () => setMedalPick(row.id),
+        }, [
+          h('span', { key: 'sh', className: 'bl-hex-shield ' + (row.earned ? 'earned' : 'locked') }, h(Glyph, { key: 'e', name: row.glyph || 'medal', size: 22, sw: 1.7 })),
+          h('span', { key: 'n', className: 'bl-hex-name' }, row.name),
+          h('span', { key: 'c', className: 'bl-hex-count' }, row.earned ? '已获得' : (Math.min(row.value, row.target) + ' / ' + row.target)),
+        ]))
 
         const detail = sel ? h('div', { key: 'detail', className: 'bl-panelx bl-reward-detail' }, [
           h('div', { key: 'k', className: 'bl-course-kicker' }, '勋章详情 MEDAL'),
-          h('div', { key: 'big', className: 'bl-hex-big ' + (sel.rarity || 'common') + (sel.count > 0 ? '' : ' locked') }, h(Glyph, { key: 'e', name: sel.count > 0 ? rewardGlyph(sel.id) : 'question', size: 48, sw: 1.5 })),
-          h('div', { key: 'n', className: 'bl-detail-name' }, sel.count > 0 ? sel.name : '未点亮'),
+          h('div', { key: 'big', className: 'bl-hex-big ' + (sel.earned ? 'earned' : 'locked') }, h(Glyph, { key: 'e', name: sel.glyph || 'medal', size: 48, sw: 1.5 })),
+          h('div', { key: 'n', className: 'bl-detail-name' }, sel.name),
           h('div', { key: 'chips', className: 'bl-chips' }, [
-            h('span', { key: 'r', className: 'bl-chip' }, RARITY[sel.rarity] || '奖品'),
-            h('span', { key: 'c', className: 'bl-chip gold' }, sel.count > 0 ? '已点亮' : '待点亮'),
+            h('span', { key: 'm', className: 'bl-chip' }, sel.metricLabel),
+            h('span', { key: 's', className: 'bl-chip' + (sel.earned ? ' gold' : '') }, sel.earned ? '已获得' : '进行中'),
+            sel.prizeId ? h('span', { key: 'p', className: 'bl-chip' }, '赠 ' + (sel.prizeName || '一件奖品')) : null,
           ]),
-          h('div', { key: 'rows', className: 'bl-detail-rows' }, detailRows),
+          h('div', { key: 'rows', className: 'bl-detail-rows' }, [
+            h('div', { key: 'r1', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '达成条件'), h('b', { key: 'v' }, sel.metricLabel + ' ' + sel.target)]),
+            h('div', { key: 'r2', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '当前进度'), h('b', { key: 'v' }, Math.min(sel.value, sel.target) + ' / ' + sel.target)]),
+            h('div', { key: 'r3', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '星火奖励'), h('b', { key: 'v' }, '+' + sel.xp)]),
+            h('div', { key: 'r4', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '获得时间'), h('b', { key: 'v' }, sel.earned && sel.at ? timeText(sel.at) : '还没拿到')]),
+          ]),
           h('div', { key: 'next', className: 'bl-next' }, [
             h('div', { key: 'top', className: 'bl-next-top' }, [
-              h('span', { key: 'l' }, '下一枚勋章进度'),
-              h('b', { key: 'v' }, owned + ' / ' + total),
+              h('span', { key: 'l' }, '这枚勋章进度'),
+              h('b', { key: 'v' }, Math.round(Number(sel.pct) || 0) + '%'),
             ]),
-            h('i', { key: 'bar', className: 'bl-bar', style: { '--p': pct.toFixed(1) + '%' } }),
-            h('div', { key: 'hint', className: 'bl-hint' }, nextLocked ? ('再点亮「' + nextLocked.name + '」就离集齐更近一步') : '整面墙都点亮了'),
+            h('i', { key: 'bar', className: 'bl-bar', style: { '--p': Number(sel.pct || 0).toFixed(1) + '%' } }),
+            h('div', { key: 'hint', className: 'bl-hint' }, sel.earned ? '奖励已经入账：星火 +' + sel.grantedXp : ('还差 ' + Math.max(0, sel.target - sel.value) + ' ' + (sel.unit || '点'))),
           ]),
           h('button', { key: 'go', className: 'bl-cta-main', onClick: () => setTab('learn') }, '去答题拿盲盒'),
         ]) : null
@@ -2930,8 +3132,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         })
 
         const stat = h('div', { key: 'stat', className: 'bl-mcard' }, [
-          h('div', { key: 'h', className: 'bl-mcard-head' }, '盲盒 BONUS'),
-          h('div', { key: 'big', className: 'bl-mcard-big' }, [h('b', { key: 'n' }, String(view.available)), h('em', { key: 'u' }, '个可抽 · 累计 ' + view.earned + ' / 抽掉 ' + view.used)]),
+          h('div', { key: 'h', className: 'bl-mcard-head' }, '盲盒 BOX'),
+          h('div', { key: 'big', className: 'bl-mcard-big' }, [h('b', { key: 'n' }, String(view.available)), h('em', { key: 'u' }, '个可抽 · 本周抽了 ' + (Number(limits.weekDraws) || 0) + ' / ' + (weekCap || '不限'))]),
           renderDrawCard(),
           h('button', {
             key: 'draw',
@@ -2939,44 +3141,47 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             disabled: rewardBusy || view.available <= 0,
             onClick: drawBox,
           }, rewardBusy ? '开盒中…' : (view.available > 0 ? ('抽一个盲盒（' + view.available + '）') : '没有可抽的盲盒了')),
-          h('div', { key: 'note', className: 'bl-hint' }, '看完片把课卡答到 80 分，每天给一个盲盒。'),
+          h('div', { key: 'note', className: 'bl-hint' }, '答完一套课卡拿到 80 分给一个盲盒，同一套课卡当天只给一次；每周能抽几个由家长设置。'),
         ])
 
-        const challenge = h('div', { key: 'ch', className: 'bl-mcard' }, [
-          h('div', { key: 'h', className: 'bl-mcard-head' }, '本周挑战 CHALLENGE'),
-          h('div', { key: 'rows', className: 'bl-detail-rows' }, [
-            h('div', { key: 'a', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '本周看片'), h('b', { key: 'v' }, weekDone + ' / ' + weekTasks)]),
-            h('div', { key: 'b', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '累计看片'), h('b', { key: 'v' }, String(doneTotal))]),
-            h('div', { key: 'c', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '连续学习'), h('b', { key: 'v' }, streak + ' 天')]),
-            h('div', { key: 'd', className: 'bl-detail-row' }, [h('span', { key: 'k' }, '勋章集齐'), h('b', { key: 'v' }, owned + ' / ' + total)]),
-          ]),
+        const poolRows = openPool.slice(0, 6).map((item) => h('div', { key: item.id, className: 'bl-draw-row' }, [
+          h('span', { key: 'e', className: 'bl-sticker-meta', style: { minWidth: '24px' } }, item.emoji || '🎁'),
+          h('span', { key: 'n', style: { flex: '1', minWidth: '0' } }, item.name),
+          h('span', { key: 'q', className: 'bl-hint' }, item.rarityLabel + ' · ' + (item.remaining === null || item.remaining === undefined ? '库存不限' : ('剩 ' + item.remaining))),
+        ]))
+
+        const poolCard = h('div', { key: 'pool', className: 'bl-mcard' }, [
+          h('div', { key: 'h', className: 'bl-mcard-head' }, '奖品池 POOL'),
+          h('div', { key: 'big', className: 'bl-mcard-big' }, [h('b', { key: 'n' }, String(openPool.length)), h('em', { key: 'u' }, '件可抽 · 已抽到 ' + got.length + ' 种')]),
+          poolRows.length ? h('div', { key: 'l', className: 'bl-draws' }, poolRows) : h('div', { key: 'e', className: 'bl-empty' }, '奖品池空了，让家长去「设置 · 奖品池」补货'),
+          h('button', { key: 'a', className: 'bl-link', style: { marginTop: 'auto' }, onClick: () => { setConfView('prizes'); setTab('settings') } }, '家长设置奖品池 →'),
         ])
 
         return [
           h('div', { key: 'head', className: 'bl-head' }, [
             h('h2', { key: 't' }, '星际成就展厅'),
-            h('p', { key: 'p' }, '点亮每一次学习火种 · 已点亮 ' + owned + ' / ' + total),
+            h('p', { key: 'p' }, '勋章 ' + owned + ' / ' + total + ' · 星火加成 +' + (Number(book.xp) || 0) + ' 点 · 已抽到 ' + got.length + ' 种奖品'),
             h('div', { key: 'sp', className: 'bl-spacer' }),
             h('button', { key: 'v', className: 'bl-link', onClick: () => setTab('vault') }, '片库仓库 ' + allVideos.length + ' 条 →'),
           ]),
           h('div', { key: 'hero', className: 'bl-hero' }, [
             h('div', { key: 'nucleus', className: 'bl-panelx' }, [
               h('div', { key: 'h', className: 'bl-head' }, [
-                h('h2', { key: 't' }, '总成就核'),
-                h('p', { key: 'p' }, '抽到的勋章都收在这面墙上'),
+                h('h2', { key: 't' }, '勋章墙'),
+                h('p', { key: 'p' }, '集齐条件由家长设定，达成后自动发放'),
               ]),
               h('div', { key: 'top', className: 'bl-wall-top' }, [
                 h('div', { key: 'ring', className: 'bl-nucleus-ring', style: { '--p': pct.toFixed(1) + '%' } }, [
                   h('b', { key: 'n' }, [String(owned), h('em', { key: 'd' }, ' / ' + total)]),
-                  h('span', { key: 'l' }, 'COLLECTED'),
+                  h('span', { key: 'l' }, 'MEDALS'),
                 ]),
                 h('div', { key: 'meta', className: 'bl-wall-meta' }, [
                   h('div', { key: 'g', className: 'bl-wall-rank' }, owned >= total ? '星海收藏家' : (owned >= total * 0.6 ? '星际探索者' : '见习领航员')),
-                  h('div', { key: 'h', className: 'bl-hint' }, nextLocked ? ('下一枚：' + nextLocked.name) : '整面墙都点亮了'),
+                  h('div', { key: 'h', className: 'bl-hint' }, total ? ('已获得 ' + owned + ' 枚，还有 ' + (total - owned) + ' 枚在路上') : '还没有勋章规则'),
                   h('div', { key: 'b', className: 'bl-wall-bars' }, [
-                    h('span', { key: 'c', className: 'bl-chip' }, '常见 ' + view.items.filter((i) => i.rarity === 'common' && i.count > 0).length + '/' + view.items.filter((i) => i.rarity === 'common').length),
-                    h('span', { key: 'r', className: 'bl-chip' }, '稀有 ' + view.items.filter((i) => i.rarity === 'rare' && i.count > 0).length + '/' + view.items.filter((i) => i.rarity === 'rare').length),
-                    h('span', { key: 'e', className: 'bl-chip gold' }, '珍稀 ' + view.items.filter((i) => i.rarity === 'epic' && i.count > 0).length + '/' + view.items.filter((i) => i.rarity === 'epic').length),
+                    h('span', { key: 'c', className: 'bl-chip' }, '已获得 ' + owned),
+                    h('span', { key: 'r', className: 'bl-chip' }, '进行中 ' + (total - owned)),
+                    h('span', { key: 'e', className: 'bl-chip gold' }, '星火 +' + (Number(book.xp) || 0)),
                   ]),
                 ]),
               ]),
@@ -2986,11 +3191,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ]),
           h('div', { key: 'bottom', className: 'bl-bottom3' }, [
             stat,
+            poolCard,
             h('div', { key: 'recent', className: 'bl-mcard' }, [
-              h('div', { key: 'h', className: 'bl-mcard-head' }, '最近解锁 UNLOCKED'),
+              h('div', { key: 'h', className: 'bl-mcard-head' }, '最近抽到 DRAWS'),
               recentList.length ? h('div', { key: 'l', className: 'bl-draws' }, recentList) : h('div', { key: 'e', className: 'bl-empty' }, '还没抽过。答完一套课卡，来开第一个盲盒。'),
             ]),
-            challenge,
           ]),
         ]
       }
@@ -3000,8 +3205,20 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       /* ------------------------------------------------------------------ */
 
       function renderSettings() {
+        const tabs = [['base', '基础设置'], ['prizes', '奖品池'], ['medals', '勋章规则']]
         return [
-          pageHead('CONFIG · 舰桥设置', '舰桥设置', '改完点保存，存在 ~/.dsh/bili-lesson/settings.json'),
+          pageHead('CONFIG · 舰桥设置', '舰桥设置', '家长设置：排片默认值、盲盒奖品池、勋章规则，都存在 ~/.dsh/bili-lesson/'),
+          h('div', { key: 'subtabs', className: 'bl-subtabs' }, tabs.map((row) => h('button', {
+            key: row[0],
+            className: 'bl-subtab' + (confView === row[0] ? ' on' : ''),
+            onClick: () => setConfView(row[0]),
+          }, row[1]))),
+          confView === 'prizes' ? renderPrizeAdmin() : confView === 'medals' ? renderMedalAdmin() : renderBaseSettings(),
+        ]
+      }
+
+      function renderBaseSettings() {
+        return [
           h('div', { key: 'kpis', className: 'bl-kpis' }, [
             kpi('k1', '片库', allVideos.length, '条', '失效 ' + (library.stats ? library.stats.dead : 0) + ' 条'),
             kpi('k2', '课卡', lessons.length, '套', '本周计划 ' + weekTasks + ' 条', 'gold'),
@@ -3023,11 +3240,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               h('div', { key: 'perDay', className: 'bl-field' }, [
                 h('span', { key: 'l', className: 'bl-label' }, '每天几条（自动排本周用）'),
                 h('input', {
-                  key: 'i',
-                  className: 'bl-input',
-                  type: 'number',
-                  min: 1,
-                  max: 6,
+                  key: 'i', className: 'bl-input', type: 'number', min: 1, max: 6,
                   value: settings.perDay,
                   onChange: (e) => setSettings({ ...settings, perDay: Number(e.target.value) }),
                 }),
@@ -3035,20 +3248,22 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               h('div', { key: 'maxAge', className: 'bl-field' }, [
                 h('span', { key: 'l', className: 'bl-label' }, '片库默认年龄（新加片子的建议最低年龄）'),
                 h('input', {
-                  key: 'i',
-                  className: 'bl-input',
-                  type: 'number',
-                  min: 1,
-                  max: 12,
+                  key: 'i', className: 'bl-input', type: 'number', min: 1, max: 12,
                   value: settings.maxAge,
                   onChange: (e) => setSettings({ ...settings, maxAge: Number(e.target.value) }),
                 }),
               ]),
+              h('div', { key: 'boxLimit', className: 'bl-field' }, [
+                h('span', { key: 'l', className: 'bl-label' }, '每周最多抽几个盲盒（0 = 不限）'),
+                h('input', {
+                  key: 'i', className: 'bl-input', type: 'number', min: 0, max: 20,
+                  value: settings.weeklyBoxLimit,
+                  onChange: (e) => setSettings({ ...settings, weeklyBoxLimit: Number(e.target.value) }),
+                }),
+              ]),
               h('label', { key: 'embed', className: 'bl-field', style: { flexDirection: 'row', alignItems: 'center', gap: '8px' } }, [
                 h('input', {
-                  key: 'i',
-                  type: 'checkbox',
-                  checked: settings.embedPlay,
+                  key: 'i', type: 'checkbox', checked: settings.embedPlay,
                   style: { accentColor: '#35d8ff', width: '15px', height: '15px' },
                   onChange: (e) => setSettings({ ...settings, embedPlay: e.target.checked }),
                 }),
@@ -3056,13 +3271,110 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               ]),
             ]),
             h('div', { key: 'note', className: 'bl-note' },
-              '这一版设置只影响默认值：perDay 决定「自动排本周」每天排几条，maxAge 是新加片子的默认年龄，embedPlay 决定点开时直接内嵌播放还是只给入口。已经排好的计划和片库里的年龄不会被改动。'),
+              'perDay 决定「自动排本周」每天排几条，maxAge 是新加片子的默认年龄，weeklyBoxLimit 限制每周能抽几个盲盒，embedPlay 决定点开时直接内嵌播放还是只给入口。已经排好的计划和片库里的年龄不会被改动。'),
           ]),
           h('div', { key: 'state', className: 'bl-panel' }, [
             h('div', { key: 'head', className: 'bl-panel-head' }, [h('b', { key: 't' }, '现在这台的存量')]),
             h('div', { key: 'body', className: 'bl-note' },
               '片库 ' + allVideos.length + ' 条 · 课卡 ' + lessons.length + ' 套 · 本周从 ' + weekStart + ' 开始'),
             h('div', { key: 'hint', className: 'bl-hint' }, '数据都在服务端的 ~/.dsh/bili-lesson/ 里，换浏览器不会丢。'),
+          ]),
+        ]
+      }
+
+      function renderPrizeAdmin() {
+        if (!prizes || !prizeDraft) return [h('div', { key: 'loading', className: 'bl-empty-panel' }, '正在读奖品池…')]
+        const stats = prizes.stats || {}
+        const rarities = prizes.rarities || []
+        const patch = (index, key, value) => setPrizeDraft((prev) => prev.map((row, i) => (i === index ? { ...row, [key]: value } : row)))
+        const head = h('div', { key: 'ph', className: 'bl-panel-head' }, [
+          h('b', { key: 't' }, '奖品池 ' + prizeDraft.length + ' 件 · 可抽 ' + (stats.drawable || 0) + ' 件'),
+          h('div', { key: 'sp', className: 'bl-spacer' }),
+          h('button', { key: 'add', className: 'bl-btn', onClick: () => setPrizeDraft((prev) => prev.concat([{ id: '', name: '', emoji: '', rarity: 'common', note: '', stock: '', weeklyCap: '', enabled: true }])) }, '新增奖品'),
+          h('button', { key: 'reset', className: 'bl-btn', onClick: resetPrizes, disabled: adminBusy }, '恢复默认'),
+          h('button', { key: 'save', className: 'bl-btn bl-btn-primary', onClick: savePrizes, disabled: adminBusy }, adminBusy ? '保存中…' : '保存奖品池'),
+        ])
+        const columns = h('div', { key: 'cols', className: 'bl-prow bl-prow-head' }, [
+          h('span', { key: 'e' }, '图标'),
+          h('span', { key: 'n' }, '奖品名称'),
+          h('span', { key: 'r' }, '稀有度'),
+          h('span', { key: 's' }, '库存'),
+          h('span', { key: 'w' }, '每周上限'),
+          h('span', { key: 'on' }, '启用'),
+          h('span', { key: 'x' }, ''),
+        ])
+        const rows = prizeDraft.map((row, index) => h('div', { key: row.id || ('new' + index), className: 'bl-prow' }, [
+          h('input', { key: 'e', className: 'bl-input bl-prow-emoji', value: row.emoji, maxLength: 4, placeholder: '🎁', onChange: (e) => patch(index, 'emoji', e.target.value) }),
+          h('input', { key: 'n', className: 'bl-input', value: row.name, maxLength: 20, placeholder: '奖品名称（必填）', onChange: (e) => patch(index, 'name', e.target.value) }),
+          h('select', { key: 'r', className: 'bl-input', value: row.rarity, onChange: (e) => patch(index, 'rarity', e.target.value) },
+            rarities.map((r) => h('option', { key: r.key, value: r.key }, r.label + ' · 权重 ' + r.weight))),
+          h('input', { key: 's', className: 'bl-input', type: 'number', min: 0, value: row.stock, placeholder: '不限', onChange: (e) => patch(index, 'stock', e.target.value) }),
+          h('input', { key: 'w', className: 'bl-input', type: 'number', min: 0, value: row.weeklyCap, placeholder: '不限', onChange: (e) => patch(index, 'weeklyCap', e.target.value) }),
+          h('label', { key: 'on', className: 'bl-prow-on' }, h('input', { key: 'i', type: 'checkbox', checked: row.enabled, onChange: (e) => patch(index, 'enabled', e.target.checked) })),
+          h('button', { key: 'x', className: 'bl-link', onClick: () => setPrizeDraft((prev) => prev.filter((r, i) => i !== index)) }, '删除'),
+        ]))
+        return [
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('k1', '奖池总数', stats.total || 0, '件', '含停用的', 'cyan'),
+            kpi('k2', '已启用', stats.enabled || 0, '件', '家长可逐条开关'),
+            kpi('k3', '现在可抽', stats.drawable || 0, '件', '排除抽完/本周到上限', 'green'),
+            kpi('k4', '本周抽盒', prizes.limits ? (Number(prizes.limits.weekDraws) || 0) : 0, '次', '上限 ' + ((prizes.limits && prizes.limits.weeklyBoxLimit) || '不限'), 'gold'),
+          ]),
+          h('div', { key: 'panel', className: 'bl-panel' }, [
+            head,
+            h('div', { key: 'list', className: 'bl-admin-list' }, [columns].concat(rows)),
+            h('div', { key: 'note', className: 'bl-note' },
+              '库存填 0 表示没了，留空 = 不限；每周上限留空 = 不限。单件抽中概率 = 该稀有度权重 ÷ 当前可抽池的总权重（常见 5 / 稀有 3 / 珍稀 1），所以改动奖品数量会改变概率。勋章赠送的奖品也计入库存和每周上限。'),
+          ]),
+        ]
+      }
+
+      function renderMedalAdmin() {
+        if (!medalBook || !medalDraft) return [h('div', { key: 'loading', className: 'bl-empty-panel' }, '正在读勋章规则…')]
+        const known = {}
+        for (const row of medalBook.items || []) known[row.id] = row
+        const options = [{ id: '', name: '不赠奖品' }].concat(medalBook.prizes || [])
+        const patch = (index, key, value) => setMedalDraft((prev) => prev.map((row, i) => (i === index ? { ...row, [key]: value } : row)))
+        const head = h('div', { key: 'ph', className: 'bl-panel-head' }, [
+          h('b', { key: 't' }, '勋章规则 ' + medalDraft.length + ' 枚 · 已获得 ' + (medalBook.earnedCount || 0)),
+          h('div', { key: 'sp', className: 'bl-spacer' }),
+          h('button', { key: 'save', className: 'bl-btn bl-btn-primary', onClick: saveMedals, disabled: adminBusy }, adminBusy ? '保存中…' : '保存规则'),
+        ])
+        const columns = h('div', { key: 'cols', className: 'bl-prow bl-prow-medal bl-prow-head' }, [
+          h('span', { key: 'g' }, ''),
+          h('span', { key: 'n' }, '勋章 / 条件'),
+          h('span', { key: 't' }, '门槛'),
+          h('span', { key: 'x' }, '星火'),
+          h('span', { key: 'p' }, '额外奖品'),
+          h('span', { key: 's' }, '进度'),
+        ])
+        const rows = medalDraft.map((row, index) => {
+          const now = known[row.id] || {}
+          return h('div', { key: row.id, className: 'bl-prow bl-prow-medal' }, [
+            h('span', { key: 'g', className: 'bl-prow-glyph' }, h(Glyph, { key: 'i', name: now.glyph || 'medal', size: 20, sw: 1.7 })),
+            h('div', { key: 'n', className: 'bl-prow-name' }, [
+              h('b', { key: 'b' }, row.name || now.name || '勋章'),
+              h('em', { key: 'e' }, now.metricLabel || ''),
+            ]),
+            h('input', { key: 't', className: 'bl-input', type: 'number', min: 1, max: 999, value: row.target, onChange: (e) => patch(index, 'target', Number(e.target.value)) }),
+            h('input', { key: 'x', className: 'bl-input', type: 'number', min: 0, max: 2000, value: row.xp, onChange: (e) => patch(index, 'xp', Number(e.target.value)) }),
+            h('select', { key: 'p', className: 'bl-input', value: row.prizeId, onChange: (e) => patch(index, 'prizeId', e.target.value) },
+              options.map((item) => h('option', { key: item.id || 'none', value: item.id }, (item.emoji ? item.emoji + ' ' : '') + item.name))),
+            h('span', { key: 's', className: 'bl-hint' }, now.earned ? '已获得' : (Math.min(Number(now.value) || 0, Number(row.target) || 1) + ' / ' + (row.target || 1))),
+          ])
+        })
+        return [
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('k1', '勋章数', medalDraft.length, '枚', '内置 8 枚'),
+            kpi('k2', '已获得', medalBook.earnedCount || 0, '枚', '达标自动发放', 'green'),
+            kpi('k3', '星火加成', medalBook.xp || 0, '点', '只来自勋章', 'gold'),
+            kpi('k4', '本周看片', weekDone + '/' + weekTasks, '条', '连续 ' + streak + ' 天', 'cyan'),
+          ]),
+          h('div', { key: 'panel', className: 'bl-panel' }, [
+            head,
+            h('div', { key: 'list', className: 'bl-admin-list' }, [columns].concat(rows)),
+            h('div', { key: 'note', className: 'bl-note' },
+              '门槛就是「看完几条 / 答对几题 / 连续几天 / 集齐几个分类」，改小门槛会立刻补发之前已达成的勋章。星火会加成到等级经验里，额外奖品会真的从奖品池扣一件库存。'),
           ]),
         ]
       }
@@ -3238,7 +3550,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                     ? renderVault()
                     : renderSettings()
 
-      const xp = doneTotal * 40
+      const xp = doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0)
       const level = 1 + Math.floor(xp / XP_STEP)
       const xpIn = xp % XP_STEP
       const railCount = (id) => id === 'library' ? String(allVideos.length)

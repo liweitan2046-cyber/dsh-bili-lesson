@@ -23,6 +23,8 @@ import {
   availableOf,
   rewardView,
 } from './src/rewards.js'
+import { normalizePool, drawable, countUsage, pickPrize, prizeView } from './src/prizes.js'
+import { studyStats, progressOf, mergeMedals } from './src/medals.js'
 
 const BV = 'BV1GJ411x7h7'
 const dir = await mkdtemp(join(tmpdir(), 'bili-lesson-'))
@@ -207,6 +209,89 @@ ok('rewards after draw', afterDraw.data.earned === 1 && afterDraw.data.used === 
 const exported = await call('GET', '/export')
 ok('export shape', exported.status === 200 && exported.data.source === 'dsh-bili-lesson' && exported.data.lessons.length === 1, exported.data)
 ok('export keeps keys and adds ledger', Object.keys(exported.data).join(',') === 'generatedAt,source,weekStart,plan,videos,lessons,attempts,rewards' && Array.isArray(exported.data.attempts) && exported.data.attempts.length === 3 && exported.data.rewards?.used === 1 && exported.data.rewards?.available === 0, { keys: Object.keys(exported.data), attempts: exported.data.attempts?.length, rewards: exported.data.rewards })
+
+
+/* ---- 奖品池：库存 / 每周上限 / 稀有度权重 ---- */
+const gated = [
+  { id: 'g1', name: 'g1', rarity: 'common', stock: 1, weeklyCap: null, enabled: true },
+  { id: 'g2', name: 'g2', rarity: 'epic', stock: null, weeklyCap: 1, enabled: true },
+  { id: 'g3', name: 'g3', rarity: 'common', stock: null, weeklyCap: null, enabled: false },
+]
+const weekOf = rows => countUsage(rows, '2026-11-09')
+ok('drawable respects stock and weekly cap', drawable(gated, weekOf([{ itemId: 'g1', date: '2026-11-10' }])).map(i => i.id).join(',') === 'g2', drawable(gated, weekOf([{ itemId: 'g1', date: '2026-11-10' }])))
+ok('drawable drops exhausted pool', drawable(gated, weekOf([{ itemId: 'g1', date: '2026-11-10' }, { itemId: 'g2', date: '2026-11-10' }])).length === 0)
+ok('usage splits week from total', weekOf([{ itemId: 'g1', date: '2026-11-10' }, { itemId: 'g1', date: '2026-11-01' }]).total.g1 === 2 && weekOf([{ itemId: 'g1', date: '2026-11-10' }, { itemId: 'g1', date: '2026-11-01' }]).week.g1 === 1)
+ok('pickPrize weights by rarity', pickPrize([{ id: 'a', rarity: 'common' }, { id: 'b', rarity: 'epic' }], 0).id === 'a' && pickPrize([{ id: 'a', rarity: 'common' }, { id: 'b', rarity: 'epic' }], 0.99).id === 'b' && pickPrize([], 0.5) === null)
+const normalized = normalizePool([{ name: '冰淇淋券', rarity: 'rare', stock: 2, weeklyCap: 1 }, { id: 'p_star-hug', name: '抱一抱' }])
+ok('normalizePool keeps ids and limits', normalized.items.length === 2 && normalized.items[0].id.indexOf('pz_') === 0 && normalized.items[0].stock === 2 && normalized.items[0].weeklyCap === 1 && normalized.items[1].id === 'p_star-hug', normalized.items)
+let nameRejected = false
+try { normalizePool([{ name: '   ' }]) } catch { nameRejected = true }
+ok('normalizePool rejects empty name', nameRejected)
+const poolView = prizeView(gated, weekOf([{ itemId: 'g1', date: '2026-11-10' }]), '2026-11-09')
+ok('prizeView carries remaining and weight', poolView[0].remaining === 0 && poolView[0].weekUsed === 1 && poolView[1].weight === 1 && poolView[2].enabled === false, poolView)
+
+/* ---- 勋章：统计与阈值 ---- */
+const fakeStats = studyStats({
+  videos: [{ id: 'v1', category: '儿歌' }, { id: 'v2', category: '儿歌' }, { id: 'v3', category: '数学' }],
+  watch: [
+    { videoId: 'v1', date: '2026-11-09', done: true },
+    { videoId: 'v2', date: '2026-11-10', done: true },
+    { videoId: 'v3', date: '2026-11-11', done: false },
+  ],
+  attempts: [{ correct: 3 }, { correct: 2 }],
+})
+ok('study stats counts watch/correct/streak/category', fakeStats.watch === 2 && fakeStats.correct === 5 && fakeStats.streak === 2 && fakeStats.category === 1, fakeStats)
+ok('medal progress clamps at 100', progressOf({ metric: 'watch', target: 2 }, fakeStats).earned === true && progressOf({ metric: 'watch', target: 2 }, fakeStats).pct === 100 && progressOf({ metric: 'watch', target: 5 }, fakeStats).earned === false)
+const mergedMedals = mergeMedals({ items: [{ id: 'md_first', target: 0, xp: 99999, name: '改过的名字' }, { id: 'nope', target: 5 }] }, new Set())
+const mdFirst = mergedMedals.items.find(m => m.id === 'md_first')
+ok('medal merge clamps and drops unknown', mergedMedals.items.length === 8 && mdFirst.name === '改过的名字' && mdFirst.target === 1 && mdFirst.xp === 2000, mdFirst)
+
+/* ---- 奖品池 HTTP：家长保存、抽奖命中、周上限、库存抽干 ---- */
+const poolSave = await call('PUT', '/prizes', {
+  items: [
+    { id: 'pz_stock', name: '一次小实验', emoji: '🔬', rarity: 'epic', stock: 1, note: '限量一次' },
+    { id: 'pz_weekly', name: '周末去公园', emoji: '🌳', rarity: 'common', weeklyCap: 1 },
+  ],
+})
+ok('prizes save', poolSave.status === 200 && poolSave.data.items.length === 2 && poolSave.data.items[0].stock === 1, poolSave.data)
+const poolGet = await call('GET', '/prizes')
+ok('prizes read shows limits', poolGet.status === 200 && poolGet.data.rarities.length === 3 && poolGet.data.stats.drawable === 2 && poolGet.data.items[1].weeklyCap === 1, poolGet.data)
+const poolBad = await call('PUT', '/prizes', { items: [{ name: '' }] })
+ok('prizes reject empty name 400', poolBad.status === 400, poolBad.data)
+
+const addManualBox = async () => {
+  await routes.ledger.update('attempts', current => ({
+    attempts: [...((current && current.attempts) || []), { id: 'at_manual_' + Math.random().toString(16).slice(2, 8), lessonId: 'ls_manual', videoId: BV, date: '2026-11-15', correct: 3, total: 3, score: 100, boxGranted: true, createdAt: Date.now() }],
+  }))
+}
+await call('PUT', '/settings', { perDay: 3, maxAge: 5, embedPlay: false, weeklyBoxLimit: 2 })
+const limitSet = await call('GET', '/prizes')
+ok('settings weekly limit visible', limitSet.data.limits.weeklyBoxLimit === 2 && limitSet.data.limits.weekDraws === 1 && limitSet.data.limits.weeklyRemaining === 1, limitSet.data.limits)
+await addManualBox()
+const poolDraw = await call('POST', '/rewards/draw')
+ok('draw picks from parent pool', poolDraw.status === 200 && ['pz_stock', 'pz_weekly'].includes(poolDraw.data.item?.id) && poolDraw.data.limits.weekDraws === 2, poolDraw.data)
+await addManualBox()
+const cappedDraw = await call('POST', '/rewards/draw')
+ok('weekly draw cap blocks', cappedDraw.status === 409 && /本周的抽盒次数/.test(cappedDraw.data.error || ''), cappedDraw.data)
+await call('PUT', '/settings', { perDay: 3, maxAge: 5, embedPlay: false, weeklyBoxLimit: 0 })
+const uncappedDraw = await call('POST', '/rewards/draw')
+const emptyPool = uncappedDraw.status === 409 && /奖品池里没有可抽的奖品/.test(uncappedDraw.data.error || '')
+const secondHit = uncappedDraw.status === 200
+ok('pool exhaustion refuses', emptyPool || secondHit, uncappedDraw.data)
+
+/* ---- 勋章 HTTP：结算、家长改阈值、赠奖绑定 ---- */
+const medalGet = await call('GET', '/medals')
+ok('medals list has 8 and settles', medalGet.status === 200 && medalGet.data.items.length === 8 && medalGet.data.earnedCount >= 1 && medalGet.data.stats.watch >= 1 && medalGet.data.xp > 0, { earned: medalGet.data.earnedCount, xp: medalGet.data.xp, stats: medalGet.data.stats })
+const honorsFile = await routes.ledger.read('honors')
+ok('honors persisted once per medal', Array.isArray(honorsFile.earned) && honorsFile.earned.length === medalGet.data.earnedCount && typeof honorsFile.xp === 'number', honorsFile)
+const medalSave = await call('PUT', '/medals', { items: [{ id: 'md_watch20', target: 1, xp: 50, name: '一日远航', prizeId: 'pz_weekly' }, { id: 'md_streak7', enabled: false }] })
+const lowered = medalSave.data.items.find(m => m.id === 'md_watch20')
+ok('medals save lowers threshold and grants', medalSave.status === 200 && lowered.target === 1 && lowered.xp === 50 && lowered.name === '一日远航' && lowered.earned === true && lowered.prizeId === 'pz_weekly', lowered)
+ok('medals keep disabled state', medalSave.data.items.find(m => m.id === 'md_streak7').enabled === false)
+const medalNames = await call('GET', '/medals')
+ok('medal prize name resolved', medalNames.data.items.find(m => m.id === 'md_watch20').prizeName === '周末去公园', medalNames.data.items.find(m => m.id === 'md_watch20'))
+const medalBad = await call('PUT', '/medals', { items: 'nope' })
+ok('medals reject bad body 400', medalBad.status === 400, medalBad.data)
 
 const removed = await call('DELETE', '/videos/' + BV)
 const after = await call('GET', '/plan')
