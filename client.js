@@ -731,7 +731,7 @@ font-size:9.5px;letter-spacing:.12em;color:var(--bl-dim)}
 .bl-goals{display:flex;flex-direction:column;gap:5px;margin:0;padding:0;list-style:none}
 .bl-goals li{position:relative;padding-left:12px;font-size:11.5px;line-height:1.45;color:var(--bl-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bl-goals li::before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;border-radius:1px;background:rgba(140,176,210,.5)}
-.bl-reward-row{display:flex;gap:8px}
+.bl-reward-row{display:flex;flex-wrap:wrap;gap:6px}
 .bl-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:7px;border:1px solid var(--bl-line);background:rgba(9,16,26,.6);font-size:11px;color:var(--bl-muted)}
 .bl-chip b{color:#e8f2fc;font-weight:600;font-variant-numeric:tabular-nums}
 .bl-chip.gold{border-color:rgba(243,179,76,.3);color:#f0c684}
@@ -831,8 +831,20 @@ background:linear-gradient(160deg,#3f86d8,#0e2b4d 62%,#0a1c33)}
 .bl-tile span{display:block;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#7d95ad}
 .bl-tile b{display:block;margin-top:3px;font-size:12.5px;color:#e6f2ff;font-weight:600;letter-spacing:.02em}
 .bl-chips{display:flex;gap:7px;flex-wrap:wrap}
-.bl-chip{padding:5px 9px;border-radius:8px;font-size:11px}
+.bl-chip{padding:5px 9px;border-radius:8px;font-size:11px;flex:none;white-space:nowrap}
 .bl-chip.gold{border-color:rgba(245,179,51,.42);background:rgba(245,179,51,.1);color:#ffd58a}
+.bl-course-prog{display:flex;align-items:center;gap:12px;margin:2px 0 6px}
+.bl-ring{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;flex:none;box-shadow:0 0 0 1px rgba(140,176,210,.16) inset}
+.bl-ring i{width:44px;height:44px;border-radius:50%;background:#0b1622;display:grid;place-items:center;font-style:normal;font-size:11.5px;font-weight:700;color:#dff3ff;font-variant-numeric:tabular-nums}
+.bl-ring-meta{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:11px;color:var(--bl-muted);line-height:1.35}
+.bl-ring-meta b{font-size:12.5px;font-weight:600;color:#dff3ff}
+.bl-rail-sec{margin-top:10px;padding-top:10px;border-top:1px solid var(--bl-line);display:flex;flex-direction:column;gap:2px}
+.bl-rail-sech{padding:0 10px 6px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#6d87a0}
+.bl-rail-cat{height:32px;font-size:12px;padding:0 10px}
+.bl-rail-cat svg{opacity:.7}
+.bl-rail-cat.on svg{opacity:1}
+.bl-rail-cat.on::after{display:none}
+.bl-rail-cat.on{background:rgba(92,200,255,.1);border-color:rgba(92,200,255,.22);font-weight:600}
 .bl-course-cta{gap:8px}
 .bl-cta-main{position:relative;height:44px;border:0;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.06em;color:#f2fbff;
 background:linear-gradient(180deg,#3fa9ff,#1d6fc0 62%,#155a9f);box-shadow:0 0 24px rgba(45,140,235,.55),inset 0 1px 0 rgba(200,240,255,.5);clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
@@ -1945,6 +1957,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const dayDone = cur ? dayList.filter((id) => (watchIndex.byDate[cur.date] || []).indexOf(id) !== -1).length : 0
         const dayRatio = dayList.length ? dayDone / dayList.length : 0
         const goals = lesson && Array.isArray(lesson.questions) ? lesson.questions.slice(0, 3) : []
+        const qs = lesson && Array.isArray(lesson.questions) ? lesson.questions : []
+        const avgDiff = qs.length ? Math.round(qs.reduce((s, q) => s + (Number(q.difficulty) || 1), 0) / qs.length) : 0
+        const pct = Math.round(dayRatio * 100)
+        const minutesOf = (id) => { const v = pick(id); return v ? (Number(v.duration) || 0) / 60 : 0 }
+        const dayWatched = cur ? dayList.filter((id) => (watchIndex.byDate[cur.date] || []).indexOf(id) !== -1) : []
+        const watchedMin = Math.round(dayWatched.reduce((s, id) => s + minutesOf(id), 0))
+        const totalMin = Math.round(dayList.reduce((s, id) => s + minutesOf(id), 0))
 
         return h('div', { key: 'course', className: 'bl-panel bl-course' }, [
           cur && cur.video.cover
@@ -1962,16 +1981,21 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               cur.video.duration ? h('span', { key: 'd', className: 'bl-chip' }, fmtDur(cur.video.duration)) : null,
               lesson ? h('span', { key: 'l', className: 'bl-chip gold' }, '课卡 ' + (lesson.questions || []).length + ' 题') : null,
               cur.video.minAge ? h('span', { key: 'a', className: 'bl-chip' }, cur.video.minAge + ' 岁+') : null,
+              avgDiff ? h('span', { key: 'df', className: 'bl-chip' }, ['难度 ', h('b', { key: 'b', style: { letterSpacing: '1px' } }, '★'.repeat(avgDiff) + '☆'.repeat(3 - avgDiff))]) : null,
             ] : null),
             goals.length
               ? h('ul', { key: 'g', className: 'bl-goals' }, goals.map((q, i) => h('li', { key: 'q' + i, title: q.prompt }, q.prompt || '看一遍这一集')))
               : h('div', { key: 'ng', className: 'bl-stat-note' }, cur ? '这条还没做课卡，先看一遍也行。' : '点「自动排本周」把片库排进航线。'),
-            h('div', { key: 'p', className: 'bl-xp' }, [
-              h('div', { key: 'h', className: 'bl-xp-head' }, [
-                h('span', { key: 'l' }, '今日进度'),
-                h('b', { key: 'v' }, cur ? dayDone + ' / ' + (dayList.length || 0) : '0 / 0'),
+            h('div', { key: 'p', className: 'bl-course-prog' }, [
+              h('div', {
+                key: 'r',
+                className: 'bl-ring',
+                style: { background: 'conic-gradient(' + (pct >= 100 ? '#4fd8a6' : '#5cc8ff') + ' ' + Math.max(pct, 3) + '%, rgba(140,176,210,.12) 0)' },
+              }, h('i', { key: 'v' }, pct + '%')),
+              h('div', { key: 'm', className: 'bl-ring-meta' }, [
+                h('b', { key: 'a' }, '今日进度 ' + (cur ? dayDone + ' / ' + (dayList.length || 0) : '0 / 0')),
+                h('span', { key: 'b' }, '已学 ' + watchedMin + ' 分钟 · 预计 ' + totalMin + ' 分钟'),
               ]),
-              h('div', { key: 'bar', className: 'bl-bar' }, h('i', { style: { width: Math.round(dayRatio * 100) + '%' } })),
             ]),
             h('div', { key: 'rw', className: 'bl-reward-row' }, [
               h('span', { key: 'x', className: 'bl-chip' }, ['奖励 ', h('b', { key: 'b' }, '+' + (goals.length ? '40' : '20'))]),
@@ -3255,6 +3279,19 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('span', { key: 'l' }, item.label),
             railCount(item.id) ? h('em', { key: 'c' }, railCount(item.id)) : null,
           ]))).concat([
+            h('div', { key: 'sec', className: 'bl-rail-sec' }, [
+              h('div', { key: 'h', className: 'bl-rail-sech' }, '分类 · 学科'),
+            ].concat((library.categories || []).slice(0, 6).map((name) => h('button', {
+              key: 'c' + name,
+              className: 'bl-rail-item bl-rail-cat' + (category === name && tab === 'vault' ? ' on' : ''),
+              title: '按「' + name + '」筛片库',
+              onClick: () => {
+                const next = category === name && tab === 'vault' ? '' : name
+                setCategory(next)
+                setTab('vault')
+              },
+            }, h(Glyph, { key: 'i', name: catGlyph(name), size: 15, sw: 1.7 }), h('span', { key: 'l' }, name))))),
+          ]).concat([
             h('div', { key: 'foot', className: 'bl-rail-foot' }, [
               h('div', { key: 'xp', className: 'bl-xp' }, [
                 h('div', { key: 'h', className: 'bl-xp-head' }, [
