@@ -838,6 +838,9 @@ background:linear-gradient(160deg,#3f86d8,#0e2b4d 62%,#0a1c33)}
 .bl-ring i{width:44px;height:44px;border-radius:50%;background:#0b1622;display:grid;place-items:center;font-style:normal;font-size:11.5px;font-weight:700;color:#dff3ff;font-variant-numeric:tabular-nums}
 .bl-ring-meta{display:flex;flex-direction:column;gap:3px;min-width:0;font-size:11px;color:var(--bl-muted);line-height:1.35}
 .bl-ring-meta b{font-size:12.5px;font-weight:600;color:#dff3ff}
+.bl-pulse{transform-box:fill-box;transform-origin:center;animation:blPulse 2.6s ease-out infinite}
+@keyframes blPulse{0%{opacity:.42;transform:scale(.84)}72%{opacity:0;transform:scale(1.24)}100%{opacity:0;transform:scale(1.24)}}
+@media (prefers-reduced-motion: reduce){.bl-pulse{animation:none;opacity:.28}}
 .bl-rail-sec{margin-top:10px;padding-top:10px;border-top:1px solid var(--bl-line);display:flex;flex-direction:column;gap:2px}
 .bl-rail-sech{padding:0 10px 6px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#6d87a0}
 .bl-rail-cat{height:32px;font-size:12px;padding:0 10px}
@@ -1806,7 +1809,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           const side = i % 2 === 0 ? -1 : 1
           const x = n > 1 ? cx + side * amp : cx
           const on = i === curIndex
-          return { t, i, x, y, on, side, done: t.done, w: on ? 130 : 118, h: on ? 60 : 56 }
+          return { t, i, x, y, on, side, done: t.done, w: on ? 148 : 134, h: on ? 70 : 64 }
         })
         const segmentD = (a, b) => {
           const midY = Math.round((a.y + b.y) / 2)
@@ -1832,9 +1835,17 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           key: s.key,
           d: segmentD(s.from, s.to),
           fill: 'none',
-          stroke: s.to.done ? 'rgba(92,200,255,.55)' : 'rgba(140,176,210,.16)',
+          stroke: s.to.done ? 'rgba(92,200,255,.55)' : 'rgba(140,176,210,.18)',
           strokeWidth: 2,
           strokeDasharray: s.to.done ? null : '5 7',
+          strokeLinecap: 'round',
+        }))
+        const halos = segments.map((s) => h('path', {
+          key: 'h' + s.key,
+          d: segmentD(s.from, s.to),
+          fill: 'none',
+          stroke: s.to.done ? 'rgba(70,170,235,.18)' : 'rgba(120,170,215,.07)',
+          strokeWidth: 9,
           strokeLinecap: 'round',
         }))
         const nodes = pts.map((n0) => {
@@ -1848,10 +1859,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             style: { cursor: 'pointer', opacity: n0.done || n0.on ? 1 : 0.78, filter: n0.on ? 'url(#blRouteGlow)' : undefined },
             onClick: () => (lessons.some((l) => l.videoId === n0.t.id) ? setTab('learn') : setPlayer(n0.t.video)),
           }, [
-            h('ellipse', { key: 'sh', cx: n0.x, cy: n0.y + n0.h / 2 + 9, rx: 40, ry: 5, fill: 'rgba(0,0,0,.42)' }),
-            n0.on ? h('circle', { key: 'ring', cx: n0.x, cy: n0.y, r: 42, fill: 'none', stroke: 'rgba(243,179,76,.3)', strokeWidth: 1, strokeDasharray: '2 6' }) : null,
-            h('path', { key: 'plate', d: rrect(n0.x - n0.w / 2, n0.y - n0.h / 2, n0.w, n0.h, 14), fill: n0.on ? 'rgba(56,50,26,.9)' : 'rgba(9,22,38,.94)', stroke, strokeWidth: n0.on ? 1.7 : 1.15 }),
-            h('path', { key: 'inner', d: rrect(n0.x - n0.w / 2 + 5, n0.y - n0.h / 2 + 5, n0.w - 10, n0.h - 10, 10), fill: n0.on ? 'rgba(96,74,26,.5)' : 'rgba(8,20,34,.9)', stroke: color, strokeOpacity: n0.on ? 0.5 : n0.done ? 0.32 : 0.2, strokeWidth: 1 }),
+            h('ellipse', { key: 'sh', cx: n0.x, cy: n0.y + n0.h / 2 + 5, rx: 30, ry: 3, fill: 'rgba(0,0,0,.22)' }),
+            n0.on ? h('circle', { key: 'pulse', className: 'bl-pulse', cx: n0.x, cy: n0.y, r: 48, fill: 'rgba(243,179,76,.14)', stroke: 'rgba(243,179,76,.4)', strokeWidth: 1 }) : null,
+            n0.on ? h('circle', { key: 'ring', cx: n0.x, cy: n0.y, r: 54, fill: 'none', stroke: 'rgba(243,179,76,.3)', strokeWidth: 1, strokeDasharray: '2 6' }) : null,
+            h('path', { key: 'plate', d: rrect(n0.x - n0.w / 2, n0.y - n0.h / 2, n0.w, n0.h, 12), fill: n0.on ? 'rgba(56,50,26,.9)' : 'rgba(9,22,38,.94)', stroke, strokeWidth: n0.on ? 1.7 : 1.15 }),
+            h('path', { key: 'inner', d: rrect(n0.x - n0.w / 2 + 6, n0.y - n0.h / 2 + 6, n0.w - 12, n0.h - 12, 8), fill: n0.on ? 'rgba(96,74,26,.5)' : 'rgba(8,20,34,.9)', stroke: color, strokeOpacity: n0.on ? 0.5 : n0.done ? 0.32 : 0.2, strokeWidth: 1 }),
             h(Glyph, { key: 'ic', name: catGlyph(n0.t.video.category), x: n0.x - 10, y: n0.y - n0.h / 2 + 8, width: 20, height: 20, sw: 1.8, style: { color } }),
             h('text', { key: 'lb', x: n0.x, y: n0.y + n0.h / 2 - 11, textAnchor: 'middle', style: { fill: n0.on ? '#ffe3ad' : n0.done ? '#cdeadf' : '#b3c6d6', fontSize: '9.5px', fontWeight: 600 } }, label),
             h('text', { key: 'dt', x: n0.x, y: n0.y - n0.h / 2 - 7, textAnchor: 'middle', style: { fill: 'rgba(150,180,206,.55)', fontSize: '9px', letterSpacing: '.08em' } }, n0.t.date.slice(5) + (n0.done ? ' · 已看' : n0.on ? ' · 现在' : '')),
@@ -1871,7 +1883,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ])
         return h('div', { key: 'route', className: 'bl-map' }, [
           legend,
-          h('svg', { key: 'svg', ref: mapSvgRef, viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': 'true' }, [defs].concat(lines).concat(arrows).concat(nodes)),
+          h('svg', { key: 'svg', ref: mapSvgRef, viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': 'true' }, [defs].concat(halos).concat(lines).concat(arrows).concat(nodes)),
         ])
       }
 
