@@ -242,9 +242,11 @@ background:linear-gradient(180deg,rgba(12,24,40,.9),rgba(8,16,28,.66))!important
 .bl-tab.on{position:relative;background:linear-gradient(180deg,rgba(53,216,255,.22),rgba(53,216,255,.08));color:#cdf6ff;font-weight:600;border-color:rgba(53,216,255,.4);box-shadow:0 0 14px rgba(53,216,255,.28),inset 0 0 12px rgba(53,216,255,.12)}
 .bl-spacer{flex:1;min-width:0}
 .bl-hud{display:flex;align-items:center;gap:6px;flex:none}
-.bl-hud-chip{display:flex;align-items:baseline;gap:5px;padding:3px 9px;border-radius:6px;border:1px solid var(--bl-line);background:rgba(6,14,24,.72);font-size:10px;letter-spacing:.6px;color:var(--bl-dim);text-transform:uppercase;white-space:nowrap}
+.bl-hud-chip{appearance:none;font-family:inherit;cursor:pointer;display:flex;align-items:baseline;gap:5px;padding:3px 9px;border-radius:6px;border:1px solid var(--bl-line);background:rgba(6,14,24,.72);font-size:10px;letter-spacing:.6px;color:var(--bl-dim);text-transform:uppercase;white-space:nowrap}
 .bl-hud-chip b{font-size:12.5px;font-weight:700;color:#cdf6ff;letter-spacing:.4px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(53,216,255,.4)}
 .bl-hud-chip.gold b{color:#ffd88a;text-shadow:0 0 12px rgba(255,196,77,.45)}
+.bl-hud-chip:hover{border-color:var(--bl-line-3);box-shadow:0 0 14px rgba(53,216,255,.22)}
+.bl-hud-chip.gold:hover{border-color:rgba(255,196,77,.6);box-shadow:0 0 14px rgba(255,196,77,.25)}
 .bl-hud-bar{width:54px;height:6px;border-radius:3px;border:1px solid rgba(96,176,255,.28);background:rgba(4,10,18,.85);overflow:hidden;align-self:center}
 .bl-hud-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#ffc44d,#ff8a3d);box-shadow:0 0 8px rgba(255,196,77,.75)}
 .bl-hint{color:var(--bl-muted);font-size:11.5px;letter-spacing:.2px}
@@ -313,7 +315,7 @@ background:linear-gradient(180deg,rgba(16,30,50,.86),rgba(8,16,28,.92))!importan
 .bl-day{position:relative;border:1px solid var(--bl-line);border-radius:var(--bl-r);background:linear-gradient(180deg,rgba(16,30,50,.82),rgba(8,16,28,.9))!important;padding:11px 13px;transition:border-color .18s,box-shadow .18s}
 .bl-day::before{content:"";position:absolute;left:-22px;top:16px;width:12px;height:12px;border-radius:50%;background:rgba(8,16,28,1);border:2px solid rgba(96,176,255,.45);box-shadow:0 0 10px rgba(53,216,255,.25)}
 .bl-day.today{border-color:rgba(53,216,255,.5);box-shadow:0 0 22px rgba(53,216,255,.2)}
-.bl-day.today::before{border-color:#35d8ff;background:radial-gradient(circle at 40% 35%,#e6fbff,#35d8ff);box-shadow:0 0 14px rgba(53,216,255,.9),0 0 26px rgba(53,216,255,.5)}
+.bl-day.today::before{border-color:#35d8ff;background:radial-gradient(circle at 40% 35%,#e6fbff,#35d8ff);box-shadow:0 0 14px rgba(53,216,255,.9),0 0 26px rgba(53,216,255,.5);animation:blPulse 3s ease-in-out infinite}
 .bl-day-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .bl-day-name{font-weight:700;font-size:12.5px;letter-spacing:.5px;color:#cfe4fb}
 .bl-day.today .bl-day-name{color:var(--bl-cyan-2);text-shadow:0 0 12px rgba(53,216,255,.5)}
@@ -417,6 +419,8 @@ background:linear-gradient(100deg,rgba(53,216,255,.18),rgba(20,60,110,.35),rgba(
 background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62%),rgba(4,10,18,.72)!important;box-shadow:inset 0 0 40px rgba(20,70,120,.25)}
 .bl-map svg{display:block;width:100%;height:auto}
 .bl-map-hub{fill:url(#blHub)}
+.bl-hub-core{animation:blHubPulse 4.2s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes blHubPulse{0%,100%{transform:scale(1);opacity:.96}50%{transform:scale(1.045);opacity:1}}
 .bl-planet{cursor:pointer}
 .bl-planet circle.bl-planet-body{transition:filter .2s}
 .bl-planet:hover circle.bl-planet-body{filter:brightness(1.35)}
@@ -1127,7 +1131,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
         const hub = h('g', { key: 'hub', style: { cursor: 'pointer' }, onClick: () => setCategory('') }, [
           h('circle', { key: 'halo', cx, cy, r: 58, fill: 'rgba(255,196,77,.12)' }),
           h('circle', { key: 'ring', cx, cy, r: 44, fill: 'none', stroke: 'rgba(255,196,77,.55)', strokeWidth: 1.2, strokeDasharray: '4 6' }),
-          h('circle', { key: 'body', cx, cy, r: 36, fill: 'url(#blHub)', filter: 'url(#blGlow)' }),
+          h('circle', { key: 'body', className: 'bl-hub-core', cx, cy, r: 36, fill: 'url(#blHub)', filter: 'url(#blGlow)' }),
           h('text', { key: 't1', x: cx, y: cy + 4, textAnchor: 'middle', className: 'bl-planet-count', style: { fill: '#3a2400', fontWeight: 700, fontSize: '15px' } }, weekCount || 0),
           h('text', { key: 't2', x: cx, y: cy + 70, textAnchor: 'middle', className: 'bl-planet-label', style: { fill: '#ffd88a' } }, '本周航线'),
           h('text', { key: 't3', x: cx, y: cy + 86, textAnchor: 'middle', className: 'bl-planet-count' }, weekCount ? weekCount + ' 个任务' : '还没排片'),
@@ -2151,14 +2155,14 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
           h('div', { key: 'sp', className: 'bl-spacer' }),
           notice ? h('span', { key: 'notice', className: 'bl-notice', title: notice }, notice) : null,
           h('div', { key: 'hud', className: 'bl-hud' }, [
-            h('span', { key: 'v', className: 'bl-hud-chip' }, ['片库', h('b', { key: 'n' }, String(allVideos.length))]),
-            h('span', { key: 'w', className: 'bl-hud-chip gold' }, [
+            h('button', { key: 'v', className: 'bl-hud-chip', title: '去片库', onClick: () => setTab('library') }, ['片库', h('b', { key: 'n' }, String(allVideos.length))]),
+            h('button', { key: 'w', className: 'bl-hud-chip gold', title: '去本周', onClick: () => setTab('plan') }, [
               '本周',
               h('b', { key: 'n' }, String(weekDone) + '/' + String(weekTasks)),
               h('i', { key: 'bar', className: 'bl-hud-bar' }, h('i', { style: { width: (weekRatio * 100).toFixed(0) + '%' } })),
             ]),
-            h('span', { key: 's', className: 'bl-hud-chip' }, ['打卡', h('b', { key: 'n' }, String(streak))]),
-            h('span', { key: 'l', className: 'bl-hud-chip' }, ['课卡', h('b', { key: 'n' }, String(lessons.length))]),
+            h('button', { key: 's', className: 'bl-hud-chip', title: '去记录', onClick: () => setTab('watch') }, ['打卡', h('b', { key: 'n' }, String(streak))]),
+            h('button', { key: 'l', className: 'bl-hud-chip', title: '去课卡', onClick: () => setTab('lessons') }, ['课卡', h('b', { key: 'n' }, String(lessons.length))]),
           ]),
         ]),
         error
