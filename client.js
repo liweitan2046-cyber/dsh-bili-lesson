@@ -245,7 +245,7 @@ background:linear-gradient(180deg,rgba(12,24,40,.9),rgba(8,16,28,.66))!important
 .bl-hud-chip{display:flex;align-items:baseline;gap:5px;padding:3px 9px;border-radius:6px;border:1px solid var(--bl-line);background:rgba(6,14,24,.72);font-size:10px;letter-spacing:.6px;color:var(--bl-dim);text-transform:uppercase;white-space:nowrap}
 .bl-hud-chip b{font-size:12.5px;font-weight:700;color:#cdf6ff;letter-spacing:.4px;font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(53,216,255,.4)}
 .bl-hud-chip.gold b{color:#ffd88a;text-shadow:0 0 12px rgba(255,196,77,.45)}
-.bl-hud-bar{width:54px;height:5px;border-radius:3px;background:rgba(96,176,255,.16);overflow:hidden;align-self:center}
+.bl-hud-bar{width:54px;height:6px;border-radius:3px;border:1px solid rgba(96,176,255,.28);background:rgba(4,10,18,.85);overflow:hidden;align-self:center}
 .bl-hud-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#ffc44d,#ff8a3d);box-shadow:0 0 8px rgba(255,196,77,.75)}
 .bl-hint{color:var(--bl-muted);font-size:11.5px;letter-spacing:.2px}
 .bl-note{color:var(--bl-muted);font-size:11.5px;line-height:1.7}
@@ -259,6 +259,10 @@ background:linear-gradient(180deg,rgba(12,24,40,.9),rgba(8,16,28,.66))!important
 .bl-body::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(53,216,255,.5),rgba(53,216,255,.18));border-radius:99px;border:3px solid transparent;background-clip:padding-box}
 .bl-wrap{width:100%;max-width:1216px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .bl-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bl-sec{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 0 2px 12px}
+.bl-sec::before{content:"";position:absolute;left:0;top:2px;bottom:2px;width:3px;border-radius:2px;background:linear-gradient(180deg,#35d8ff,rgba(53,216,255,.04));box-shadow:0 0 12px rgba(53,216,255,.65)}
+.bl-sec h2{margin:0;font-size:14.5px;font-weight:700;letter-spacing:1.4px;color:#dff2ff;text-shadow:0 0 18px rgba(53,216,255,.35)}
+.bl-sec h2 em{font-style:normal;color:var(--bl-dim);font-weight:400;font-size:11px;letter-spacing:.7px;margin-left:9px}
 .bl-btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;padding:0 12px;border-radius:7px;border:1px solid var(--bl-line-2);
 background:linear-gradient(180deg,rgba(24,44,70,.9),rgba(10,20,34,.9));color:var(--bl-text);font:inherit;font-size:12px;letter-spacing:.2px;cursor:pointer;text-decoration:none;white-space:nowrap;transition:border-color .18s,box-shadow .18s,transform .18s,background .18s}
 .bl-btn:hover{border-color:var(--bl-line-3);background:linear-gradient(180deg,rgba(32,58,90,.95),rgba(12,24,40,.95));box-shadow:0 0 16px rgba(53,216,255,.22)}
@@ -325,7 +329,7 @@ background:linear-gradient(180deg,rgba(16,30,50,.86),rgba(8,16,28,.92))!importan
 .bl-row-title{appearance:none;border:0;background:transparent;padding:0;display:block;width:100%;text-align:left;color:var(--bl-text);font:inherit;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .bl-row-title:hover{color:var(--bl-cyan-2)}
 .bl-row-sub{color:var(--bl-dim);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bl-check{appearance:none;width:24px;height:24px;padding:0;flex:none;border-radius:5px;border:1px solid rgba(96,176,255,.4);background:rgba(6,14,24,.9);color:var(--bl-cyan);font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s,box-shadow .18s}
+.bl-check{appearance:none;width:24px;height:24px;padding:0;flex:none;border-radius:5px;border:1px solid rgba(96,176,255,.4);background:rgba(6,14,24,.9);color:rgba(96,176,255,.30);font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s,box-shadow .18s}
 .bl-check.on{background:rgba(53,216,255,.2);border-color:rgba(53,216,255,.75);color:#dff8ff;box-shadow:0 0 14px rgba(53,216,255,.4)}
 .bl-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .bl-stat-box{position:relative;display:flex;flex-direction:column;gap:2px;padding:11px 13px;border:1px solid var(--bl-line);border-radius:var(--bl-r);background:linear-gradient(180deg,rgba(16,30,50,.8),rgba(8,16,28,.9))!important;overflow:hidden}
@@ -340,6 +344,8 @@ background:linear-gradient(180deg,rgba(16,30,50,.86),rgba(8,16,28,.92))!importan
 .bl-list-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bl-list-flag{font-size:10px;color:var(--bl-dim);white-space:nowrap;flex:none;letter-spacing:.4px}
 .bl-list-flag.on{color:var(--bl-cyan-2)}
+.bl-panel::before,.bl-map::before,.bl-card::before{content:"";position:absolute;left:0;top:0;width:14px;height:14px;border-top:2px solid rgba(53,216,255,.5);border-left:2px solid rgba(53,216,255,.5);border-top-left-radius:10px;pointer-events:none;z-index:2}
+.bl-panel::after,.bl-map::after,.bl-card::after{content:"";position:absolute;right:0;bottom:0;width:14px;height:14px;border-bottom:2px solid rgba(53,216,255,.4);border-right:2px solid rgba(53,216,255,.4);border-bottom-right-radius:10px;pointer-events:none;z-index:2}
 .bl-panel{position:relative;display:flex;flex-direction:column;gap:10px;border:1px solid var(--bl-line);border-radius:var(--bl-r);background:linear-gradient(180deg,rgba(16,30,50,.82),rgba(8,16,28,.9))!important;padding:13px;min-width:0}
 .bl-panel-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px}
 .bl-panel-head b{font-size:12.5px;font-weight:700;color:#d6e8fb;letter-spacing:.5px}
@@ -354,6 +360,8 @@ background:linear-gradient(180deg,rgba(16,30,50,.86),rgba(8,16,28,.92))!importan
 .bl-opt-row input[type=radio]{accent-color:#35d8ff;width:14px;height:14px;flex:none;cursor:pointer}
 .bl-export{font-family:ui-monospace,Consolas,monospace;font-size:11px;min-height:170px;background:rgba(3,8,16,.92)!important}
 .bl-modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 40%,rgba(10,30,50,.72),rgba(2,4,8,.92));backdrop-filter:blur(3px)}
+.bl-dialog::before{content:"";position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-top:2px solid var(--bl-line-3);border-left:2px solid var(--bl-line-3);border-top-left-radius:12px;pointer-events:none;z-index:2}
+.bl-dialog::after{content:"";position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-bottom:2px solid var(--bl-line-3);border-right:2px solid var(--bl-line-3);border-bottom-right-radius:12px;pointer-events:none;z-index:2}
 .bl-dialog{position:relative;width:min(900px,96vw);max-height:92vh;display:flex;flex-direction:column;border-radius:12px;border:1px solid var(--bl-line-3);
 background:linear-gradient(180deg,rgba(14,28,46,.97),rgba(6,12,22,.98))!important;overflow:hidden;box-shadow:0 0 0 1px rgba(53,216,255,.14),0 30px 80px rgba(0,0,0,.7),0 0 60px rgba(20,90,150,.28)}
 .bl-dialog-narrow{width:min(580px,96vw)}
@@ -389,6 +397,15 @@ background:linear-gradient(180deg,rgba(14,28,46,.97),rgba(6,12,22,.98))!importan
 .bl-sticker-name{font-size:12px;color:var(--bl-text);font-weight:700;letter-spacing:.3px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bl-sticker-meta{font-size:10.5px;color:var(--bl-dim);letter-spacing:.4px}
 .bl-sticker-count{font-size:10.5px;color:var(--bl-cyan-2);font-variant-numeric:tabular-nums}
+.bl-steps{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bl-step{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;border:1px solid var(--bl-line);background:rgba(6,14,24,.72);font-size:11.5px;color:var(--bl-muted);letter-spacing:.3px}
+.bl-step i{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:9.5px;border:1px solid currentColor;opacity:.9;flex:none}
+.bl-step.done{border-color:rgba(53,216,255,.5);color:#cdf6ff;box-shadow:0 0 14px rgba(53,216,255,.18)}
+.bl-step.now{border-color:rgba(255,196,77,.6);color:#ffe3a8;box-shadow:0 0 16px rgba(255,196,77,.26)}
+.bl-step-arrow{color:rgba(96,176,255,.4);font-size:11px}
+.bl-ring{position:relative;width:46px;height:46px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:conic-gradient(#35d8ff 0 var(--p,0%),rgba(96,176,255,.14) var(--p,0%) 100%)}
+.bl-ring::before{content:"";position:absolute;inset:5px;border-radius:50%;background:#08111d;border:1px solid rgba(96,176,255,.2)}
+.bl-ring b{position:relative;font-size:10.5px;color:#cdf6ff;font-variant-numeric:tabular-nums}
 .bl-draw-card{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;border:1px solid rgba(53,216,255,.5);
 background:linear-gradient(100deg,rgba(53,216,255,.18),rgba(20,60,110,.35),rgba(255,196,77,.12))!important;box-shadow:0 0 26px rgba(53,216,255,.3),inset 0 0 30px rgba(53,216,255,.12)}
 .bl-draw-card .bl-sticker-emoji{font-size:36px}
@@ -1011,6 +1028,12 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
       /* 渲染：片库                                                          */
       /* ------------------------------------------------------------------ */
 
+      function sec(key, title, sub, right) {
+        const head = h('h2', { key: 't' }, [title].concat(sub ? [h('em', { key: 'e' }, sub)] : []))
+        return h('div', { key, className: 'bl-sec' },
+          [head, h('div', { key: 'sp', className: 'bl-spacer' })].concat(right ? (Array.isArray(right) ? right : [right]) : []))
+      }
+
       function renderCard(v) {
         const cover = coverUrl(v.cover)
         return h('div', { key: v.id, className: 'bl-card' + (v.dead ? ' dead' : '') }, [
@@ -1139,6 +1162,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
           ? '没搜到' + (q.trim() ? '「' + q.trim() + '」' : '这个分类') + '的片子，换个词，或者把筛选清空。'
           : '片库还是空的。把想给他看的 B 站链接粘到上面那行，点「加一条」，服务端会自己去拉标题、封面和时长。'
         return [
+          sec('sec', '片库 · 素材库', (stats.total || items.length) + ' 条片子 · ' + (library.categories || []).length + ' 个分类'),
           renderStarMap(),
           h('div', { key: 'add', className: 'bl-toolbar' }, [
             h('input', {
@@ -1250,13 +1274,16 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
 
       function renderPlanDay(day) {
         const ids = day.videoIds || []
+        const doneIds = watchIndex.byDate[day.date] || []
+        const done = ids.filter((id) => doneIds.indexOf(id) !== -1).length
         const isToday = day.date === today
         return h('div', { key: day.date, className: 'bl-day' + (isToday ? ' today' : '') }, [
           h('div', { key: 'head', className: 'bl-day-head' }, [
             h('span', { key: 'w', className: 'bl-day-name' }, weekdayLabel(day.date)),
             h('span', { key: 'd', className: 'bl-day-date' }, shortDate(day.date)),
             isToday ? h('span', { key: 't', className: 'bl-badge-today' }, '今天') : null,
-            h('span', { key: 'n', className: 'bl-hint' }, ids.length ? ids.length + ' 条' : ''),
+            h('span', { key: 'n', className: 'bl-hint' }, ids.length ? done + '/' + ids.length + ' 已看' : ''),
+            done && done === ids.length ? h('span', { key: 'ok', className: 'bl-tag' }, '这天过完了') : null,
           ]),
           h('div', { key: 'body', className: 'bl-day-body' },
             ids.length
@@ -1276,13 +1303,13 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
       function renderPlan() {
         const days = plan && Array.isArray(plan.days) ? plan.days : []
         return [
-          h('div', { key: 'bar', className: 'bl-toolbar' }, [
-            h('span', { key: 'w', className: 'bl-day-name' }, '本周 · ' + weekStart),
-            h('span', { key: 's', className: 'bl-hint' },
-              days.length
-                ? '每天 ' + (plan.perDay || settings.perDay) + ' 条 · ' + (planDirty ? '有改动还没保存' : '和服务端一致')
-                : '还没排过'),
-            h('div', { key: 'sp', className: 'bl-spacer' }),
+          sec('sec', '本周航线', '周一起 · ' + weekStart + (days.length ? ' · 每天 ' + (plan.perDay || settings.perDay) + ' 条' : ' · 还没排过')
+            + (planDirty ? ' · 有改动还没保存' : ''), [
+            h('div', { key: 'prog', className: 'bl-hud-chip gold' }, [
+              '进度',
+              h('b', { key: 'n' }, String(weekDone) + '/' + String(weekTasks)),
+              h('i', { key: 'bar', className: 'bl-hud-bar' }, h('i', { style: { width: (weekRatio * 100).toFixed(0) + '%' } })),
+            ]),
             h('button', { key: 'auto', className: 'bl-btn', onClick: autoPlan, disabled: planBusy }, planBusy ? '排着呢…' : '自动排本周'),
             h('button', { key: 'save', className: 'bl-btn bl-btn-primary', onClick: savePlan, disabled: planBusy || !planDirty }, '保存'),
           ]),
@@ -1344,6 +1371,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
         const days = []
         for (let i = 0; i < 14; i += 1) days.push(addDays(today, -i))
         return [
+          sec('sec', '航行记录', '近 14 天 · 点勾可以取消'),
           h('div', { key: 'stats', className: 'bl-stats' }, [
             h('div', { key: 'a', className: 'bl-stat-box' }, [h('b', {}, String(weekCount)), h('span', {}, '本周看了（条）')]),
             h('div', { key: 'b', className: 'bl-stat-box' }, [h('b', {}, String(streak)), h('span', {}, '连续打卡（天）')]),
@@ -1518,6 +1546,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
           ])
         })
         return [
+          sec('sec', '课卡工坊', '一条视频一套课卡 · 每套最多 8 题'),
           h('div', { key: 'split', className: 'bl-split' }, [
             h('div', { key: 'left', className: 'bl-list' },
               list.length ? list : [h('div', { key: 'e', className: 'bl-empty' }, '片库还没片子，先去「片库」加一条')]),
@@ -1780,7 +1809,22 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
           ])
           : h('div', { key: 'none', className: 'bl-empty-panel' }, '本周计划还是空的。先去「本周」排片，再看这里。')
 
+        const qTotal = learnLesson ? learnLesson.questions.length : 0
+        const qAnswered = learnLesson ? learnLesson.questions.filter((q) => Number.isInteger(learned[q.id])).length : 0
+        const attemptNow = learnResult && learnResult.attempt ? learnResult.attempt : null
+        const stepCls = (state) => 'bl-step' + (state === 'done' ? ' done' : state === 'now' ? ' now' : '')
+        const steps = h('div', { key: 'steps', className: 'bl-steps' }, [
+          h('span', { key: 's1', className: stepCls('done') }, [h('i', { key: 'i' }, '1'), '看片']),
+          h('span', { key: 'a1', className: 'bl-step-arrow' }, '▸'),
+          h('span', { key: 's2', className: stepCls(attemptNow ? 'done' : qTotal ? 'now' : '') }, [h('i', { key: 'i' }, '2'), '答题 ' + qAnswered + '/' + qTotal]),
+          h('span', { key: 'a2', className: 'bl-step-arrow' }, '▸'),
+          h('span', { key: 's3', className: stepCls(attemptNow ? 'done' : '') }, [h('i', { key: 'i' }, '3'), '交卷' + (attemptNow ? ' ' + attemptNow.score + ' 分' : '')]),
+          h('span', { key: 'a3', className: 'bl-step-arrow' }, '▸'),
+          h('span', { key: 's4', className: stepCls(learnResult && learnResult.newBox ? 'now' : '') }, [h('i', { key: 'i' }, '4'), '开盲盒']),
+        ])
         return [
+          sec('sec', '训练舱', '看片 → 逐题作答 → 交卷结算 → 开盲盒'),
+          steps,
           h('div', { key: 'split', className: 'bl-split' }, [
             h('div', { key: 'left', className: 'bl-list' }, rows.length
               ? rows
@@ -1815,6 +1859,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
         })
         const owned = view.items.filter((item) => item.count > 0).length
         return [
+          sec('sec', '成就展厅', '奖品墙 ' + view.items.length + ' 格 · 已集齐 ' + owned),
           h('div', { key: 'wallet', className: 'bl-panel' }, [
             h('div', { key: 'head', className: 'bl-panel-head' }, [
               h('b', { key: 't' }, '盲盒'),
@@ -1838,6 +1883,13 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
             h('div', { key: 'head', className: 'bl-panel-head' }, [
               h('b', { key: 't' }, '奖品墙'),
               h('span', { key: 'h', className: 'bl-hint' }, owned + ' / ' + view.items.length + ' 集齐'),
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              h('span', {
+                key: 'ring',
+                className: 'bl-ring',
+                style: { '--p': ((owned / Math.max(1, view.items.length)) * 100).toFixed(1) + '%' },
+                title: '集齐进度',
+              }, h('b', {}, Math.round((owned / Math.max(1, view.items.length)) * 100) + '%')),
             ]),
             h('div', { key: 'grid', className: 'bl-stickers' }, wall),
           ]),
@@ -1856,6 +1908,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
 
       function renderSettings() {
         return [
+          sec('sec', '舰桥设置', '改完点保存，存在 ~/.dsh/bili-lesson/settings.json'),
           h('div', { key: 'panel', className: 'bl-panel' }, [
             h('div', { key: 'head', className: 'bl-panel-head' }, [
               h('b', { key: 't' }, '默认值'),
