@@ -486,7 +486,7 @@ background:linear-gradient(180deg,rgba(16,30,50,.86),rgba(8,16,28,.92))!importan
 .bl-panel-head b{font-size:12.5px;font-weight:700;color:#d6e8fb;letter-spacing:.5px}
 .bl-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .bl-field{display:flex;flex-direction:column;gap:4px;min-width:0}
-.bl-label{color:var(--bl-muted);font-size:11px;letter-spacing:.4px}
+.bl-label{color:rgba(178,202,224,.82);font-size:11.5px;letter-spacing:.2px;line-height:1.35}
 .bl-q{display:flex;flex-direction:column;gap:8px;border:1px solid var(--bl-line);border-radius:8px;background:rgba(10,20,34,.8)!important;padding:10px}
 .bl-q-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .bl-q-no{font-weight:700;font-size:12px;color:#d6e8fb;white-space:nowrap;letter-spacing:.5px}
@@ -958,6 +958,43 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
 
 .bl-mini .bl-draws .bl-draw-row{padding:4px 0}
+
+/* ---- 舰桥页面骨架：六页统一标题/指标/卡片 ---- */
+.bl-pagehead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:1px 2px 13px;margin-bottom:15px;border-bottom:1px solid var(--bl-line)}
+.bl-phleft{min-width:0}
+.bl-kicker{font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:rgba(140,196,236,.66)}
+.bl-h1{margin:6px 0 0;font-size:19px;line-height:1.25;font-weight:650;color:#eaf4ff;letter-spacing:.01em}
+.bl-sub{margin-top:6px;font-size:12px;color:rgba(176,200,222,.7);max-width:62ch}
+.bl-phright{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.bl-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.bl-kpi{min-width:0;padding:11px 13px;border:1px solid var(--bl-line);border-radius:var(--bl-r);background:rgba(12,26,40,.58)}
+.bl-kpi-label{display:block;font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:rgba(150,180,206,.64)}
+.bl-kpi-val{display:flex;align-items:baseline;gap:5px;margin-top:7px;font-variant-numeric:tabular-nums}
+.bl-kpi-val b{font-size:21px;font-weight:650;color:#eef7ff;line-height:1.1}
+.bl-kpi-val em{font-style:normal;font-size:11px;color:rgba(160,190,214,.76)}
+.bl-kpi-foot{margin-top:5px;font-size:11px;color:rgba(160,190,214,.6)}
+.bl-kpi.cyan .bl-kpi-val b{color:var(--bl-cyan)}
+.bl-kpi.gold .bl-kpi-val b{color:var(--bl-gold)}
+.bl-kpi.green .bl-kpi-val b{color:var(--bl-green)}
+.bl-thumb{width:76px;height:46px;flex:none;border-radius:6px;overflow:hidden;background:#03060c;border:1px solid rgba(140,176,210,.18)}
+.bl-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.bl-thumb .bl-mini-ph{font-size:10px;color:#6f879c}
+.bl-split{gap:14px}
+.bl-list{background:rgba(10,22,34,.6)!important;border-radius:var(--bl-r)}
+.bl-list-item{padding:7px 9px;border-radius:7px}
+.bl-list-item.on{background:rgba(92,200,255,.14);border-color:rgba(92,200,255,.34);box-shadow:none}
+.bl-day{background:#0b1622!important}
+.bl-day-head .bl-day-name{letter-spacing:.06em}
+.bl-card{box-shadow:none}
+.bl-catrow{display:grid;grid-template-columns:82px minmax(0,1fr) 56px;align-items:center;gap:9px;padding:5px 0;font-size:11.5px;color:rgba(190,212,232,.82)}
+.bl-catrow b{font-weight:600;font-size:11.5px;color:#dbeaf8}
+.bl-catbar{height:6px;border-radius:3px;background:rgba(140,176,210,.13);overflow:hidden}
+.bl-catbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,#5cc8ff,#2f8fe0)}
+.bl-catrow em{font-style:normal;text-align:right;font-size:11px;color:rgba(160,190,214,.7);font-variant-numeric:tabular-nums}
+.bl-topcard{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:11.5px;color:rgba(190,212,232,.85);border-top:1px solid rgba(140,176,210,.1)}
+.bl-topcard:first-child{border-top:0}
+.bl-topcard em{margin-left:auto;font-style:normal;color:rgba(160,190,214,.7);font-variant-numeric:tabular-nums}
+@media (max-width:880px){.bl-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 `
 
 
@@ -1558,6 +1595,26 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       /* 渲染：片库                                                          */
       /* ------------------------------------------------------------------ */
 
+      function pageHead(kicker, title, sub, right) {
+        return h('div', { key: 'ph', className: 'bl-pagehead' }, [
+          h('div', { key: 'l', className: 'bl-phleft' }, [
+            h('div', { key: 'k', className: 'bl-kicker' }, kicker),
+            h('h1', { key: 't', className: 'bl-h1' }, title),
+            sub ? h('div', { key: 's', className: 'bl-sub' }, sub) : null,
+          ]),
+          h('div', { key: 'r', className: 'bl-phright' }, right || []),
+        ])
+      }
+
+      function kpi(key, label, value, unit, foot, tone) {
+        return h('div', { key, className: 'bl-kpi' + (tone ? ' ' + tone : '') }, [
+          h('span', { key: 'l', className: 'bl-kpi-label' }, label),
+          h('div', { key: 'v', className: 'bl-kpi-val' },
+            [h('b', { key: 'b' }, String(value))].concat(unit ? [h('em', { key: 'u' }, unit)] : [])),
+          foot ? h('div', { key: 'f', className: 'bl-kpi-foot' }, foot) : null,
+        ])
+      }
+
       function sec(key, title, sub, right) {
         const head = h('h2', { key: 't' }, [title].concat(sub ? [h('em', { key: 'e' }, sub)] : []))
         return h('div', { key, className: 'bl-sec' },
@@ -1973,7 +2030,21 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ? '没搜到' + (q.trim() ? '「' + q.trim() + '」' : '这个分类') + '的片子，换个词，或者把筛选清空。'
           : '片库还是空的。把想给他看的 B 站链接粘到上面那行，点「加一条」，服务端会自己去拉标题、封面和时长。'
         return [
-          sec('sec', '片库 · 素材库', (stats.total || items.length) + ' 条片子 · ' + (library.categories || []).length + ' 个分类'),
+          pageHead('VAULT · 片库仓库', '片库仓库',
+            (stats.total || items.length) + ' 条片子 · ' + (library.categories || []).length + ' 个分类'
+              + (stats.dead ? ' · ' + stats.dead + ' 条失效' : ''),
+            h('button', {
+              key: 'refresh',
+              className: 'bl-btn',
+              onClick: refreshDead,
+              disabled: refreshing || !allVideos.length,
+            }, refreshing ? '正在问 B 站…' : '校验失效')),
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('k1', '片库总量', stats.total || items.length, '条', '含失效 ' + (stats.dead || 0) + ' 条'),
+            kpi('k2', '分类', (library.categories || []).length, '个', '自动排本周按分类轮转', 'cyan'),
+            kpi('k3', '已配课卡', lessons.filter((l) => allVideos.some((v) => v.id === l.videoId)).length, '套', '总共 ' + lessons.length + ' 套课卡', 'gold'),
+            kpi('k4', '筛选结果', items.length, '条', filtered ? '当前筛选下' : '未筛选', 'green'),
+          ]),
           h('div', { key: 'add', className: 'bl-toolbar' }, [
             h('input', {
               key: 'value',
@@ -2028,13 +2099,6 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             )),
             h('span', { key: 'stat', className: 'bl-hint' },
               searching ? '正在筛…' : '共 ' + (stats.total || items.length) + ' 条' + (stats.dead ? ' · ' + stats.dead + ' 条失效' : '')),
-            h('div', { key: 'sp', className: 'bl-spacer' }),
-            h('button', {
-              key: 'refresh',
-              className: 'bl-btn',
-              onClick: refreshDead,
-              disabled: refreshing || !allVideos.length,
-            }, refreshing ? '正在问 B 站…' : '校验失效'),
           ]),
           items.length
             ? h('div', { key: 'grid', className: 'bl-grid' }, items.map(renderCard))
@@ -2053,7 +2117,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ? [v.category || '未分类', v.duration ? fmtDur(v.duration) : '', v.dead ? '已失效' : ''].filter(Boolean).join(' · ')
           : '可能这条已经被删了，换成别的吧'
         return h('div', { key: day.date + '|' + videoId + '|' + index, className: 'bl-row' }, [
-          h('div', { key: 'thumb', className: 'bl-mini' },
+          h('div', { key: 'thumb', className: 'bl-thumb' },
             v && coverUrl(v.cover)
               ? h('img', { src: coverUrl(v.cover), alt: '', referrerPolicy: 'no-referrer' })
               : h('span', { className: 'bl-mini-ph' }, '无图')),
@@ -2113,15 +2177,17 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       function renderPlan() {
         const days = plan && Array.isArray(plan.days) ? plan.days : []
         return [
-          sec('sec', '本周航线', '周一起 · ' + weekStart + (days.length ? ' · 每天 ' + (plan.perDay || settings.perDay) + ' 条' : ' · 还没排过')
-            + (planDirty ? ' · 有改动还没保存' : ''), [
-            h('div', { key: 'prog', className: 'bl-hud-chip gold' }, [
-              '进度',
-              h('b', { key: 'n' }, String(weekDone) + '/' + String(weekTasks)),
-              h('i', { key: 'bar', className: 'bl-hud-bar' }, h('i', { style: { width: (weekRatio * 100).toFixed(0) + '%' } })),
+          pageHead('ROUTE · 本周航线', '本周航线',
+            '周一起 · ' + weekStart + (days.length ? ' · 每天 ' + (plan.perDay || settings.perDay) + ' 条' : ' · 还没排过')
+              + (planDirty ? ' · 有改动还没保存' : ''), [
+              h('button', { key: 'auto', className: 'bl-btn', onClick: autoPlan, disabled: planBusy }, planBusy ? '排着呢…' : '自动排本周'),
+              h('button', { key: 'save', className: 'bl-btn bl-btn-primary', onClick: savePlan, disabled: planBusy || !planDirty }, '保存'),
             ]),
-            h('button', { key: 'auto', className: 'bl-btn', onClick: autoPlan, disabled: planBusy }, planBusy ? '排着呢…' : '自动排本周'),
-            h('button', { key: 'save', className: 'bl-btn bl-btn-primary', onClick: savePlan, disabled: planBusy || !planDirty }, '保存'),
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('k1', '本周任务', weekTasks, '条', '已看 ' + weekDone + ' 条'),
+            kpi('k2', '完成进度', (weekRatio * 100).toFixed(0), '%', '每天 ' + ((plan && plan.perDay) || settings.perDay) + ' 条', 'gold'),
+            kpi('k3', '还剩', Math.max(0, weekTasks - weekDone), '条', days.length ? '排到' + weekdayLabel(days[days.length - 1].date) : '还没排', 'cyan'),
+            kpi('k4', '连续打卡', streak, '天', '片库 ' + allVideos.length + ' 条可排', 'green'),
           ]),
           days.length
             ? h('div', { key: 'days', className: 'bl-week' }, days.map(renderPlanDay))
@@ -2139,7 +2205,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       function renderWatchRow(date, videoId) {
         const v = pick(videoId)
         return h('div', { key: date + '|' + videoId, className: 'bl-row' }, [
-          h('div', { key: 'thumb', className: 'bl-mini' },
+          h('div', { key: 'thumb', className: 'bl-thumb' },
             v && coverUrl(v.cover)
               ? h('img', { src: coverUrl(v.cover), alt: '', referrerPolicy: 'no-referrer' })
               : h('span', { className: 'bl-mini-ph' }, '无图')),
@@ -2181,11 +2247,12 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const days = []
         for (let i = 0; i < 14; i += 1) days.push(addDays(today, -i))
         return [
-          sec('sec', '航行记录', '近 14 天 · 点勾可以取消'),
-          h('div', { key: 'stats', className: 'bl-stats' }, [
-            h('div', { key: 'a', className: 'bl-stat-box' }, [h('b', {}, String(weekCount)), h('span', {}, '本周看了（条）')]),
-            h('div', { key: 'b', className: 'bl-stat-box' }, [h('b', {}, String(streak)), h('span', {}, '连续打卡（天）')]),
-            h('div', { key: 'c', className: 'bl-stat-box' }, [h('b', {}, String(doneTotal)), h('span', {}, '近 14 天（条）')]),
+          pageHead('LOG · 航行记录', '航行记录', '近 14 天 · 点勾可以取消'),
+          h('div', { key: 'stats', className: 'bl-kpis' }, [
+            kpi('a', '本周看了', weekCount, '条', weekTasks ? '本周计划 ' + weekTasks + ' 条' : '本周还没排片'),
+            kpi('b', '连续打卡', streak, '天', '断了就从今天重新起算', 'green'),
+            kpi('c', '近 14 天', doneTotal, '条', '累计看过都算在这里'),
+            kpi('d', '每天平均', (doneTotal / 14).toFixed(1), '条', '近 14 天摊平', 'cyan'),
           ]),
           h('div', { key: 'list', className: 'bl-week' }, days.map(renderWatchDay)),
         ]
@@ -2299,8 +2366,40 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       function renderLessonEditor() {
         const draft = lessonDraft
         if (!draft) {
-          return h('div', { key: 'hint', className: 'bl-empty-panel' },
-            '左边选一条视频，就能写它的课卡：一个主题加 3 到 5 道选择题。')
+          const counts = new Map()
+          for (const v of allVideos) {
+            const cat = v.category || '未分类'
+            const row = counts.get(cat) || { total: 0, done: 0 }
+            row.total += 1
+            if (lessons.some((l) => l.videoId === v.id)) row.done += 1
+            counts.set(cat, row)
+          }
+          const rows = Array.from(counts.entries()).sort((a, b) => b[1].total - a[1].total)
+          const thick = lessons.slice().sort((a, b) => (b.questions || []).length - (a.questions || []).length).slice(0, 4)
+          return h('div', { key: 'hint', className: 'bl-panel bl-overview' }, [
+            h('div', { key: 'head', className: 'bl-panel-head' }, [
+              h('b', { key: 't' }, '课卡概览'),
+              h('span', { key: 'h', className: 'bl-hint' }, '点左边任意一条视频，就能给它写课卡'),
+            ]),
+            h('div', { key: 'rows', className: 'bl-catlist' }, rows.map((entry) => {
+              const [cat, row] = entry
+              return h('div', { key: 'c' + cat, className: 'bl-catrow' }, [
+                h('b', { key: 'n' }, cat),
+                h('span', { key: 'b', className: 'bl-catbar' },
+                  [h('i', { key: 'i', style: { width: Math.round((row.done / row.total) * 100) + '%' } })]),
+                h('em', { key: 'v' }, row.done + '/' + row.total),
+              ])
+            })),
+            thick.length
+              ? h('div', { key: 'top', className: 'bl-catlist' }, [
+                h('div', { key: 'l', className: 'bl-kpi-label', style: { margin: '10px 0 2px' } }, '题数最多'),
+                ...thick.map((l) => h('div', { key: 't' + l.id, className: 'bl-topcard' }, [
+                  h('span', { key: 'n' }, l.topic || l.title || l.videoId),
+                  h('em', { key: 'q' }, (l.questions || []).length + ' 道'),
+                ])),
+              ])
+              : null,
+          ])
         }
         const video = byId[draft.videoId] || planById[draft.videoId] || null
         return h('div', { key: 'editor', className: 'bl-panel' }, [
@@ -2311,7 +2410,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('button', {
               key: 'add',
               className: 'bl-btn',
-              disabled: draft.questions.length >= 5,
+              disabled: draft.questions.length >= 8,
               onClick: addQuestion,
             }, '＋ 加一题'),
             h('button', {
@@ -2333,7 +2432,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ]),
           h('div', { key: 'qs', className: 'bl-week' }, draft.questions.map(renderQuestion)),
           h('div', { key: 'foot', className: 'bl-toolbar' }, [
-            h('span', { key: 'n', className: 'bl-hint' }, '共 ' + draft.questions.length + ' 道题（要 3 到 5 道）'),
+            h('span', { key: 'n', className: 'bl-hint' }, '共 ' + draft.questions.length + ' 道题（3 到 8 道）'),
             h('div', { key: 'sp', className: 'bl-spacer' }),
             draft.id
               ? h('button', { key: 'del', className: 'bl-btn bl-btn-danger', onClick: deleteLesson }, '删除这套课卡')
@@ -2356,7 +2455,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ])
         })
         return [
-          sec('sec', '课卡工坊', '一条视频一套课卡 · 每套最多 8 题'),
+          pageHead('CARD · 课卡工坊', '课卡工坊', '一条视频一套课卡 · 每套 3 到 8 题'),
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('k1', '已写课卡', lessons.length, '套', '共 ' + lessons.reduce((n, l) => n + (l.questions || []).length, 0) + ' 道题'),
+            kpi('k2', '覆盖片子', lessons.filter((l) => allVideos.some((v) => v.id === l.videoId)).length, '条', '片库 ' + allVideos.length + ' 条', 'gold'),
+            kpi('k3', '待写', allVideos.filter((v) => !lessons.some((l) => l.videoId === v.id)).length, '条', '点左侧条目就能写', 'cyan'),
+            kpi('k4', '平均题数', lessons.length ? (lessons.reduce((n, l) => n + (l.questions || []).length, 0) / lessons.length).toFixed(1) : '0', '道', '每套 3 到 8 道', 'green'),
+          ]),
           h('div', { key: 'split', className: 'bl-split' }, [
             h('div', { key: 'left', className: 'bl-list' },
               list.length ? list : [h('div', { key: 'e', className: 'bl-empty' }, '片库还没片子，先去「片库」加一条')]),
@@ -2633,7 +2738,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           h('span', { key: 's4', className: stepCls(learnResult && learnResult.newBox ? 'now' : '') }, [h('i', { key: 'i' }, '4'), '开盲盒']),
         ])
         return [
-          sec('sec', '训练舱', '看片 → 逐题作答 → 交卷结算 → 开盲盒'),
+          pageHead('TRAINING · 训练舱', '训练舱', '看片 → 逐题作答 → 交卷结算 → 开盲盒'),
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('k1', '本周待学', Math.max(0, weekTasks - weekDone), '条', '计划 ' + weekTasks + ' 条 · 已看 ' + weekDone + ' 条'),
+            kpi('k2', '可复习', lessons.length, '套', '有课卡就能随时重做', 'gold'),
+            kpi('k3', '连续打卡', streak, '天', '答题也会续上', 'green'),
+            kpi('k4', '累计星火', doneTotal * 40, '点', '每看一条 +40 · 等级 ' + (1 + Math.floor((doneTotal * 40) / XP_STEP)), 'cyan'),
+          ]),
           steps,
           h('div', { key: 'split', className: 'bl-split' }, [
             h('div', { key: 'left', className: 'bl-list' }, rows.length
@@ -2783,7 +2894,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
       function renderSettings() {
         return [
-          sec('sec', '舰桥设置', '改完点保存，存在 ~/.dsh/bili-lesson/settings.json'),
+          pageHead('CONFIG · 舰桥设置', '舰桥设置', '改完点保存，存在 ~/.dsh/bili-lesson/settings.json'),
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('k1', '片库', allVideos.length, '条', '失效 ' + (library.stats ? library.stats.dead : 0) + ' 条'),
+            kpi('k2', '课卡', lessons.length, '套', '本周计划 ' + weekTasks + ' 条', 'gold'),
+            kpi('k3', '本周起点', weekStart.slice(5), '', '周一起算', 'cyan'),
+            kpi('k4', '已看过', doneTotal, '条', '记录在 watch.json', 'green'),
+          ]),
           h('div', { key: 'panel', className: 'bl-panel' }, [
             h('div', { key: 'head', className: 'bl-panel-head' }, [
               h('b', { key: 't' }, '默认值'),
