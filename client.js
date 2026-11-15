@@ -1082,6 +1082,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
 
       function renderStarMap() {
         const cats = (library.categories || []).filter(Boolean)
+        const total = (library.stats && library.stats.total) || (library.items || []).length
         if (!cats.length) return null
         const counts = {}
         ;(library.items || []).forEach((v) => {
@@ -1150,7 +1151,7 @@ background:radial-gradient(120% 120% at 50% 0,rgba(30,90,150,.22),transparent 62
         return h('div', { key: 'map', className: 'bl-map' }, [
           h('div', { key: 'legend', className: 'bl-map-legend' }, [
             h('b', { key: 'l' }, '星域总览'),
-            h('span', { key: 's1' }, cats.length + ' 个分类 · ' + (stats.total || (library.items || []).length) + ' 条片子'),
+            h('span', { key: 's1' }, cats.length + ' 个分类 · ' + total + ' 条片子'),
             h('div', { key: 'sp', className: 'bl-spacer' }),
             h('span', { key: 's2' }, category ? '当前：' + category + '（再点一次取消）' : '点星球筛选分类'),
           ]),
