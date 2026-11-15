@@ -62,6 +62,106 @@ window.__ModuleLoader__.load({
       }, paths.map((d, i) => h('path', { key: 'p' + i, d })))
     }
 
+
+    /* 线性图标库：24x24 网格，描边跟随 currentColor */
+    const GLYPHS = {
+      question: ['M12 3.4a8.6 8.6 0 100 17.2 8.6 8.6 0 000-17.2z', 'M9.4 9.2a2.7 2.7 0 115.2 1c0 1.6-2.6 2-2.6 3.4', 'M12 17h.01'],
+      gift: ['M4 9.4h16v3.2H4z', 'M5.4 12.6h13.2V21H5.4z', 'M12 9.4V21', 'M12 9.4c-3.6 0-5.2-1.4-5.2-3.2S8.4 3.6 12 9.4z', 'M12 9.4c3.6 0 5.2-1.4 5.2-3.2S15.6 3.6 12 9.4z'],
+      music: ['M9.4 17.6V6.2l9-1.8v11.2', 'M9.4 17.6a2.4 2.4 0 11-4.8 0 2.4 2.4 0 014.8 0z', 'M18.4 15.6a2.4 2.4 0 11-4.8 0 2.4 2.4 0 014.8 0z'],
+      book: ['M5 4.6A1.6 1.6 0 016.6 3H19v18H6.6A1.6 1.6 0 005 22.6z', 'M5 17.4h14'],
+      calculator: ['M6 3.5h12v17H6z', 'M6 8.5h12', 'M9.2 12h.01', 'M12 12h.01', 'M14.8 12h.01', 'M9.2 16h.01', 'M12 16h.01', 'M14.8 16h.01'],
+      lang: ['M5 19.5L12 4l7 15.5', 'M8 14h8'],
+      flask: ['M10 3.2v6l-4.7 9.4A2.2 2.2 0 007.3 22h9.4a2.2 2.2 0 002-2.4L14 9.2v-6', 'M8.6 3.2h6.8', 'M7.4 15.4h9.2'],
+      brain: ['M9.6 4.2a3 3 0 00-3 3 3.2 3.2 0 00-1.4 5.6 3 3 0 002.9 5.6 3 3 0 004.5 1.2V4.2z', 'M14.4 4.2a3 3 0 013 3 3.2 3.2 0 011.4 5.6 3 3 0 01-2.9 5.6 3 3 0 01-4.5 1.2V4.2z'],
+      pencil: ['M12 20h8', 'M16.2 3.8a2.2 2.2 0 013.1 3.1L7.6 18.6 3.5 20l1.4-4.1z'],
+      shield: ['M12 21.6s8-3.8 8-9.6V5.4L12 2.6 4 5.4v6.6c0 5.8 8 9.6 8 9.6z'],
+      palette: ['M12 3.2a8.8 8.8 0 100 17.6h1.4a2 2 0 000-4h-1a2 2 0 010-4h4a4 4 0 000-8z', 'M8.4 8.4h.01', 'M7.6 13h.01', 'M11.4 6.8h.01'],
+      pulse: ['M2.4 12h4.2l2.6-7 4.4 14 2.6-7h5.4'],
+      rocket: ['M12 3c3 3 4.4 6.4 4.4 9.8L12 16.4l-4.4-3.6C7.6 9.4 9 6 12 3z', 'M9.6 13.6L7.4 19l3.8-1.7', 'M14.4 13.6l2.2 5.4-3.8-1.7', 'M12 9.4h.01'],
+      star: ['M12 3.2l2.6 5.4 5.9.8-4.3 4.2 1 5.9-5.2-2.8-5.2 2.8 1-5.9L3.5 9.4l5.9-.8z'],
+      apple: ['M12 8.2c-2.9-2-5.8-.2-5.8 3.8 0 3.9 3.8 8.6 5.8 8.6s5.8-4.7 5.8-8.6c0-4-2.9-5.8-5.8-3.8z', 'M12 8.2c0-2.2.9-4 3-4.6'],
+      balloon: ['M12 3.2a4.6 5.4 0 110 10.8 4.6 5.4 0 010-10.8z', 'M12 14v5.6'],
+      panda: ['M12 5.4a6.6 6.6 0 100 13.2 6.6 6.6 0 000-13.2z', 'M7.2 4.2a2.2 2.2 0 012.6 1.8', 'M16.8 4.2a2.2 2.2 0 00-2.6 1.8', 'M9.6 11h.01', 'M14.4 11h.01', 'M10.2 14.4c1.1.9 2.5.9 3.6 0'],
+      rainbow: ['M4 18.5a8 8 0 0116 0', 'M7.4 18.5a4.6 4.6 0 019.2 0'],
+      dino: ['M4.5 20c0-6.4 3.2-11.6 8.4-11.6l3.8-2.8 1.1 3.7 2.7 1.1-2.7 1.9v3.3c0 2.6-1.7 4.4-4.2 4.4z', 'M9.4 20v-3.6', 'M13.6 20v-3.6'],
+      gem: ['M12 3.2L20 9l-8 11.8L4 9z', 'M4 9h16', 'M12 3.2L9 9l3 11.8L15 9z'],
+      puzzle: ['M4.4 4.4h15.2v15.2H4.4z', 'M9.8 4.4v3.4a2.2 2.2 0 004.4 0V4.4', 'M4.4 14.2h3.4a2.2 2.2 0 010 4.4H4.4'],
+      teddy: ['M12 5a6.5 6.5 0 100 13 6.5 6.5 0 000-13z', 'M6.6 6.4a2 2 0 102.6-2.4', 'M17.4 6.4a2 2 0 10-2.6-2.4', 'M9.6 10.6h.01', 'M14.4 10.6h.01', 'M10 14c1.2 1 2.8 1 4 0'],
+      bowl: ['M3.5 12h17a8.5 8.5 0 01-17 0z', 'M7.6 12V9.4', 'M12 12V8.4', 'M16.4 12V9.4'],
+      heart: ['M12 20.4s-7.4-4.6-7.4-9.4A4.2 4.2 0 0112 8.2a4.2 4.2 0 017.4 2.8c0 4.8-7.4 9.4-7.4 9.4z'],
+      footsteps: ['M9.6 5.6a2.2 2.6 0 110 5.2 2.2 2.6 0 010-5.2z', 'M7.6 13.6a2.4 2.8 0 110 5.6 2.4 2.8 0 010-5.6z', 'M15 9.4a2.2 2.6 0 100-5.2 2.2 2.6 0 000 5.2z', 'M17 13.6a2.4 2.8 0 100 5.6 2.4 2.8 0 000-5.6z'],
+      medal: ['M12 21.4a5.4 5.4 0 100-10.8 5.4 5.4 0 000 10.8z', 'M12 13.6l1.1 2.2 2.4.3-1.7 1.7.4 2.4-2.2-1.2-2.2 1.2.4-2.4-1.7-1.7 2.4-.3z', 'M8.6 3.2h6.8l-1.2 5.2H9.8z'],
+      scissors: ['M6.4 6.4L20 20', 'M17.6 6.4L4 20', 'M8.6 4.6a2.2 2.2 0 110 4.4 2.2 2.2 0 010-4.4z', 'M8.6 15a2.2 2.2 0 110 4.4 2.2 2.2 0 010-4.4z'],
+      dice: ['M5 5h14v14H5z', 'M9 9h.01', 'M15 9h.01', 'M12 12h.01', 'M9 15h.01', 'M15 15h.01'],
+      blocks: ['M12 3.4l7.6 4.3L12 12 4.4 7.7z', 'M4.4 12.4L12 16.7l7.6-4.3', 'M4.4 12.4v4.3L12 21l7.6-4.6v-4.3'],
+      bubble: ['M12 4.4a7.6 7.6 0 100 15.2 7.6 7.6 0 000-15.2z', 'M9.2 9h.01', 'M14.8 9h.01', 'M10 13.6c1.2 1 2.8 1 4 0'],
+      icecream: ['M7 10.4h10L12 21z', 'M7 10.4a5 5 0 0110 0'],
+      tv: ['M4.4 8.4h15.2v10.4H4.4z', 'M8.4 4.4L12 8.4l3.6-4'],
+      tree: ['M12 3.4l5.6 8h-3.2l3.6 5.2H6l3.6-5.2H6.4z', 'M12 16.6V21'],
+      calendar: ['M4.4 6.4h15.2v14H4.4z', 'M4.4 10.8h15.2', 'M8.4 3.4v4', 'M15.6 3.4v4'],
+      cupcake: ['M6.4 12h11.2l-1.6 8.4H8z', 'M8.4 12a3.6 3.6 0 017.2 0', 'M12 8.4V6.4'],
+      basket: ['M3.4 11.4h17.2l-2 9.2H5.4z', 'M8.4 11.4L12 5.4l3.6 6'],
+      train: ['M6.4 4.4h11.2v10.4H6.4z', 'M6.4 9.4h11.2', 'M9.6 18.4v3', 'M14.4 18.4v3', 'M8 18.4h8', 'M9.6 14.9v-3.5h4.8v3.5'],
+      leaf: ['M12 21v-8', 'M12 13c-4.6 0-7-3-8-6 4.4-1.4 8 .4 8 6z', 'M12 13c.4-5.6 4-7.4 8.4-6-1 3-3.8 6-8.4 6z'],
+      camera: ['M3.6 8.4h16.8v11H3.6z', 'M8.4 8.4L10 5.4h4l1.6 3', 'M12 18.4a3.4 3.4 0 100-6.8 3.4 3.4 0 000 6.8z'],
+      ball: ['M12 3.4a8.6 8.6 0 100 17.2 8.6 8.6 0 000-17.2z', 'M12 3.4l4.4 17.2', 'M3.6 9.6l16.8 4.8'],
+      compass: ['M12 3.4a8.6 8.6 0 100 17.2 8.6 8.6 0 000-17.2z', 'M15.6 8.4L13.4 13.4 8.4 15.6 10.6 10.6z'],
+      paw: ['M8 9.4a1.9 1.9 0 110 3.8 1.9 1.9 0 010-3.8z', 'M16 9.4a1.9 1.9 0 110 3.8 1.9 1.9 0 010-3.8z', 'M4.8 13.6a1.7 1.7 0 110 3.4 1.7 1.7 0 010-3.4z', 'M19.2 13.6a1.7 1.7 0 110 3.4 1.7 1.7 0 010-3.4z', 'M12 12.4c2.4 0 4.4 2 4.4 4.4 0 1.4-1 2.2-2.4 1.8-1.4-.4-2.6-.4-4 0-1.4.4-2.4-.4-2.4-1.8 0-2.4 2-4.4 4.4-4.4z'],
+      fish: ['M3.6 12c2.6-4 6-6 10.4-6l-.8 4.6 6 1.4-6 1.4.8 4.6C9.6 18 6.2 16 3.6 12z', 'M6.4 12h.01'],
+      columns: ['M3.6 8.4h16.8', 'M6 8.4v9.2', 'M10 8.4v9.2', 'M14 8.4v9.2', 'M18 8.4v9.2', 'M3.6 20.4h16.8', 'M4.4 8.4L12 3.4l7.6 5'],
+      tent: ['M12 5.4L20.4 21H3.6z', 'M12 5.4V21', 'M9.4 13.4h5.2'],
+      crown: ['M4 18.4h16', 'M4.6 8.4l2.8 7h9.2l2.8-7-4.6 3.4L12 6.4 8.8 11.8z'],
+    }
+
+    const CAT_GLYPH = {
+      儿歌: 'music', 绘本: 'book', 数学: 'calculator', 英语: 'lang', 科学启蒙: 'flask',
+      认知: 'brain', 识字: 'pencil', 安全: 'shield', 美术: 'palette', 律动: 'pulse',
+    }
+
+    const REWARD_GLYPH = {
+      s_rocket: 'rocket', s_star: 'star', s_apple: 'apple', s_balloon: 'balloon', s_panda: 'panda',
+      s_rainbow: 'rainbow', s_dino: 'dino', s_unicorn: 'gem',
+      'p_star-story': 'book', 'p_star-play-five': 'puzzle', 'p_star-sticker': 'star', 'p_star-fruit': 'apple',
+      'p_star-song': 'music', 'p_star-pajamas': 'teddy', 'p_star-breakfast': 'bowl', 'p_star-hug': 'heart',
+      'p_star-walk': 'footsteps', 'p_star-helper': 'medal', 'p_star-music': 'music', 'p_star-craft': 'scissors',
+      'p_star-board-game': 'dice', 'p_star-character': 'gem', 'p_star-blocks': 'blocks', 'p_star-bath-toy': 'bubble',
+      'p_galaxy-ice-cream': 'icecream', 'p_galaxy-tv-five': 'tv', 'p_galaxy-park': 'tree', 'p_galaxy-weekend': 'calendar',
+      'p_galaxy-bake': 'cupcake', 'p_galaxy-picnic': 'basket', 'p_galaxy-library': 'book', 'p_galaxy-ride': 'train',
+      'p_galaxy-dinner': 'bowl', 'p_galaxy-seed': 'leaf', 'p_galaxy-playground': 'blocks', 'p_galaxy-experiment': 'flask',
+      'p_galaxy-album': 'camera', 'p_galaxy-treasure': 'gem', 'p_galaxy-ball': 'ball', 'p_galaxy-build': 'blocks',
+      'p_crown-toy': 'blocks', 'p_crown-trip': 'compass', 'p_crown-special': 'crown', 'p_crown-zoo': 'paw',
+      'p_crown-aquarium': 'fish', 'p_crown-museum': 'columns', 'p_crown-theatre': 'star', 'p_crown-train': 'train',
+      'p_crown-camping': 'tent', 'p_crown-sport': 'ball', 'p_crown-workshop': 'scissors', 'p_crown-photo': 'camera',
+      'p_crown-route': 'compass', 'p_crown-cooking': 'bowl',
+    }
+
+    function Glyph(props) {
+      const paths = GLYPHS[props.name] || GLYPHS.star
+      const size = props.size || 20
+      const box = props.x === undefined
+        ? { width: size, height: size }
+        : { x: props.x, y: props.y, width: props.width || size, height: props.height || size }
+      return h('svg', Object.assign({
+        key: props.key,
+        viewBox: '0 0 24 24',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: props.sw || 1.7,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        className: props.className,
+        style: props.style,
+      }, box), paths.map((d, i) => h('path', { key: 'p' + i, d })))
+    }
+
+    function catGlyph(name) {
+      return CAT_GLYPH[name] || 'star'
+    }
+
+    function rewardGlyph(id) {
+      return REWARD_GLYPH[id] || 'gem'
+    }
+
     /* ------------------------------------------------------------------ */
     /* 小工具                                                              */
     /* ------------------------------------------------------------------ */
@@ -771,7 +871,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-bars i.on{background:linear-gradient(180deg,#8fe0ff,#2f8fe0);box-shadow:0 0 10px rgba(90,190,255,.55)}
 
 /* 奖励页：六边形勋章墙 */
-.bl-hexgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
+.bl-hexgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
 .bl-hex{appearance:none;position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;padding:12px 6px 10px;border:1px solid var(--bl-line);border-radius:12px;background:rgba(8,20,36,.72);font:inherit;color:inherit;cursor:pointer}
 .bl-hex:hover{border-color:var(--bl-line-2);background:rgba(16,36,60,.8)}
 .bl-hex.on{border-color:rgba(120,200,255,.7);background:linear-gradient(180deg,rgba(40,100,170,.5),rgba(10,26,44,.9));box-shadow:0 0 20px rgba(50,140,220,.28)}
@@ -796,11 +896,15 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-map svg{width:100%;height:auto;max-height:100%}
 .bl-planet-label{font-size:12.5px}
 /* v6 成就展厅 */
+.bl-wall-top{display:grid;grid-template-columns:112px minmax(0,1fr);gap:14px;align-items:center;padding:2px 2px 12px;border-bottom:1px solid var(--bl-line);margin-bottom:12px}
+.bl-wall-meta{display:flex;flex-direction:column;gap:7px;min-width:0}
+.bl-wall-rank{font-size:13.5px;font-weight:600;color:#eaf6ff}
+.bl-wall-bars{display:flex;flex-wrap:wrap;gap:6px}
 .bl-nucleus{display:grid;grid-template-columns:196px minmax(0,1fr);gap:16px;align-items:start}
-.bl-nucleus-ring{position:relative;width:196px;height:196px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:conic-gradient(from -90deg,#3fa9ff var(--p,0%),rgba(84,124,164,.16) 0)}
+.bl-nucleus-ring{position:relative;width:112px;height:112px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:conic-gradient(from -90deg,#3fa9ff var(--p,0%),rgba(84,124,164,.16) 0)}
 .bl-nucleus-ring::before{content:"";position:absolute;inset:11px;border-radius:50%;background:radial-gradient(circle at 50% 30%,rgba(26,58,94,.96),rgba(6,14,24,.98));box-shadow:inset 0 0 26px rgba(60,150,230,.28)}
 .bl-nucleus-ring>*{position:relative;z-index:1}
-.bl-nucleus-ring b{font-size:34px;font-weight:700;color:#eaf6ff;font-variant-numeric:tabular-nums;line-height:1.05}
+.bl-nucleus-ring b{font-size:22px;font-weight:700;color:#eaf6ff;font-variant-numeric:tabular-nums;line-height:1.05}
 .bl-nucleus-ring b em{font-style:normal;font-size:13px;color:#8fb2cd;font-weight:500}
 .bl-nucleus-ring span{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:#7d95ad}
 .bl-nucleus-ring i{font-style:normal;margin-top:6px;padding:3px 9px;border-radius:8px;font-size:10.5px;color:#ffd58a;border:1px solid rgba(245,179,51,.4);background:rgba(245,179,51,.1)}
@@ -817,6 +921,42 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-next-top{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#8ba4bd}
 .bl-next-top b{color:#dcecf9;font-weight:600}
 .bl-bottom3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+/* v7 自适应（面板较窄时） */
+.bl-root{container-type:inline-size}
+.bl-hero{align-items:stretch}
+
+
+.bl-map svg{width:100%;height:100%;flex:1;min-height:0}
+@container (max-width: 760px){
+  .bl-shell{grid-template-columns:minmax(0,1fr)}
+  .bl-rail{flex-direction:row;flex-wrap:wrap;gap:6px;padding:10px;border-right:0;border-bottom:1px solid var(--bl-line);align-items:center}
+  .bl-rail-brand{padding:0 8px 0 0;margin:0;border-bottom:0;border-right:1px solid var(--bl-line);height:32px}
+  .bl-rail-item{height:32px;padding:0 9px}
+  .bl-rail-item.on::after{display:none}
+  .bl-rail-foot{margin:0;padding:0;display:flex;gap:10px;align-items:center}
+  .bl-rail-foot .bl-xp{min-width:120px}
+  .bl-hud-strip{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .bl-hero{grid-template-columns:minmax(0,1fr)}
+  .bl-nucleus{grid-template-columns:minmax(0,1fr)}
+  .bl-bottom,.bl-bottom3{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+/* 线性图标着色 */
+.bl-glyph{display:block}
+.bl-station-glyph{color:#f2f9ff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.55))}
+.bl-medal svg{color:#dff1ff}
+.bl-medal.gold svg{color:#ffe6b8}
+.bl-sticker-glyph{color:#8ee6ff}
+.bl-sticker.locked .bl-sticker-glyph{opacity:.42}
+.bl-hex-shield svg{color:#a9dcff}
+.bl-hex-shield.locked svg{color:#7f97ad;opacity:.55}
+.bl-hex-big svg{color:#ffe2ae}
+.bl-hex-big.locked svg{color:#8aa0b6;opacity:.5}
+@container (max-width: 520px){
+  .bl-hud-strip{grid-template-columns:minmax(0,1fr)!important}
+  .bl-bottom,.bl-bottom3{grid-template-columns:minmax(0,1fr)}
+}
+
+
 .bl-mini .bl-draws .bl-draw-row{padding:4px 0}
 `
 
@@ -897,6 +1037,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
       const noticeTimer = useRef(null)
       const filterRef = useRef({ q: '', category: '' })
+      const mapSvgRef = useRef(null)
+      const [mapBox, setMapBox] = useState({ w: 0, h: 0 })
 
       const fail = useCallback((e) => {
         setError(errorText(e))
@@ -1422,6 +1564,20 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           [head, h('div', { key: 'sp', className: 'bl-spacer' })].concat(right ? (Array.isArray(right) ? right : [right]) : []))
       }
 
+      useEffect(() => {
+        const el = mapSvgRef.current
+        if (!el || typeof ResizeObserver === 'undefined') return undefined
+        const apply = () => {
+          const r = el.getBoundingClientRect()
+          if (!r.width || !r.height) return
+          setMapBox((prev) => (Math.abs(prev.w - r.width) > 1 || Math.abs(prev.h - r.height) > 1 ? { w: r.width, h: r.height } : prev))
+        }
+        apply()
+        const ro = new ResizeObserver(apply)
+        ro.observe(el)
+        return () => ro.disconnect()
+      }, [tab, homeView, library.categories])
+
       function renderCard(v) {
         const cover = coverUrl(v.cover)
         return h('div', { key: v.id, className: 'bl-card' + (v.dead ? ' dead' : '') }, [
@@ -1474,10 +1630,12 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           counts[key] = (counts[key] || 0) + 1
         })
         const weekCount = (plan && plan.days ? plan.days : []).reduce((n, d) => n + (d.videoIds || []).length, 0)
-        const cx = 500
-        const cy = 236
-        const rx = 384
-        const ry = 150
+        const W = Math.max(320, Math.round(mapBox.w || 1000))
+        const H = Math.max(220, Math.round(mapBox.h || 470))
+        const cx = Math.round(W / 2)
+        const cy = Math.round(H / 2 - H * 0.03)
+        const rx = Math.round(Math.max(80, W / 2 - 80))
+        const ry = Math.round(Math.max(64, H / 2 - 96))
         const nodes = cats.map((name, i) => {
           const angle = -Math.PI / 2 + (i / cats.length) * Math.PI * 2
           return {
@@ -1514,12 +1672,12 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           stroke: n.on ? 'rgba(53,216,255,.55)' : 'rgba(96,176,255,.13)', strokeWidth: n.on ? 1.6 : 1,
         }))
         const hub = h('g', { key: 'hub', style: { cursor: 'pointer' }, onClick: () => setCategory('') }, [
-          h('circle', { key: 'halo', cx, cy, r: 74, fill: 'rgba(255,196,77,.10)' }),
-          h('circle', { key: 'ring', cx, cy, r: 56, fill: 'none', stroke: 'rgba(255,196,77,.55)', strokeWidth: 1.2, strokeDasharray: '4 6' }),
-          h('circle', { key: 'body', className: 'bl-hub-core', cx, cy, r: 46, fill: 'url(#blHub)', filter: 'url(#blGlow)' }),
-          h('text', { key: 't1', x: cx, y: cy + 6, textAnchor: 'middle', className: 'bl-planet-count', style: { fill: '#3a2400', fontWeight: 700, fontSize: '19px' } }, weekCount || 0),
-          h('text', { key: 't2', x: cx, y: cy + 88, textAnchor: 'middle', className: 'bl-planet-label', style: { fill: '#ffd88a', fontSize: '13px' } }, '本周航线'),
-          h('text', { key: 't3', x: cx, y: cy + 106, textAnchor: 'middle', className: 'bl-planet-count' }, weekCount ? weekCount + ' 个任务' : '还没排片'),
+          h('circle', { key: 'halo', cx, cy, r: 76, fill: 'rgba(243,179,76,.07)' }),
+          h('circle', { key: 'ring', cx, cy, r: 58, fill: 'none', stroke: 'rgba(243,179,76,.5)', strokeWidth: 1, strokeDasharray: '5 7' }),
+          h('circle', { key: 'body', cx, cy, r: 44, fill: 'rgba(243,179,76,.14)', stroke: 'rgba(243,179,76,.65)', strokeWidth: 1.2 }),
+          h('text', { key: 't1', x: cx, y: cy + 2, textAnchor: 'middle', style: { fill: '#ffe3ad', fontWeight: 700, fontSize: '30px' } }, weekCount || 0),
+          h('text', { key: 't2', x: cx, y: cy + 22, textAnchor: 'middle', style: { fill: '#c9a868', fontSize: '10.5px', letterSpacing: '.08em' } }, '本周任务'),
+
         ])
         const plate = (x, y, s, cut) => 'M' + (x + cut) + ',' + y + 'H' + (x + s - cut) + 'L' + (x + s) + ',' + (y + cut) + 'V' + (y + s - cut) + 'L' + (x + s - cut) + ',' + (y + s) + 'H' + (x + cut) + 'L' + x + ',' + (y + s - cut) + 'V' + (y + cut) + 'Z'
         const planets = nodes.map((n, i) => h('g', {
@@ -1528,12 +1686,15 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           style: { cursor: 'pointer' },
           onClick: () => setCategory(category === n.name ? '' : n.name),
         }, [
-          h('ellipse', { key: 'sh', cx: n.x, cy: n.y + 56, rx: 30, ry: 6, fill: 'rgba(0,0,0,.45)' }),
-          h('path', { key: 'plate', d: plate(n.x - 33, n.y - 33, 66, 13), fill: n.on ? 'rgba(63,169,255,.22)' : 'rgba(11,26,44,.94)', stroke: n.on ? 'rgba(140,215,255,.95)' : 'rgba(94,162,226,.34)', strokeWidth: n.on ? 1.8 : 1.2 }),
-          h('path', { key: 'inner', d: plate(n.x - 26, n.y - 26, 52, 11), fill: 'url(#blg' + i + ')', opacity: n.on ? 1 : 0.92 }),
-          h('text', { key: 'icon', x: n.x, y: n.y + 9, textAnchor: 'middle', className: 'bl-station-icon', style: { fontSize: '22px' } }, CAT_ICON[n.name] || '✦'),
-          h('text', { key: 'name', x: n.x, y: n.y + 60, textAnchor: 'middle', className: 'bl-planet-label', style: { fill: n.on ? '#dcf2ff' : '#c9dcef', fontSize: '13px' } }, n.name),
-          h('text', { key: 'count', x: n.x, y: n.y + 76, textAnchor: 'middle', className: 'bl-planet-count', style: { fontSize: '11px', fill: '#8ba4bd' } }, n.count + ' 条'),
+          h('ellipse', { key: 'sh', cx: n.x, cy: n.y + 40, rx: 28, ry: 5, fill: 'rgba(0,0,0,.4)' }),
+          h('path', { key: 'plate', d: plate(n.x - 34, n.y - 30, 68, 13), fill: n.on ? 'rgba(63,169,255,.24)' : 'rgba(9,22,38,.94)', stroke: n.on ? 'rgba(140,215,255,.95)' : 'rgba(94,162,226,.34)', strokeWidth: n.on ? 1.8 : 1.2 }),
+          h('path', { key: 'inner', d: plate(n.x - 28, n.y - 24, 56, 11), fill: n.on ? 'rgba(30,80,130,.55)' : 'rgba(8,20,34,.92)', stroke: n.color, strokeOpacity: n.on ? 0.65 : 0.3, strokeWidth: 1 }),
+          h(Glyph, { key: 'icon', name: catGlyph(n.name), x: n.x - 12, y: n.y - 19, width: 24, height: 24, sw: 1.85, className: 'bl-station-glyph', style: { color: n.color } }),
+          h('text', { key: 'name', x: n.x, y: n.y + 19, textAnchor: 'middle', style: { fill: n.on ? '#ffffff' : '#dbeaf8', fontSize: '11px', fontWeight: 600 } }, n.name),
+          h('g', { key: 'badge' }, [
+            h('rect', { key: 'b', x: n.x + 24, y: n.y - 42, width: 20, height: 14, rx: 3, fill: 'rgba(6,18,32,.94)', stroke: n.on ? 'rgba(140,215,255,.8)' : 'rgba(94,162,226,.3)', strokeWidth: 1 }),
+            h('text', { key: 't', x: n.x + 34, y: n.y - 31.5, textAnchor: 'middle', style: { fontSize: '9.5px', fill: n.on ? '#dcf2ff' : '#8fa9c1' } }, String(n.count)),
+          ]),
         ]))
         return h('div', { key: 'map', className: 'bl-map' }, [
           h('div', { key: 'legend', className: 'bl-map-legend' }, [
@@ -1542,7 +1703,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('div', { key: 'sp', className: 'bl-spacer' }),
             h('span', { key: 's2' }, category ? '当前：' + category + '（再点一次取消）' : '点星球筛选分类'),
           ]),
-          h('svg', { key: 'svg', viewBox: '0 0 1000 470', 'aria-hidden': 'true' }, [defs, orbits, spokes, hub, planets]),
+          h('svg', { key: 'svg', ref: mapSvgRef, viewBox: '0 0 ' + W + ' ' + H, preserveAspectRatio: 'xMidYMid meet', 'aria-hidden': 'true' }, [defs, orbits, spokes, hub, planets]),
         ])
       }
 
@@ -1695,7 +1856,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           const done = (watchIndex.byDate[row.date] || []).indexOf(row.id) !== -1
           const lesson = lessons.find((l) => l.videoId === row.id)
           return h('div', { key: row.date + row.id, className: 'bl-task' + (done ? ' done' : '') }, [
-            h('div', { key: 'm', className: 'bl-medal' + (done ? ' gold' : '') }, h('span', { key: 's' }, CAT_ICON[v.category || ''] || '✦')),
+            h('div', { key: 'm', className: 'bl-medal' + (done ? ' gold' : '') }, h(Glyph, { key: 's', name: catGlyph(v.category), size: 26, sw: 1.8 })),
             h('div', { key: 'main', className: 'bl-task-main' }, [
               h('div', { key: 't', className: 'bl-task-title', title: v.title || row.id }, v.title || row.id),
               h('div', { key: 's', className: 'bl-task-sub' }, [
@@ -1767,7 +1928,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                 className: 'bl-medal ' + (it.rarity === 'epic' ? 'gold' : ''),
                 style: { width: '38px', height: '38px' },
                 title: it.name + ' ×' + it.count,
-              }, h('span', { key: 's', style: { fontSize: '17px' } }, it.emoji))))
+              }, h(Glyph, { key: 's', name: rewardGlyph(it.id), size: 20, sw: 1.8 }))))
               : h('div', { key: 'none', className: 'bl-empty' }, '还没抽到勋章，去答一套课卡'),
           ]),
         ])
@@ -2333,7 +2494,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       function renderDrawCard() {
         if (!lastDraw) return null
         return h('div', { key: 'prize', className: 'bl-draw-card' }, [
-          h('span', { key: 'e', className: 'bl-sticker-emoji' }, lastDraw.emoji || '🎁'),
+          h(Glyph, { key: 'e', name: rewardGlyph(lastDraw.id), size: 44, sw: 1.6, className: 'bl-sticker-glyph' }),
           h('div', { key: 'txt', className: 'bl-draw-text' }, [
             h('b', { key: 'n' }, lastDraw.name || '奖品'),
             h('span', { key: 'r', className: 'bl-sticker-meta' }, (RARITY[lastDraw.rarity] || '奖品') + ' · 已经收进「奖励」墙'),
@@ -2509,7 +2670,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             title: has ? item.name : '还没抽到',
             onClick: () => setRewardPick(item.id),
           }, [
-            h('span', { key: 'sh', className: 'bl-hex-shield ' + (item.rarity || 'common') + (has ? '' : ' locked') }, h('span', { key: 'e' }, has ? item.emoji : '？')),
+            h('span', { key: 'sh', className: 'bl-hex-shield ' + (item.rarity || 'common') + (has ? '' : ' locked') }, h(Glyph, { key: 'e', name: has ? rewardGlyph(item.id) : 'question', size: 22, sw: 1.7 })),
             h('span', { key: 'n', className: 'bl-hex-name' }, has ? item.name : '未点亮'),
             has && item.count > 1 ? h('span', { key: 'c', className: 'bl-hex-count' }, '×' + item.count) : null,
           ])
@@ -2523,7 +2684,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
         const detail = sel ? h('div', { key: 'detail', className: 'bl-panelx bl-reward-detail' }, [
           h('div', { key: 'k', className: 'bl-course-kicker' }, '勋章详情 MEDAL'),
-          h('div', { key: 'big', className: 'bl-hex-big ' + (sel.rarity || 'common') + (sel.count > 0 ? '' : ' locked') }, h('span', { key: 'e' }, sel.count > 0 ? sel.emoji : '？')),
+          h('div', { key: 'big', className: 'bl-hex-big ' + (sel.rarity || 'common') + (sel.count > 0 ? '' : ' locked') }, h(Glyph, { key: 'e', name: sel.count > 0 ? rewardGlyph(sel.id) : 'question', size: 48, sw: 1.5 })),
           h('div', { key: 'n', className: 'bl-detail-name' }, sel.count > 0 ? sel.name : '未点亮'),
           h('div', { key: 'chips', className: 'bl-chips' }, [
             h('span', { key: 'r', className: 'bl-chip' }, RARITY[sel.rarity] || '奖品'),
@@ -2544,7 +2705,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const recentList = (view.draws || []).slice(0, 5).map((row) => {
           const item = byItem[row.itemId] || null
           return h('div', { key: row.id || String(row.at), className: 'bl-draw-row' }, [
-            h('span', { key: 'e', className: 'bl-sticker-emoji' }, item ? item.emoji : '🎁'),
+            h(Glyph, { key: 'e', name: item ? rewardGlyph(item.id) : 'gift', size: 34, sw: 1.6, className: 'bl-sticker-glyph' }),
             h('span', { key: 'n', style: { flex: '1', minWidth: '0' } }, item ? item.name : '奖品'),
             h('span', { key: 't', className: 'bl-hint' }, timeText(row.at)),
           ])
@@ -2586,14 +2747,22 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                 h('h2', { key: 't' }, '总成就核'),
                 h('p', { key: 'p' }, '抽到的勋章都收在这面墙上'),
               ]),
-              h('div', { key: 'body', className: 'bl-nucleus' }, [
+              h('div', { key: 'top', className: 'bl-wall-top' }, [
                 h('div', { key: 'ring', className: 'bl-nucleus-ring', style: { '--p': pct.toFixed(1) + '%' } }, [
                   h('b', { key: 'n' }, [String(owned), h('em', { key: 'd' }, ' / ' + total)]),
                   h('span', { key: 'l' }, 'COLLECTED'),
-                  h('i', { key: 'g' }, owned >= total ? '星海收藏家' : (owned >= total * 0.6 ? '星际探索者' : '见习领航员')),
                 ]),
-                h('div', { key: 'grid', className: 'bl-hexgrid' }, wall),
+                h('div', { key: 'meta', className: 'bl-wall-meta' }, [
+                  h('div', { key: 'g', className: 'bl-wall-rank' }, owned >= total ? '星海收藏家' : (owned >= total * 0.6 ? '星际探索者' : '见习领航员')),
+                  h('div', { key: 'h', className: 'bl-hint' }, nextLocked ? ('下一枚：' + nextLocked.name) : '整面墙都点亮了'),
+                  h('div', { key: 'b', className: 'bl-wall-bars' }, [
+                    h('span', { key: 'c', className: 'bl-chip' }, '常见 ' + view.items.filter((i) => i.rarity === 'common' && i.count > 0).length + '/' + view.items.filter((i) => i.rarity === 'common').length),
+                    h('span', { key: 'r', className: 'bl-chip' }, '稀有 ' + view.items.filter((i) => i.rarity === 'rare' && i.count > 0).length + '/' + view.items.filter((i) => i.rarity === 'rare').length),
+                    h('span', { key: 'e', className: 'bl-chip gold' }, '珍稀 ' + view.items.filter((i) => i.rarity === 'epic' && i.count > 0).length + '/' + view.items.filter((i) => i.rarity === 'epic').length),
+                  ]),
+                ]),
               ]),
+              h('div', { key: 'grid', className: 'bl-hexgrid' }, wall),
             ]),
             detail,
           ]),
