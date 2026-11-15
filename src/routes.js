@@ -4,7 +4,9 @@
  * 数据全在本机 JSON 里，接口只做增删改查与一次 B 站校验，不落任何远端。
  */
 import { randomUUID } from 'node:crypto'
-import { join } from 'node:path'
+import { readFile } from 'node:fs/promises'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { fetchVideo, parseBvid } from './bili.js'
 import { autoFill, mondayOf, normalizePlan, toDate } from './plan.js'
 import { normalizeLesson } from './lesson.js'
@@ -22,6 +24,8 @@ import {
 
 export const PREFIX = '/bili-lesson'
 const MAX_JSON = 1_000_000
+const ASSET_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
+const ASSETS = { 'deck-bg.jpg': 'image/jpeg' }
 
 /** 学习闭环新增的两个数据文件，沿用 Store 的 tmp + rename 与串行写。 */
 const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json' }
@@ -143,6 +147,19 @@ export class Routes {
     const head = parts[0] || ''
     const tail = parts[1] || ''
     const settings = await this.settings()
+
+    if (head === 'assets') {
+      if (method !== 'GET') return json(res, 405, { error: '资源只支持 GET' })
+      const type = ASSETS[tail]
+      if (!type) return json(res, 404, { error: '没有这个资源' })
+      const buf = await readFile(join(ASSET_DIR, tail))
+      res.statusCode = 200
+      res.setHeader('content-type', type)
+      res.setHeader('cache-control', 'public, max-age=86400')
+      res.setHeader('content-length', String(buf.length))
+      res.end(buf)
+      return
+    }
 
     if (head === 'health') {
       const [videos, lessons] = await Promise.all([this.store.read('videos'), this.store.read('lessons')])
