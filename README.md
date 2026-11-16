@@ -1,5 +1,7 @@
 # 星火课堂 · dsh-bili-lesson
 
+**中文** | [English](./README.en.md)
+
 给自家孩子用的 B 站学习面板，装在 [DeepSeek Harness](https://github.com/deepseek-ai) 桌面端侧栏里：
 **家长挑片 → 按周排课 → 孩子看完打勾 → 配一套课卡 → 交卷判分 → 错题回炉 → 盲盒与勋章**。
 

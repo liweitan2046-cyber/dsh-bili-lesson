@@ -18,7 +18,8 @@
     "cordis.patch.yml",
     "icon.svg",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "README.en.md"
   ],
   "scripts": {
     "check": "node --check index.js && node --check client.js && node --check src/store.js && node --check src/bili.js && node --check src/plan.js && node --check src/lesson.js && node --check src/routes.js && node --check src/rewards.js",
