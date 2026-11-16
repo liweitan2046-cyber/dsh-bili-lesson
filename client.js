@@ -972,7 +972,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-bottom3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 /* v7 自适应（面板较窄时） */
 .bl-root{container-type:inline-size}
-.bl-hero{align-items:stretch}
+.bl-hero{align-items:stretch;min-height:470px}
+.bl-hero>.bl-empty-panel{height:100%;align-content:center}
+.bl-route-empty{gap:8px;text-align:center}
+.bl-route-empty-t{font-size:15px;font-weight:650;color:#eaf5ff}
+.bl-route-empty .bl-btn{margin:6px auto 2px}
 
 
 .bl-map svg{width:100%;height:100%;flex:1;min-height:0}
@@ -1872,8 +1876,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const H = Math.max(220, Math.round(mapBox.h || 470))
         const cx = Math.round(W / 2)
         const cy = Math.round(H / 2 - H * 0.03)
-        const rx = Math.round(Math.max(80, W / 2 - 80))
-        const ry = Math.round(Math.max(64, H / 2 - 96))
+        const rx = Math.round(Math.max(78, W / 2 - 46))
+        const ry = Math.round(Math.max(70, H / 2 - 50))
         const nodes = cats.map((name, i) => {
           const angle = -Math.PI / 2 + (i / cats.length) * Math.PI * 2
           return {
@@ -1954,8 +1958,17 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           if (video) tasks.push({ date: d.date, id, video, done: (watchIndex.byDate[d.date] || []).indexOf(id) !== -1 })
         }))
         if (!tasks.length) {
-          return h('div', { key: 'route-empty', className: 'bl-empty-panel' },
-            '本周航线还是空的。去「本周航线」点一下自动排片，或者手动往某一天加两集。')
+          return h('div', { key: 'route-empty', className: 'bl-empty-panel bl-route-empty' }, [
+            h('div', { key: 't', className: 'bl-route-empty-t' }, '这一周还没排课'),
+            h('div', { key: 's', className: 'bl-hint' }, '上周的课表到周日就结束了。点一下按分类轮转，自动把周一到周日排满。'),
+            h('button', {
+              key: 'auto',
+              className: 'bl-btn bl-btn-primary',
+              disabled: Boolean(planBusy),
+              onClick: autoPlan,
+            }, planBusy ? '排着呢…' : '自动排这一周'),
+            h('div', { key: 'g', className: 'bl-hint' }, '排完想换片子，去「本周航线」点「换一条」'),
+          ])
         }
         const doneCount = tasks.filter((t) => t.done).length
         const curIndex = tasks.findIndex((t) => !t.done)
