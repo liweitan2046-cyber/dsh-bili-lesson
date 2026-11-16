@@ -1,6 +1,6 @@
 /**
- * 课卡：一条视频配 3-5 道题，字段对齐小步乐园的 CurriculumQuestion
- * （src/content/curriculum.ts:72-88），导出后可直接塞进那套内容表。
+ * 课卡：一条视频配 3-8 道题。字段与前端表单一一对应（client.js 的 renderLessonEditor），
+ * 所以家长在界面上填的东西，和直接改 lessons.json 的效果完全一样。
  */
 import { randomUUID } from 'node:crypto'
 

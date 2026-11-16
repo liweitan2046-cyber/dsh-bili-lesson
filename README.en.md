@@ -24,6 +24,32 @@ It is not a recommendation algorithm and not a question generator — the parent
 | Card workshop | One quiz card per video, 3–8 questions each |
 | Bridge settings | Clips per day / default age / weekly box cap; the 54-item prize pool with stock and weights; medal thresholds; **parent-lock PIN** |
 
+## Where the clips and questions come from
+
+This plugin **has no built-in search and does not write questions for you**: the library and the question bank are yours to feed.
+Every detail (endpoints, fields, limits, traps) is in [docs/HOW-TO-CURATE.md](./docs/HOW-TO-CURATE.md) (Chinese); the gist:
+
+**Clips**
+
+- Paste a BV id or a whole Bilibili link in the Vault → the server calls the public read-only endpoint
+  `GET https://api.bilibili.com/x/web-interface/view?bvid=…` with a referer header and **no cookie, no login, no stream proxying**,
+  to fill title / cover / duration / uploader. Category, minimum age and the "why" note are yours. Taken-down videos are marked `dead`
+  but never removed from your library.
+- No built-in search: Bilibili search needs a wbi signature and a plain GET returns HTTP 412, so you curate outside the plugin
+  (search on Bilibili and copy the link / ask an AI assistant for a list / copy a `videos.json` from somewhere else).
+- The data source is a **single replaceable function**: only `fetchVideo(bvid)` in `src/bili.js:20` talks to Bilibili. Point it at a
+  third-party API (TikHub, your own proxy, an internal mirror) and nothing else changes. There is no "API key" settings page yet - see
+  Known limitations below for why.
+
+**Questions**
+
+- One card per video in the Card workshop, **3-8 questions**. Fields: `prompt` (dropped if empty) / `spokenPrompt` (defaults to the prompt) /
+  `options` (2-6; **fewer than 2 silently becomes yes/no**) / `answer` (index of the correct option, out of range falls back to 0) /
+  `hint` / `explanation` / `difficulty` (clamped to 1-3).
+- Every question weighs the same; 80% or more on the day earns one blind box. Wrong answers land in Mistakes keyed by `lessonId:qid`.
+- Three rules that keep questions fair: one idea per question, options equal in length and shape, distractors taken from what the video
+  actually mixes up (6 vs 9, not 100).
+- You can also edit `lessons.json` directly (see Data); the Training bay finds a card as long as `videoId` matches a BV id in the library.
 ## Requirements
 
 - DeepSeek Harness desktop **0.2.2-rc.x** (verified on 0.2.2-rc.3). The plugin loads through a cordis patch and the client-side
@@ -113,5 +139,7 @@ Every route lives under the `/bili-lesson/` prefix and goes through DSH's own au
 ## Known limitations
 
 - The library is filled in by hand or by an AI assistant; there is no built-in search, because Bilibili's search API needs a wbi signature and returns 412 when called directly.
+- No "API endpoint / key" settings page: there is exactly one data source (the official view endpoint), hard-wired at `src/bili.js:20`.
+  Swapping in a third-party API means editing that one function - deliberately not a setting, because a key would then sit in plain text in `settings.json`.
 - No AI-written questions: the parent writes them (the template only fills the fields correctly), so the kid never gets a question the parent was unsure about.
 - One machine, one profile — no multi-child profiles and no cloud backup; to move machines, copy `~/.dsh/bili-lesson/` by hand.
