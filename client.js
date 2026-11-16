@@ -6,7 +6,7 @@
  * 业务数据全部落在服务端 /bili-lesson 接口，前端不写 localStorage。
  */
 window.__ModuleLoader__.load({
-  id: '@local/dsh-bili-lesson',
+  id: 'dsh-bili-lesson',
   factory: (require) => {
     const React = require('react')
     const h = React.createElement

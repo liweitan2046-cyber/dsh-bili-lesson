@@ -9,7 +9,8 @@ import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const NAME = '@local/dsh-bili-lesson'
+const NAME = 'dsh-bili-lesson'
+const LEGACY = ['@local/dsh-bili-lesson']
 const here = dirname(fileURLToPath(import.meta.url))
 const args = process.argv.slice(2)
 const uninstall = args.includes('--uninstall')
@@ -21,16 +22,21 @@ const pkg = JSON.parse(await readFile(target, 'utf8'))
 pkg.dependencies = pkg.dependencies || {}
 pkg.dsh = pkg.dsh || {}
 pkg.dsh.profile = pkg.dsh.profile || {}
-const bundles = Array.isArray(pkg.dsh.profile.bundles) ? pkg.dsh.profile.bundles : []
+let bundles = Array.isArray(pkg.dsh.profile.bundles) ? pkg.dsh.profile.bundles : []
 
 if (uninstall) {
   delete pkg.dependencies[NAME]
-  pkg.dsh.profile.bundles = bundles.filter(name => name !== NAME)
+  for (const old of LEGACY) delete pkg.dependencies[old]
+  pkg.dsh.profile.bundles = bundles.filter(name => name !== NAME && !LEGACY.includes(name))
   await writeFile(target, JSON.stringify(pkg, null, 2) + '\n', 'utf8')
   console.log('已从 ' + target + ' 移除 ' + NAME)
   process.exit(0)
 }
 
+for (const old of LEGACY) {
+  delete pkg.dependencies[old]
+  bundles = bundles.filter(name => name !== old)
+}
 pkg.dependencies[NAME] = link
 if (!bundles.includes(NAME)) {
   const anchor = bundles.indexOf('dsh-wanfeng-studio')

@@ -75,7 +75,7 @@ Question {                 // 字段对齐小步乐园 src/content/curriculum.ts
 
 ## 面板（client.js）
 
-- 注册方式照抄 `D:\claude\Dev\dsh-workspace\dsh-wanfeng-studio\client.js:2237-2253`：
+- 注册方式：
   `window.__ModuleLoader__.load({ id: 'dsh-bili-lesson', factory }) → return { isPlugin: true, inject: ['slots'], apply(ctx) { ... } }`，
   `ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name, id: 'bili-lesson', order: 40, label: () => '星火课堂' }, Icon))`，
   `ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'bili-lesson' }, Panel))`。

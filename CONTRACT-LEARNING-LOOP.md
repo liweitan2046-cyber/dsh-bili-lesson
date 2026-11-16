@@ -2,8 +2,8 @@
 
 > 由 dispatcher 定死的数据与接口契约。实现必须严格按此文件，可以补充字段但不得改名。
 
-插件根：D:/claude/Dev/dsh-workspace/dsh-bili-lesson
-包名：@local/dsh-bili-lesson（client.js 的 __ModuleLoader__.load({id}) 必须保持不变）
+插件根：仓库根（本文件所在目录）
+包名：dsh-bili-lesson（client.js 的 __ModuleLoader__.load({id}) 必须与 package.json 的 name 字面一致）
 
 ## 1 新增数据文件（走现有 Store，DATA_DIR = BILI_LESSON_HOME || ~/.dsh/bili-lesson）
 
@@ -59,7 +59,7 @@ GET  /export 现有响应追加两个字段：attempts（同 attempts.json 全�
 
 ## 6 不得改动
 
-- client.js 顶部的 __ModuleLoader__.load({ id: '@local/dsh-bili-lesson' })
+- client.js 顶部的 __ModuleLoader__.load({ id: 'dsh-bili-lesson' })（必须与 package.json 的 name 一致）
 - 现有 5 个 tab：片库 / 本周 / 记录 / 课卡 / 设置
 - store.js 的写盘方式（tmp + rename）、现有 5 个 json 的字段
 - package.json 的 name / version 语义（版本改 0.2.0 可以）

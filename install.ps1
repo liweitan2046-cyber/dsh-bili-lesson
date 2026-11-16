@@ -1,4 +1,4 @@
-# 安装「星火课堂」到 DSH 桌面 profile，然后需要重启 DSH。
+﻿# 安装「星火课堂」到 DSH 桌面 profile，然后需要重启 DSH。
 # 用法：pwsh -ExecutionPolicy Bypass -File .\install.ps1          （卸载加 -Uninstall）
 param([switch]$Uninstall, [switch]$SkipInstall)
 
@@ -31,7 +31,7 @@ if (-not $SkipInstall) {
   if ($code -ne 0) { throw 'pnpm install 失败（退出码 ' + $code + '）' }
 }
 
-$linked = Join-Path $env:USERPROFILE '.dsh\profiles\desktop\node_modules\@local\dsh-bili-lesson\index.js'
+$linked = Join-Path $env:USERPROFILE '.dsh\profiles\desktop\node_modules\dsh-bili-lesson\index.js'
 if (Test-Path $linked) { Write-Host '链接就位：' $linked -ForegroundColor Green }
 else { Write-Host '链接还没生成，检查上面的 pnpm 输出。' -ForegroundColor Yellow }
 
