@@ -19,6 +19,7 @@ window.__ModuleLoader__.load({
       { id: 'library', label: '舰桥首页' },
       { id: 'plan', label: '本周航线' },
       { id: 'learn', label: '训练舱' },
+      { id: 'mistakes', label: '错题本' },
       { id: 'watch', label: '航行记录' },
       { id: 'rewards', label: '成就展厅' },
       { id: 'lessons', label: '课卡工坊' },
@@ -39,7 +40,7 @@ window.__ModuleLoader__.load({
 
     const TAB_TITLE = {
       library: '舰桥首页', plan: '本周航线', watch: '航行记录', learn: '训练舱',
-      rewards: '成就展厅', lessons: '课卡工坊', settings: '舰桥设置',
+      mistakes: '错题本', rewards: '成就展厅', lessons: '课卡工坊', settings: '舰桥设置',
     }
 
     const RAIL_ICONS = {
@@ -47,6 +48,7 @@ window.__ModuleLoader__.load({
       plan: ['M4 6.5h9.5', 'M4 12h6', 'M4 17.5h6.5', 'M15 9.5l4.2 4.2-4.2 4.2'],
       watch: ['M12 7.4V12l3 1.9', 'M12 3.6a8.4 8.4 0 100 16.8 8.4 8.4 0 000-16.8z'],
       learn: ['M9 7.6l7.4 4.4L9 16.4z', 'M4 4.8h16v14.4H4z'],
+      mistakes: ['M4.8 5.2h14.4v13.6H4.8z', 'M8 5.2v13.6', 'M9.6 9.6l5.2 5', 'M14.8 9.6l-5.2 5'],
       rewards: ['M12 3.4l7 7-7 10.2-7-10.2z', 'M5 10.4h14'],
       lessons: ['M4.6 5.2h14.8v13.6H4.6z', 'M8 9h8', 'M8 12.8h5.4'],
       settings: ['M4 7.6h6', 'M14 7.6h6', 'M4 16.4h9', 'M17 16.4h3', 'M11.2 5.2v4.8', 'M14.2 14v4.8'],
@@ -220,6 +222,13 @@ window.__ModuleLoader__.load({
 
     function shortDate(iso) {
       return String(iso || '').slice(5)
+    }
+
+    function dateTimeOf(ms) {
+      const n = Number(ms)
+      if (!n) return ''
+      const d = new Date(n)
+      return pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes())
     }
 
     function fmtDur(seconds) {
@@ -1076,6 +1085,23 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-prow-name b{font-size:12.5px;color:#eaf7ff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bl-prow-name em{font-style:normal;font-size:10.5px;color:rgba(160,190,214,.66)}
 .bl-hex-shield.earned{color:#ffe2ae}
+/* ---- 错题本 ---- */
+.bl-mistakes{display:grid;gap:10px}
+.bl-mistake{border:1px solid var(--bl-line);border-radius:var(--bl-r);background:rgba(12,26,40,.6);padding:11px 13px}
+.bl-mistake-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:rgba(170,196,218,.78)}
+.bl-mistake-head b{color:#e9f5ff;font-weight:600;font-size:12.5px;max-width:30ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-mistake-tag{font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:6px;border:1px solid rgba(255,150,150,.34);color:#ffb3b3;background:rgba(255,110,110,.08)}
+.bl-mistake-tag.ok{border-color:rgba(79,216,166,.34);color:#8fe6c4;background:rgba(79,216,166,.08)}
+.bl-mistake-q{margin:9px 0 9px;font-size:13.5px;color:#eef7ff;line-height:1.5}
+.bl-mopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.bl-mopt{appearance:none;text-align:left;padding:8px 11px;border-radius:8px;border:1px solid var(--bl-line);background:rgba(9,20,32,.72);color:#d7e7f6;font-size:12.5px;cursor:pointer;transition:border-color .16s,background .16s}
+.bl-mopt:hover:not(:disabled){border-color:rgba(92,200,255,.34);background:rgba(20,44,72,.82)}
+.bl-mopt.on{border-color:rgba(92,200,255,.5)}
+.bl-mopt.hit{border-color:rgba(79,216,166,.62);background:rgba(79,216,166,.1);color:#a9f0d5}
+.bl-mopt.miss{border-color:rgba(255,120,120,.55);background:rgba(255,110,110,.1);color:#ffbdbd}
+.bl-mistake-foot{margin-top:9px;font-size:11.5px;line-height:1.55;color:rgba(160,190,214,.72)}
+.bl-mistake-foot.ok{color:#8fe6c4}
+.bl-mistake-foot.no{color:#ffb3b3}
 @media (max-width:880px){.bl-prow{grid-template-columns:1fr 1fr;row-gap:4px}.bl-prow-head{display:none}.bl-prow-medal{grid-template-columns:30px minmax(90px,1fr) 64px 60px 120px 56px}}
 @media (max-width:880px){.bl-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 `
@@ -1147,6 +1173,10 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [learnPicks, setLearnPicks] = useState({})
       const [learnOutcome, setLearnOutcome] = useState(null)
       const [learnBusy, setLearnBusy] = useState(false)
+      const [mistakes, setMistakes] = useState(null)
+      const [mistakeFilter, setMistakeFilter] = useState('pending')
+      const [mistakeBusy, setMistakeBusy] = useState('')
+      const [mistakePick, setMistakePick] = useState({})
       const [rewards, setRewards] = useState(null)
       const [rewardBusy, setRewardBusy] = useState(false)
       const [lastDraw, setLastDraw] = useState(null)
@@ -2591,6 +2621,99 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ])
       }
 
+      /* ------------------------------------------------------------------ */
+      /* 渲染：错题本                                                        */
+      /* ------------------------------------------------------------------ */
+
+      async function answerMistake(item, choice) {
+        if (mistakeBusy) return
+        setError('')
+        setMistakeBusy(item.key)
+        try {
+          const data = await send('/mistakes/answer', 'POST', { key: item.key, choice })
+          setMistakePick((prev) => ({ ...prev, [item.key]: { choice, correct: Boolean(data.correct), answer: Number(data.answer) } }))
+          flash(data.correct ? '答对了，这题算掌握' : '还差一点，看一眼解释再试一次')
+          setMistakes((prev) => {
+            if (!prev) return prev
+            const items = prev.items.map((row) => row.key === item.key
+              ? { ...row, resolved: Boolean(data.correct) || row.resolved, tries: Number(data.tries) || row.tries, lastChoice: choice }
+              : row)
+            const resolved = items.filter((row) => row.resolved).length
+            return { ...prev, items, summary: { ...prev.summary, resolved, pending: items.length - resolved } }
+          })
+        } catch (e) {
+          fail(e)
+        } finally {
+          setMistakeBusy('')
+        }
+      }
+
+      function renderMistakeRow(item) {
+        const pick = mistakePick[item.key] || null
+        const answered = Boolean(pick)
+        const options = Array.isArray(item.options) ? item.options : []
+        return h('div', { key: item.key, className: 'bl-mistake' }, [
+          h('div', { key: 'head', className: 'bl-mistake-head' }, [
+            h(Glyph, { key: 'g', name: catGlyph(item.category), size: 14, sw: 1.7 }),
+            h('b', { key: 't', title: item.videoTitle }, item.videoTitle || item.videoId),
+            h('span', { key: 'd', className: 'bl-hint' }, dateTimeOf(item.lastAt)),
+            item.wrongCount > 1 ? h('span', { key: 'w', className: 'bl-hint' }, '错过 ' + item.wrongCount + ' 次') : null,
+            h('div', { key: 'sp', className: 'bl-spacer' }),
+            h('span', { key: 's', className: 'bl-mistake-tag' + (item.resolved ? ' ok' : '') }, item.resolved ? '已掌握' : '待复习'),
+          ]),
+          h('div', { key: 'q', className: 'bl-mistake-q' }, item.prompt || '（题干缺失）'),
+          h('div', { key: 'opts', className: 'bl-mopts' }, options.map((option, oi) => h('button', {
+            key: 'o' + oi,
+            className: 'bl-mopt'
+              + (pick && pick.choice === oi ? ' on' : '')
+              + (answered && oi === pick.answer ? ' hit' : '')
+              + (answered && pick.choice === oi && !pick.correct ? ' miss' : ''),
+            disabled: Boolean(mistakeBusy),
+            onClick: () => answerMistake(item, oi),
+          }, option))),
+          answered
+            ? h('div', { key: 'foot', className: 'bl-mistake-foot ' + (pick.correct ? 'ok' : 'no') }, pick.correct
+              ? '答对了：正确答案「' + (options[pick.answer] || '选项 ' + (pick.answer + 1)) + '」' + (item.explanation ? ' · ' + item.explanation : '')
+              : '再想想：你选的是「' + (options[pick.choice] || '') + '」' + (item.hint ? ' · 提示：' + item.hint : ''))
+            : h('div', { key: 'foot', className: 'bl-mistake-foot' }, (item.tries ? '练过 ' + item.tries + ' 次 · ' : '') + '点一个选项当场判分，答对就把这题移出待复习'),
+        ])
+      }
+
+      function renderMistakes() {
+        const box = mistakes || { items: [], summary: { total: 0, pending: 0, resolved: 0, videos: 0, categories: [] } }
+        const items = Array.isArray(box.items) ? box.items : []
+        const sum = box.summary || {}
+        const filter = mistakeFilter
+        const rows = items.filter((item) => filter === 'all' ? true : filter === 'resolved' ? item.resolved : (!item.resolved || Boolean(mistakePick[item.key])))
+        const chips = [{ id: 'pending', text: '待复习' }, { id: 'resolved', text: '已掌握' }, { id: 'all', text: '全部' }]
+        const list = mistakes === null
+          ? h('div', { key: 'loading', className: 'bl-empty-panel' }, '正在读错题…')
+          : rows.length === 0
+            ? h('div', { key: 'empty', className: 'bl-empty-panel' }, [
+              h('div', { key: 't' }, filter === 'pending' ? '没有待复习的错题。' : filter === 'resolved' ? '还没有答对过的错题。' : '错题本还是空的。'),
+              h('div', { key: 's', className: 'bl-hint' }, filter === 'pending' ? '答错的题会自己进来，答对就移走。' : '去训练舱做一套题，答错的题会自动收进来。'),
+              h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: () => setTab('learn') }, '去训练舱'),
+            ].filter(Boolean))
+            : h('div', { key: 'list', className: 'bl-mistakes' }, rows.map(renderMistakeRow))
+        return [
+          pageHead('REVIEW · 错题本', '错题本', '交卷时答错的题自动收进来 · 再答一次，答对就算掌握', [
+            h('button', { key: 'reload', className: 'bl-btn bl-btn-sm', disabled: mistakeBusy === 'refresh', onClick: () => { setMistakeBusy('refresh'); loadMistakes().catch((e) => fail(e)).finally(() => setMistakeBusy('')) } }, mistakeBusy === 'refresh' ? '刷新中…' : '刷新'),
+          ]),
+          h('div', { key: 'stats', className: 'bl-kpis' }, [
+            kpi('a', '待复习', Number(sum.pending) || 0, '道', '答对就自动移出', 'gold'),
+            kpi('b', '已掌握', Number(sum.resolved) || 0, '道', '再答一次答对过的'),
+            kpi('c', '涉及片子', Number(sum.videos) || 0, '条', '错的题落在哪几条片子上'),
+            kpi('d', '错题总数', Number(sum.total) || 0, '道', (sum.categories && sum.categories[0]) ? ('最多：' + sum.categories[0].name + ' ' + sum.categories[0].count + ' 道') : '还没有错题', 'cyan'),
+          ]),
+          h('div', { key: 'filter', className: 'bl-subtabs' }, chips.map((chip) => h('button', {
+            key: chip.id,
+            className: 'bl-subtab' + (filter === chip.id ? ' on' : ''),
+            onClick: () => setMistakeFilter(chip.id),
+          }, chip.text))),
+          list,
+        ]
+      }
+
       function renderWatch() {
         const days = []
         for (let i = 0; i < 14; i += 1) days.push(addDays(today, -i))
@@ -2845,6 +2968,12 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         return weekVideos.concat(extra)
       }, [weekVideos, lessons, pick])
 
+      const loadMistakes = useCallback(async () => {
+        const data = await api('/mistakes')
+        setMistakes(data && Array.isArray(data.items) ? data : { items: [], summary: { total: 0, pending: 0, resolved: 0, videos: 0, categories: [] } })
+        return data
+      }, [])
+
       const loadRewards = useCallback(async () => {
         const data = await api('/rewards')
         setRewards(data && Array.isArray(data.items) ? data : null)
@@ -2892,6 +3021,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         if (tab !== 'rewards') return
         loadRewards().catch(() => {})
       }, [tab, loadRewards])
+
+      useEffect(() => {
+        if (tab !== 'mistakes') return
+        loadMistakes().catch((e) => fail(e))
+      }, [tab, loadMistakes, fail])
 
       useEffect(() => {
         if (tab !== 'settings') return
@@ -2944,6 +3078,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           })
           setLastDraw(null)
           loadRewards().catch(() => {})
+          loadMistakes().catch(() => {})
           flash(data.newBox ? '交卷了，得了一个盲盒' : '交卷了，看看错在哪')
         } catch (e) {
           fail(e)
@@ -3039,6 +3174,9 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           h('span', { key: 's', className: 'bl-score' }, String(attempt.score)),
           h('span', { key: 'u', className: 'bl-hint' }, '分'),
           h('span', { key: 'c', className: 'bl-hint' }, '答对 ' + attempt.correct + ' / ' + attempt.total + ' 题'),
+          attempt.total > attempt.correct
+            ? h('button', { key: 'mk', className: 'bl-btn bl-btn-sm', onClick: () => setTab('mistakes') }, '错题 ' + (attempt.total - attempt.correct) + ' 道 · 去错题本')
+            : null,
           h('div', { key: 'sp', className: 'bl-spacer' }),
           learnResult.newBox
             ? h('button', { key: 'draw', className: 'bl-btn bl-btn-primary', disabled: rewardBusy, onClick: drawBox }, rewardBusy ? '开盒中…' : '抽一个盲盒')
@@ -3773,8 +3911,10 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             ? renderWatch()
             : tab === 'learn'
               ? renderLearn()
-              : tab === 'rewards'
-                ? renderRewards()
+              : tab === 'mistakes'
+                ? renderMistakes()
+                : tab === 'rewards'
+                  ? renderRewards()
                 : tab === 'lessons'
                   ? renderLessons()
                   : tab === 'vault'
@@ -3787,6 +3927,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const railCount = (id) => id === 'library' ? String(allVideos.length)
         : id === 'plan' ? weekDone + '/' + weekTasks
           : id === 'watch' ? String(streak)
+            : id === 'mistakes' ? String((mistakes && mistakes.summary && mistakes.summary.pending) || '')
             : id === 'lessons' ? String(lessons.length)
               : id === 'vault' ? String(allVideos.length)
                 : ''

@@ -30,7 +30,7 @@ const ASSET_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
 const ASSETS = { 'deck-bg.jpg': 'image/jpeg' }
 
 /** 学习闭环新增的两个数据文件，沿用 Store 的 tmp + rename 与串行写。 */
-const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json', honors: 'honors.json' }
+const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json', honors: 'honors.json', mistakes: 'mistakes.json' }
 
 class LedgerStore extends Store {
   path(name) {
@@ -757,6 +757,123 @@ export class Routes {
         }))
         const { parentPin, ...rest } = saved
         return json(res, 200, { ...rest, parentPinSet: Boolean(parentPin) })
+      }
+      throw Object.assign(new Error('不支持的方法'), { status: 405 })
+    }
+
+    /* ---------------- 错题本 ---------------- */
+
+    if (head === 'mistakes') {
+      if (tail === 'answer') {
+        if (method !== 'POST') throw Object.assign(new Error('答题请用 POST'), { status: 405 })
+        const body = await readJson(req)
+        const key = text(body.key)
+        const cut = key.indexOf(':')
+        if (cut <= 0) throw Object.assign(new Error('缺少 lessonId:qid 形式的 key'), { status: 400 })
+        const lessonId = key.slice(0, cut)
+        const qid = key.slice(cut + 1)
+        const lessons = await this.store.read('lessons')
+        const lesson = (Array.isArray(lessons) ? lessons : []).find(row => row && row.id === lessonId)
+        const question = lesson ? (lesson.questions || []).find(row => row && row.id === qid) : null
+        if (!question) throw Object.assign(new Error('这道题已经不在课卡里了'), { status: 404 })
+        const options = Array.isArray(question.options) ? question.options : []
+        const choice = Number(body.choice)
+        if (!Number.isInteger(choice) || choice < 0 || choice >= options.length) {
+          throw Object.assign(new Error('选项越界'), { status: 400 })
+        }
+        const correct = choice === Number(question.answer)
+        const saved = await this.ledger.update('mistakes', current => {
+          const reviewed = current && current.reviewed && typeof current.reviewed === 'object' ? { ...current.reviewed } : {}
+          const prev = reviewed[key] || {}
+          reviewed[key] = {
+            resolved: correct,
+            tries: (Number(prev.tries) || 0) + 1,
+            lastChoice: choice,
+            at: Date.now(),
+          }
+          return { reviewed }
+        })
+        const state = saved && saved.reviewed ? saved.reviewed[key] : null
+        return json(res, 200, {
+          ok: true,
+          correct,
+          answer: Number(question.answer),
+          resolved: Boolean(state && state.resolved),
+          tries: state ? Number(state.tries) || 1 : 1,
+        })
+      }
+      if (method === 'GET') {
+        const [attempts, lessons, videos, ledger] = await Promise.all([
+          this.attempts(),
+          this.store.read('lessons'),
+          this.store.read('videos'),
+          this.ledger.read('mistakes'),
+        ])
+        const reviewed = ledger && ledger.reviewed && typeof ledger.reviewed === 'object' ? ledger.reviewed : {}
+        const lessonById = new Map()
+        for (const row of Array.isArray(lessons) ? lessons : []) {
+          if (row && row.id) lessonById.set(row.id, row)
+        }
+        const videoOf = (id) => {
+          if (!id) return null
+          if (Array.isArray(videos)) return videos.find(row => row && row.id === id) || null
+          return (videos && videos[id]) || null
+        }
+        const map = new Map()
+        const ordered = attempts.slice().sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0))
+        for (const attempt of ordered) {
+          if (!attempt) continue
+          const lesson = lessonById.get(attempt.lessonId)
+          for (const row of Array.isArray(attempt.answers) ? attempt.answers : []) {
+            if (!row || row.correct !== false) continue
+            const key = attempt.lessonId + ':' + row.qid
+            const seen = map.get(key)
+            if (seen) {
+              seen.wrongCount += 1
+              continue
+            }
+            const question = lesson ? (lesson.questions || []).find(item => item && item.id === row.qid) : null
+            const video = videoOf(attempt.videoId || (lesson && lesson.videoId))
+            const state = reviewed[key]
+            map.set(key, {
+              key,
+              qid: row.qid,
+              lessonId: attempt.lessonId,
+              videoId: attempt.videoId || (lesson && lesson.videoId) || '',
+              videoTitle: (video && video.title) || (lesson && lesson.title) || '（这条片子已不在片库）',
+              category: (video && video.category) || '',
+              prompt: question ? question.prompt : '（这道题已经从课卡里删掉了）',
+              spokenPrompt: question ? question.spokenPrompt || '' : '',
+              options: question && Array.isArray(question.options) ? question.options : [],
+              answer: question ? Number(question.answer) : -1,
+              hint: question ? question.hint || '' : '',
+              explanation: question ? question.explanation || '' : '',
+              difficulty: question ? Number(question.difficulty) || 1 : 1,
+              lastChoice: Number(row.choice),
+              lastAt: Number(attempt.createdAt) || 0,
+              wrongCount: 1,
+              tries: state ? Number(state.tries) || 0 : 0,
+              resolved: Boolean(state && state.resolved),
+            })
+          }
+        }
+        const items = Array.from(map.values()).sort((a, b) => b.lastAt - a.lastAt)
+        const pending = items.filter(item => !item.resolved).length
+        const categories = new Map()
+        for (const item of items) {
+          const name = item.category || '未分类'
+          categories.set(name, (categories.get(name) || 0) + 1)
+        }
+        return json(res, 200, {
+          items,
+          summary: {
+            total: items.length,
+            pending,
+            resolved: items.length - pending,
+            videos: new Set(items.map(item => item.videoId).filter(Boolean)).size,
+            categories: Array.from(categories, ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
+          },
+        })
       }
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
     }

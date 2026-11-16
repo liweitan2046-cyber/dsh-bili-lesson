@@ -1,6 +1,6 @@
 {
   "name": "@local/dsh-bili-lesson",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "B 站精选片库 × 小小课堂：家长面板管片、排本周计划、记观看、出课卡，导出成小步乐园能吃的题目 JSON。",
   "type": "module",
   "main": "index.js",
