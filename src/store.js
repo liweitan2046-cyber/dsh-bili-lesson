@@ -24,6 +24,8 @@ export const DEFAULT_SETTINGS = {
   maxAge: 6,
   embedPlay: true,
   weeklyBoxLimit: 0,
+  screenLimitMinutes: 0,
+  parentRules: {},
   parentPin: '',
 }
 

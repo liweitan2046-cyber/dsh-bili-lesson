@@ -4,7 +4,7 @@
  * 数据全在本机 JSON 里，接口只做增删改查与一次 B 站校验，不落任何远端。
  */
 import { createHash, randomBytes, randomUUID } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
+import { readFile, stat } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fetchVideo, parseBvid } from './bili.js'
@@ -13,7 +13,7 @@ import { normalizeLesson } from './lesson.js'
 import { suggestLessonDraft } from './draft.js'
 import { buildContentPack, applyContentPack } from './contentpack.js'
 import { DAY_MS, buildGrowthMap, isDue, migrateReviewState, nextReviewState } from './growth.js'
-import { DEFAULT_SETTINGS, Store } from './store.js'
+import { DEFAULT_SETTINGS, FILES, Store } from './store.js'
 import {
   availableOf,
   boxEligible,
@@ -26,6 +26,7 @@ import {
 } from './rewards.js'
 import { RARITY_KEYS, RARITY_LABEL, RARITY_WEIGHT, countUsage, defaultPool, drawable, normalizePool, pickPrize, poolOf, prizeView } from './prizes.js'
 import { medalView, mergeMedals, normalizeMedals, progressOf, studyStats } from './medals.js'
+import { buildParentBrief, normalizeParentRules } from './parent.js'
 
 export const PREFIX = '/bili-lesson'
 const MAX_JSON = 1_000_000
@@ -34,6 +35,19 @@ const ASSETS = { 'deck-bg.jpg': 'image/jpeg' }
 
 /** 学习闭环新增的两个数据文件，沿用 Store 的 tmp + rename 与串行写。 */
 const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json', honors: 'honors.json', mistakes: 'mistakes.json' }
+
+/** 缺口3家长数据主权：固定 11 类，store 与 ledger 分开定位文件。 */
+const PARENT_STORE_KEYS = ['videos', 'plans', 'watch', 'lessons', 'settings', 'prizes', 'medals']
+const PARENT_LEDGER_KEYS = ['attempts', 'rewards', 'honors', 'mistakes']
+const PARENT_DATA_KEYS = [...PARENT_STORE_KEYS, ...PARENT_LEDGER_KEYS]
+const PARENT_DATA_KEY_SET = new Set(PARENT_DATA_KEYS)
+const PARENT_DATA_LABELS = {
+  videos: '片库', plans: '每周计划', watch: '观看记录', lessons: '课卡', settings: '家长设置', prizes: '奖品池', medals: '勋章配置',
+  attempts: '答题记录', rewards: '抽奖记录', honors: '勋章记录', mistakes: '错题记录',
+}
+const PARENT_EMPTY = {
+  videos: {}, plans: {}, watch: [], lessons: [], prizes: { items: [] }, medals: { items: [] },
+}
 
 class LedgerStore extends Store {
   path(name) {
@@ -404,6 +418,56 @@ export class Routes {
   async publicSettings() {
     const { parentPin, ...rest } = await this.settings()
     return { ...rest, parentPinSet: Boolean(parentPin) }
+  }
+
+  parentDataPath(key) {
+    return join(this.store.dir, PARENT_DATA_KEY_SET.has(key)
+      ? (PARENT_LEDGER_KEYS.includes(key) ? LEDGER_FILES[key] : FILES[key])
+      : '')
+  }
+
+  async parentDataBytes(key) {
+    try {
+      const info = await stat(this.parentDataPath(key))
+      return info.isFile() ? info.size : 0
+    } catch {
+      return 0
+    }
+  }
+
+  async readParentData(key) {
+    return PARENT_LEDGER_KEYS.includes(key)
+      ? this.ledger.read(key)
+      : this.store.read(key)
+  }
+
+  async clearParentData(key) {
+    const empty = PARENT_EMPTY[key] === undefined ? [] : PARENT_EMPTY[key]
+    return PARENT_LEDGER_KEYS.includes(key)
+      ? this.ledger.write(key, empty)
+      : this.store.write(key, empty)
+  }
+
+  async parentDataOverview() {
+    const values = await Promise.all(PARENT_DATA_KEYS.map(key => this.readParentData(key)))
+    const items = []
+    for (let i = 0; i < PARENT_DATA_KEYS.length; i += 1) {
+      const key = PARENT_DATA_KEYS[i]
+      const value = values[i]
+      const count = key === 'settings' ? 1 : (Array.isArray(value) ? value.length : Object.keys(value || {}).length)
+      items.push({
+        key,
+        label: PARENT_DATA_LABELS[key],
+        file: PARENT_LEDGER_KEYS.includes(key) ? LEDGER_FILES[key] : FILES[key],
+        count,
+        bytes: await this.parentDataBytes(key),
+      })
+    }
+    return {
+      dataDir: this.store.dir,
+      items,
+      totals: { items: items.length, count: items.reduce((n, item) => n + item.count, 0), bytes: items.reduce((n, item) => n + item.bytes, 0) },
+    }
   }
 
   async dispatch(route, url, req, res) {
@@ -972,6 +1036,12 @@ export class Routes {
           weeklyBoxLimit: body.weeklyBoxLimit === undefined
             ? (Number(current.weeklyBoxLimit) || 0)
             : Math.max(0, Math.min(20, Math.round(Number(body.weeklyBoxLimit) || 0))),
+          screenLimitMinutes: body.screenLimitMinutes === undefined
+            ? (Number(current.screenLimitMinutes) || 0)
+            : Math.max(0, Math.min(720, Math.round(Number(body.screenLimitMinutes) || 0))),
+          parentRules: body.parentRules === undefined
+            ? (current.parentRules && typeof current.parentRules === 'object' ? current.parentRules : {})
+            : normalizeParentRules(body.parentRules),
         }))
         const { parentPin, ...rest } = saved
         return json(res, 200, { ...rest, parentPinSet: Boolean(parentPin) })
@@ -1119,8 +1189,67 @@ export class Routes {
       })
     }
 
+    /* ---------------- 缺口3：家长周报与数据主权 ---------------- */
+
+    if (head === 'parent' && tail === 'brief') {
+      if (method !== 'GET') throw Object.assign(new Error('家长周报只支持 GET'), { status: 405 })
+      const rawWeek = toDate(q.weekStart)
+      const parsed = rawWeek ? new Date(rawWeek + 'T00:00:00Z') : null
+      const valid = parsed && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === rawWeek
+      const weekStart = mondayOf(valid ? rawWeek : localDay())
+      const weekly = await this.familyWeekly(weekStart)
+      return json(res, 200, buildParentBrief(weekly, await this.settings()))
+    }
+
+    if (head === 'parent' && tail === 'data' && !parts[2]) {
+      if (method !== 'GET') throw Object.assign(new Error('不支持的方法'), { status: 405 })
+      requireParentPin(await this.settings(), q.pin || '')
+      return json(res, 200, await this.parentDataOverview())
+    }
+
+    if (head === 'parent' && parts[1] === 'data' && parts[2] === 'export') {
+      if (method !== 'POST') throw Object.assign(new Error('数据导出只支持 POST'), { status: 405 })
+      const body = await readJson(req)
+      requireParentPin(await this.settings(), body.pin)
+      const keys = parentDataKeys(body.keys, true)
+      const data = {}
+      for (const key of keys) {
+        const value = await this.readParentData(key)
+        data[key] = key === 'settings' ? { ...(value || {}), parentPin: '(已隐藏)' } : value
+      }
+      return json(res, 200, {
+        format: 'dsh-bili-lesson-parent-export',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        data,
+      })
+    }
+
+    if (head === 'parent' && parts[1] === 'data' && parts[2] === 'delete') {
+      if (method !== 'POST') throw Object.assign(new Error('数据清空只支持 POST'), { status: 405 })
+      const body = await readJson(req)
+      requireParentPin(await this.settings(), body.pin)
+      if (body.confirm !== 'DELETE') throw Object.assign(new Error('确认值必须为 DELETE'), { status: 400 })
+      const keys = parentDataKeys(body.keys, true)
+      if (keys.includes('settings')) throw Object.assign(new Error('设置不可整体删除'), { status: 400 })
+      for (const key of keys) await this.clearParentData(key)
+      return json(res, 200, { ok: true, cleared: keys })
+    }
+
     throw Object.assign(new Error('没有这个接口：' + (route || '/')), { status: 404 })
   }
+}
+
+function requireParentPin(settings, pin) {
+  if (!settings.parentPin || !pinMatches(settings.parentPin, pin)) {
+    throw Object.assign(new Error(settings.parentPin ? 'PIN 不正确' : '请先设置 PIN'), { status: 403 })
+  }
+}
+
+function parentDataKeys(raw, strict) {
+  const keys = Array.isArray(raw) ? raw.filter(key => PARENT_DATA_KEY_SET.has(key)) : []
+  if (strict && keys.length === 0) throw Object.assign(new Error('请至少选择一个数据类别'), { status: 400 })
+  return keys
 }
 
 function pinHash(pin, salt) {

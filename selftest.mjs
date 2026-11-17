@@ -183,6 +183,19 @@ ok('clear rejects wrong current pin', pinClearBad.status === 400, pinClearBad.da
 const pinClear = await call('POST', '/settings/pin', { action: 'clear', currentPin: '2468' })
 ok('pin cleared', pinClear.status === 200 && pinClear.data.parentPinSet === false, pinClear.data)
 
+const parentSettingsSaved = await call('PUT', '/settings', {
+  screenLimitMinutes: 9999, parentRules: { screen_over: { enabled: false, threshold: 9999 }, unknown_rule: { enabled: true } },
+})
+ok('PUT settings accepts and clamps parent fields',
+  parentSettingsSaved.status === 200 && parentSettingsSaved.data.screenLimitMinutes === 720 &&
+  parentSettingsSaved.data.parentRules.screen_over.enabled === false &&
+  parentSettingsSaved.data.parentRules.screen_over.threshold === 0 &&
+  parentSettingsSaved.data.parentRules.unknown_rule === undefined &&
+  parentSettingsSaved.data.parentPinSet === false && parentSettingsSaved.data.parentPin === undefined,
+  parentSettingsSaved.data)
+const zeroSettings = await call('PUT', '/settings', { screenLimitMinutes: 0 })
+ok('PUT settings keeps explicit zero screen limit', zeroSettings.status === 200 && zeroSettings.data.screenLimitMinutes === 0, zeroSettings.data)
+
 /* ---- 学习闭环：答题判分 → 盲盒 → 抽奖 ---- */
 const cardCreate = await call('POST', '/lessons', {
   videoId: BV,
@@ -410,6 +423,82 @@ ok('family weekly invalid weekStart falls back to this Monday',
 const fwDefault = await call('GET', '/family/weekly')
 ok('family weekly default weekStart is this Monday',
   fwDefault.status === 200 && fwDefault.data.weekStart === mondayOf(localDay()), fwDefault.data.weekStart)
+
+/* ---- 缺口3：家长周报与数据主权接口 ---- */
+const fwCurrent = await call('GET', '/family/weekly?weekStart=' + fwWeek)
+const brief = await call('GET', '/parent/brief?weekStart=' + fwWeek)
+ok('parent brief matches family weekly totals',
+  brief.status === 200 && fwCurrent.status === 200 && brief.data.weekStart === fwWeek &&
+  JSON.stringify(brief.data.totals) === JSON.stringify(fwCurrent.data.totals) &&
+  Object.keys(brief.data).sort().join(',') === 'advice,screen,text,totals,weekStart' &&
+  brief.data.screen.limitMinutes === 0 && Array.isArray(brief.data.advice) && typeof brief.data.text === 'string',
+  { briefTotals: brief.data.totals, weeklyTotals: fwCurrent.data.totals })
+const briefPost = await call('POST', '/parent/brief')
+ok('parent brief rejects non-GET', briefPost.status === 405, briefPost.data)
+const parentNoPin = await call('GET', '/parent/data')
+ok('parent data without PIN returns 403', parentNoPin.status === 403, parentNoPin.data)
+const parentPinSet = await call('POST', '/settings/pin', { action: 'set', pin: '1357' })
+ok('parent data setup PIN', parentPinSet.status === 200 && parentPinSet.data.parentPinSet === true, parentPinSet.data)
+const parentWrongPin = await call('GET', '/parent/data?pin=9999')
+ok('parent data wrong PIN returns 403', parentWrongPin.status === 403, parentWrongPin.data)
+const parentData = await call('GET', '/parent/data?pin=1357')
+const expectedKeys = 'videos,plans,watch,lessons,settings,prizes,medals,attempts,rewards,honors,mistakes'
+ok('parent data lists 11 keys with count and bytes',
+  parentData.status === 200 && parentData.data.items.map(i => i.key).join(',') === expectedKeys &&
+  parentData.data.items.every(i => Number.isInteger(i.count) && i.count >= 0 && Number.isInteger(i.bytes) && i.bytes >= 0 && i.label && i.file) &&
+  parentData.data.totals.items === 11 && JSON.stringify(parentData.data).indexOf('parentPin') === -1,
+  { status: parentData.status, keys: parentData.data.items?.map(i => i.key), totals: parentData.data.totals })
+const parentDataPost = await call('POST', '/parent/data')
+ok('parent data rejects non-GET', parentDataPost.status === 405, parentDataPost.data)
+await call('PUT', '/settings', { screenLimitMinutes: 30, parentRules: false })
+await routes.ledger.update('honors', current => ({ xp: 600, earned: [{ id: 'md_parent', at: 1 }] }))
+await routes.ledger.write('mistakes', { reviewed: { a: { resolved: true } }, extra: 'keep' })
+const parentExportBadPin = await call('POST', '/parent/data/export', { pin: '0000', keys: ['settings'] })
+ok('parent export wrong PIN returns 403', parentExportBadPin.status === 403, parentExportBadPin.data)
+const parentExportEmpty = await call('POST', '/parent/data/export', { pin: '1357', keys: ['unknown'] })
+ok('parent export empty keys returns 400', parentExportEmpty.status === 400, parentExportEmpty.data)
+const parentExport = await call('POST', '/parent/data/export', { pin: '1357', keys: ['settings', 'honors', 'mistakes'] })
+const serializedExport = JSON.stringify(parentExport.data)
+ok('parent export hides PIN and includes full selected values',
+  parentExport.status === 200 && parentExport.data.format === 'dsh-bili-lesson-parent-export' &&
+  parentExport.data.version === 1 && !Number.isNaN(Date.parse(parentExport.data.exportedAt)) &&
+  Object.keys(parentExport.data.data).sort().join(',') === 'honors,mistakes,settings' &&
+  parentExport.data.data.settings.parentPin === '(已隐藏)' && serializedExport.indexOf('1357') === -1 &&
+  parentExport.data.data.honors.xp === 600 && parentExport.data.data.mistakes.extra === 'keep',
+  { status: parentExport.status, keys: Object.keys(parentExport.data.data || {}), pin: parentExport.data.data?.settings?.parentPin })
+const parentExportGet = await call('GET', '/parent/data/export?pin=1357')
+ok('parent export rejects non-POST', parentExportGet.status === 405, parentExportGet.data)
+const parentDeleteBadConfirm = await call('POST', '/parent/data/delete', { pin: '1357', keys: ['mistakes'], confirm: 'delete' })
+ok('parent delete requires exact DELETE', parentDeleteBadConfirm.status === 400, parentDeleteBadConfirm.data)
+const beforeDelete = {
+  videos: await store.read('videos'),
+  plans: await store.read('plans'),
+  lessons: await store.read('lessons'),
+  prizes: await store.read('prizes'),
+  attempts: await routes.ledger.read('attempts'),
+  rewards: await routes.ledger.read('rewards'),
+}
+const parentDelete = await call('POST', '/parent/data/delete', { pin: '1357', keys: ['mistakes', 'watch'], confirm: 'DELETE' })
+const afterMistakes = await routes.ledger.read('mistakes')
+const afterWatch = await store.read('watch')
+ok('parent delete clears selected keys only',
+  parentDelete.status === 200 && parentDelete.data.ok === true &&
+  parentDelete.data.cleared.join(',') === 'mistakes,watch' &&
+  Array.isArray(afterMistakes) && afterMistakes.length === 0 &&
+  Array.isArray(afterWatch) && afterWatch.length === 0 &&
+  JSON.stringify(await store.read('videos')) === JSON.stringify(beforeDelete.videos) &&
+  JSON.stringify(await store.read('plans')) === JSON.stringify(beforeDelete.plans) &&
+  JSON.stringify(await store.read('lessons')) === JSON.stringify(beforeDelete.lessons) &&
+  JSON.stringify(await store.read('prizes')) === JSON.stringify(beforeDelete.prizes) &&
+  JSON.stringify(await routes.ledger.read('attempts')) === JSON.stringify(beforeDelete.attempts) &&
+  JSON.stringify(await routes.ledger.read('rewards')) === JSON.stringify(beforeDelete.rewards),
+  parentDelete.data)
+const parentDeleteSettings = await call('POST', '/parent/data/delete', { pin: '1357', keys: ['settings'], confirm: 'DELETE' })
+ok('parent delete refuses settings', parentDeleteSettings.status === 400, parentDeleteSettings.data)
+const parentDeleteGet = await call('GET', '/parent/data/delete?pin=1357')
+ok('parent delete rejects non-POST', parentDeleteGet.status === 405, parentDeleteGet.data)
+const pinAfterParent = await call('POST', '/settings/pin', { action: 'verify', pin: '1357' })
+ok('parent data flows preserve PIN', pinAfterParent.status === 200 && pinAfterParent.data.ok === true, pinAfterParent.data)
 
 /* ---- 课卡草稿与内容包：仅验证本插件新增接口 ---- */
 const cpVideoA = {

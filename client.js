@@ -32,7 +32,18 @@ window.__ModuleLoader__.load({
     const WEEKDAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
     const DIFFICULTY = { 1: '简单', 2: '适中', 3: '进阶' }
     const RARITY = { common: '常见', rare: '稀有', epic: '珍稀' }
-    const DEFAULT_SETTINGS = { perDay: 2, maxAge: 6, embedPlay: false, weeklyBoxLimit: 0 }
+    const DEFAULT_SETTINGS = {
+      perDay: 2, maxAge: 6, embedPlay: false, weeklyBoxLimit: 0,
+      screenLimitMinutes: 0, parentRules: {},
+    }
+    const PARENT_RULE_FIELDS = [
+      { id: 'no_watch', title: '还没开始', threshold: 0, min: 0, max: 0 },
+      { id: 'no_answer', title: '看了还没答', threshold: 0, min: 0, max: 0 },
+      { id: 'screen_over', title: '屏幕时间超了', threshold: 0, min: 0, max: 0 },
+      { id: 'low_accuracy', title: '正确率偏低', threshold: 80, min: 50, max: 95, unit: '%' },
+      { id: 'midweek_drop', title: '后半周掉队', threshold: 0, min: 0, max: 0 },
+      { id: 'new_mistakes', title: '错题堆积', threshold: 3, min: 1, max: 20, unit: '道' },
+    ]
 
     const XP_STEP = 200
 
@@ -443,6 +454,16 @@ window.__ModuleLoader__.load({
         maxAge: Number(s.maxAge) > 0 ? Number(s.maxAge) : DEFAULT_SETTINGS.maxAge,
         embedPlay: s.embedPlay === true,
         weeklyBoxLimit: Math.max(0, Number(s.weeklyBoxLimit) || 0),
+        screenLimitMinutes: Math.min(720, Math.max(0, Math.round(Number(s.screenLimitMinutes) || 0))),
+        parentRules: PARENT_RULE_FIELDS.reduce((acc, rule) => {
+          const rawRule = s.parentRules && typeof s.parentRules === 'object' ? s.parentRules[rule.id] : null
+          const value = Number(rawRule && rawRule.threshold)
+          acc[rule.id] = {
+            enabled: rawRule ? rawRule.enabled !== false : true,
+            threshold: Math.min(rule.max, Math.max(rule.min, Number.isFinite(value) ? Math.round(value) : rule.threshold)),
+          }
+          return acc
+        }, {}),
       }
     }
 
@@ -1311,6 +1332,27 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-weekbar span{font-size:10px;color:rgba(160,190,214,.7)}
 .bl-poster-modal{width:min(520px,92vw);max-height:92vh;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 .bl-poster-modal img{width:100%;border-radius:10px;border:1px solid var(--bl-line)}
+.bl-parent-rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;padding-top:4px}
+.bl-rule-card{display:flex;align-items:center;gap:8px;min-height:42px;padding:8px 10px;border:1px solid var(--bl-line);border-radius:9px;background:rgba(8,20,34,.72)}
+.bl-rule-check{display:flex;align-items:center;gap:7px;min-width:0;flex:1;cursor:pointer}
+.bl-rule-check input{accent-color:#35d8ff;width:14px;height:14px;flex:none;cursor:pointer}
+.bl-rule-check b{font-size:12px;color:#dcecf8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-screen-panel .bl-screen-day{display:grid;grid-template-columns:58px minmax(0,1fr) 68px;align-items:center;gap:8px;font-size:11px;color:rgba(178,202,224,.82)}
+.bl-screen-panel .bl-screen-track{height:7px;border-radius:6px;background:rgba(120,150,180,.16);overflow:hidden}
+.bl-screen-panel .bl-screen-fill{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#35d8ff,#4fd8a6)}
+.bl-screen-panel .bl-screen-fill.over,.bl-chip.warn{border-color:rgba(255,139,139,.48);color:#ffb3b3;background:rgba(255,90,90,.1)}
+.bl-chip.warn{display:inline-flex}
+.bl-screen-panel .bl-screen-minute{text-align:right;font-variant-numeric:tabular-nums}
+.bl-sovereignty{display:flex;flex-direction:column;gap:10px}
+.bl-sovereignty .bl-data-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow:auto;padding:6px;border:1px solid var(--bl-line);border-radius:8px;background:rgba(6,14,26,.68)}
+.bl-sovereignty .bl-data-row{display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:6px;font-size:11.5px;color:#d6e8fb}
+.bl-sovereignty .bl-data-row input{accent-color:#35d8ff;width:14px;height:14px;flex:none;cursor:pointer}
+.bl-sovereignty .bl-data-row .bl-spacer{flex:1}
+.bl-print-sheet{width:min(760px,94vw);max-height:90vh;overflow:auto;padding:22px;display:flex;flex-direction:column;gap:12px;background:#f7fbff!important;color:#15293b;border-radius:12px}
+.bl-print-sheet h2,.bl-print-sheet h3{margin:0;color:#15293b}
+.bl-print-sheet pre{white-space:pre-wrap;word-break:break-word;font:14px/1.75 ui-sans-serif,system-ui,sans-serif;margin:0;padding:14px;border:1px solid #bcd0e0;border-radius:8px;background:#fff}
+.bl-print-sheet .bl-print-section{padding:10px 12px;border:1px solid #bcd0e0;border-radius:8px;background:#fff}
+@media print{body *{visibility:hidden!important}.bl-print-sheet,.bl-print-sheet *{visibility:visible!important}.bl-print-sheet{position:absolute!important;left:0;top:0;width:100%;max-height:none;overflow:visible;padding:0;border:0;border-radius:0;background:#fff!important;box-shadow:none}.bl-print-sheet pre{border:0;background:#fff;padding:0}}
 @media (max-width:880px){.bl-island-layout,.bl-parent-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:880px){.bl-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* ---- Gap2: teacher / growth / review ---- */
@@ -1423,6 +1465,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [posterOpen, setPosterOpen] = useState(false)
       const [posterUrl, setPosterUrl] = useState('')
       const [posterBusy, setPosterBusy] = useState(false)
+      const [parentBrief, setParentBrief] = useState(null)
+      const [parentData, setParentData] = useState(null)
+      const [parentDataKeys, setParentDataKeys] = useState([])
+      const [parentDataBusy, setParentDataBusy] = useState(false)
+      const [parentPinEntry, setParentPinEntry] = useState('')
+      const [reportOpen, setReportOpen] = useState(false)
+      const [reportMode, setReportMode] = useState('')
       const [rewards, setRewards] = useState(null)
       const [rewardBusy, setRewardBusy] = useState(false)
       const [lastDraw, setLastDraw] = useState(null)
@@ -2129,6 +2178,16 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             maxAge: Number(settings.maxAge) || DEFAULT_SETTINGS.maxAge,
             embedPlay: Boolean(settings.embedPlay),
             weeklyBoxLimit: Number(settings.weeklyBoxLimit) || 0,
+            screenLimitMinutes: Math.min(720, Math.max(0, Math.round(Number(settings.screenLimitMinutes) || 0))),
+            parentRules: PARENT_RULE_FIELDS.reduce((acc, rule) => {
+              const conf = settings.parentRules && settings.parentRules[rule.id]
+              const value = Number(conf && conf.threshold)
+              acc[rule.id] = {
+                enabled: conf ? conf.enabled !== false : true,
+                threshold: Math.min(rule.max, Math.max(rule.min, Number.isFinite(value) ? Math.round(value) : rule.threshold)),
+              }
+              return acc
+            }, {}),
           }
           const data = await send('/settings', 'PUT', payload)
           setSettings(normalizeSettings(data.settings || data))
@@ -3291,6 +3350,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
         return [
           pageHead('PLAY · 今日任务岛', '今日岛', '今天看什么、答什么，一眼就懂 · 完成一圈就点亮灯塔', [
+            parentBrief && parentBrief.screen && parentBrief.screen.level === 'over'
+              ? h('span', {
+                key: 'screen-soft',
+                className: 'bl-chip warn',
+                title: '家长设置里的每日屏幕分钟上限已超过；这里只提醒，不会阻断观看',
+              }, '屏幕时间已超 ' + (Number(parentBrief.screen.overDays) || 0) + ' 天')
+              : null,
             h('button', { key: 'route', className: 'bl-btn bl-btn-sm', onClick: () => setTab('plan') }, '本周航线 →'),
           ]),
           renderGrowthMap(),
@@ -3372,6 +3438,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         const morning = days.slice(0, 3).reduce((n, d) => n + (Number(d.watched) || 0), 0)
         const latter = days.slice(4).reduce((n, d) => n + (Number(d.watched) || 0), 0)
         const top = cats[0]
+        const briefAdvice = Array.isArray(parentBrief && parentBrief.advice)
+          ? (parentBrief.advice[0] || {})
+          : ((parentBrief && parentBrief.advice) || {})
+        const briefAdviceList = Array.isArray(parentBrief && parentBrief.advice)
+          ? parentBrief.advice
+          : (parentBrief && parentBrief.advice ? [parentBrief.advice] : [])
+        const screen = (parentBrief && parentBrief.screen) || { level: 'ok', days: [], overDays: 0, totalMinutes: 0, limitMinutes: 0, suggestion: '' }
         const advice = !watched ? '这周还没开始看片，先从今日岛挑一条最短的开始。'
           : answered === 0 ? '看了 ' + watched + ' 条还没答题，陪他答一套 3 分钟的小卡，看看懂没懂。'
             : accuracy < 80 ? '答对率 ' + accuracy + '%，先去错题医院陪他把错题怪兽打一轮。'
@@ -3450,6 +3523,19 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                 h('span', { key: 'b', className: 'bl-chip' }, '盲盒 +' + (Number(sum.boxes) || 0)),
               ]),
             ]),
+            h('div', { key: 'advice-rules', className: 'bl-panel' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, h('b', { key: 't' }, '如果就建议')),
+              briefAdviceList.length
+                ? briefAdviceList.map((item, i) => h('div', { key: item.id || i, className: 'bl-rule-card' }, [
+                  h('b', { key: 't' }, item.title || advice),
+                  item.condition ? h('div', { key: 'c', className: 'bl-hint' }, '如果：' + item.condition) : null,
+                  item.action ? h('div', { key: 'a', className: 'bl-parent-say' }, item.action) : null,
+                  item.threshold !== undefined && item.threshold !== null && item.threshold !== ''
+                    ? h('span', { key: 'th', className: 'bl-chip' }, '阈值 ' + String(item.threshold) + (item.unit || ''))
+                    : null,
+                ]))
+                : h('div', { key: 'fallback', className: 'bl-note' }, advice),
+            ]),
             h('div', { key: 'activity', className: 'bl-panel' }, [
               h('div', { key: 'h', className: 'bl-panel-head' }, [h('b', { key: 't' }, '这一周的脚印'), h('div', { key: 'sp', className: 'bl-spacer' }), h('button', { key: 'go', className: 'bl-link', onClick: () => setTab('watch') }, '航行记录 →')]),
               h('div', { key: 'bars', className: 'bl-weekbars' }, days.map((d) => {
@@ -3460,10 +3546,76 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                 ])
               })),
             ]),
+            h('div', { key: 'screen', className: 'bl-panel bl-screen-panel' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, [
+                h('b', { key: 't' }, '屏幕时间 · 护眼提醒'),
+                h('div', { key: 'sp', className: 'bl-spacer' }),
+                h('span', {
+                  key: 's',
+                  className: 'bl-chip' + (screen.level === 'over' ? ' warn' : ''),
+                }, screen.level === 'over' ? '已超 ' + screen.overDays + ' 天' : (screen.limitMinutes ? '未超限' : '未设置上限')),
+              ]),
+              h('div', { key: 'd', className: 'bl-hint' }, screen.limitMinutes ? ('每日上限 ' + screen.limitMinutes + ' 分钟 · 只提醒不锁屏') : '还没有设置每日屏幕分钟上限；可在舰桥设置里设一个软提醒。'),
+              screen.days.length
+                ? h('div', { key: 'bars', className: 'bl-screen-days' }, screen.days.map((row) => {
+                  const ratio = Math.max(0, Math.min(1, Number(row.ratio) || 0))
+                  const minutes = Number(row.minutes) || 0
+                  return h('div', { key: row.date, className: 'bl-screen-day' }, [
+                    h('span', { key: 'd' }, shortDate(row.date)),
+                    h('span', { key: 'bar', className: 'bl-screen-track' }, h('i', {
+                      key: 'fill',
+                      className: 'bl-screen-fill' + (row.over ? ' over' : ''),
+                      style: { width: Math.round(ratio * 100) + '%' },
+                    })),
+                    h('span', { key: 'm', className: 'bl-screen-minute' + (row.over ? ' warn' : '') }, minutes + ' 分'),
+                  ])
+                }))
+                : h('div', { key: 'empty', className: 'bl-hint' }, '这周还没有屏幕时间记录。'),
+              h('div', { key: 'tip', className: 'bl-note' }, screen.suggestion || '一起约定一个温和的屏幕时间规则就好。'),
+            ]),
+            h('div', { key: 'sovereignty', className: 'bl-panel bl-sovereignty' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, [h('b', { key: 't' }, '数据主权 · 本机数据'), h('div', { key: 'sp', className: 'bl-spacer' }), h('span', { key: 's', className: 'bl-chip' }, '只在本机')]),
+              h('div', { key: 'd', className: 'bl-hint' }, 'PIN 只用于本机接口校验，不写进文件、不上传。导出和清空都要你确认。'),
+              h('input', {
+                key: 'pin',
+                className: 'bl-input',
+                type: 'password',
+                inputMode: 'numeric',
+                maxLength: 4,
+                placeholder: '4 位家长 PIN',
+                value: parentPinEntry,
+                onChange: (e) => setParentPinEntry(e.target.value.replace(/\D/g, '').slice(0, 4)),
+              }),
+              h('div', { key: 'acts', className: 'bl-chip-row' }, [
+                h('button', { key: 'view', className: 'bl-btn bl-btn-sm', onClick: loadParentData, disabled: parentDataBusy || !parentPinEntry }, parentDataBusy ? '读取中…' : '查看本机数据'),
+                h('button', { key: 'export', className: 'bl-btn bl-btn-sm', onClick: () => exportParentData(parentDataKeys), disabled: parentDataBusy || !parentDataKeys.length }, '导出所选'),
+                h('button', { key: 'clear', className: 'bl-btn bl-btn-sm bl-btn-danger', onClick: () => deleteParentData(parentDataKeys.filter((key) => key !== 'settings')), disabled: parentDataBusy || !parentDataKeys.some((key) => key !== 'settings') }, '清空所选'),
+              ]),
+              parentData && parentData.items
+                ? h('div', { key: 'items', className: 'bl-data-list' }, parentData.items.map((item) => h('label', { key: item.key, className: 'bl-data-row' }, [
+                  h('input', {
+                    key: 'c', type: 'checkbox', checked: parentDataKeys.indexOf(item.key) !== -1,
+                    onChange: (e) => setParentDataKeys(e.target.checked
+                      ? parentDataKeys.concat([item.key])
+                      : parentDataKeys.filter((key) => key !== item.key)),
+                  }),
+                  h('span', { key: 'l' }, (item.key || '') + ' · ' + (item.label || item.key)),
+                  h('div', { key: 'sp', className: 'bl-spacer' }),
+                  h('span', { key: 'n', className: 'bl-hint' }, (Number(item.count) || 0) + ' 条 · ' + (Number(item.bytes) || 0) + ' B'),
+                ])))
+                : h('div', { key: 'empty', className: 'bl-hint' }, '输入 PIN 后点「查看本机数据」。'),
+              parentData && parentData.totals
+                ? h('div', { key: 'total', className: 'bl-hint' }, '共 ' + (Number(parentData.totals.count) || 0) + ' 条 / ' + (Number(parentData.totals.bytes) || 0) + ' 字节')
+                : null,
+            ]),
             h('div', { key: 'poster', className: 'bl-panel' }, [
               h('div', { key: 'h', className: 'bl-panel-head' }, h('b', { key: 't' }, '每周成长海报')),
               h('div', { key: 'd', className: 'bl-hint' }, '把这一周变成一张可以保存、发给家人的小海报。不上传，不分享到公开平台。'),
-              h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: drawPoster, disabled: posterBusy }, posterBusy ? '画着呢…' : '生成海报'),
+              h('div', { key: 'acts', className: 'bl-chip-row' }, [
+                h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: drawPoster, disabled: posterBusy }, posterBusy ? '画着呢…' : '生成海报'),
+                h('button', { key: 'text', className: 'bl-btn', onClick: copyParentReport }, '复制文本周报'),
+                h('button', { key: 'print', className: 'bl-btn', onClick: () => setReportOpen(true) }, '打印周报'),
+              ]),
             ]),
           ]),
         ]
@@ -3740,11 +3892,22 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         return data
       }, [])
 
+      const loadParentBrief = useCallback(async () => {
+        const data = await api('/parent/brief?weekStart=' + encodeURIComponent(weekStart))
+        setParentBrief(data && typeof data === 'object' ? data : null)
+        return data
+      }, [weekStart])
+
       const loadWeekly = useCallback(async () => {
         const data = await api('/family/weekly?weekStart=' + encodeURIComponent(weekStart))
         setWeekly(data && Array.isArray(data.days) ? data : null)
+        try {
+          await loadParentBrief()
+        } catch (_) {
+          setParentBrief(null)
+        }
         return data
-      }, [weekStart])
+      }, [weekStart, loadParentBrief])
 
       const loadRewards = useCallback(async () => {
         const data = await api('/rewards')
@@ -3756,6 +3919,94 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         loadMistakes().catch(() => {})
         loadWeekly().catch(() => {})
       }, [loadMistakes, loadWeekly])
+
+      const loadParentData = useCallback(async () => {
+        const pin = parentPinEntry.trim()
+        if (!pin) {
+          flash('先输入 4 位家长 PIN。数据只在本机读取，不会上传。')
+          return null
+        }
+        setParentDataBusy(true)
+        try {
+          const data = await api('/parent/data?pin=' + encodeURIComponent(pin))
+          setParentData(data && Array.isArray(data.items) ? data : null)
+          setParentDataKeys(data && Array.isArray(data.items) ? data.items.map((item) => item.key) : [])
+          return data
+        } catch (e) {
+          fail(e)
+          return null
+        } finally {
+          setParentDataBusy(false)
+        }
+      }, [parentPinEntry, flash, fail])
+
+      const exportParentData = useCallback(async (keys) => {
+        const pin = parentPinEntry.trim()
+        if (!pin) return flash('先输入 4 位家长 PIN')
+        if (!keys || !keys.length) return flash('至少勾选一类数据')
+        setParentDataBusy(true)
+        try {
+          const data = await send('/parent/data/export', 'POST', { pin, keys })
+          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'bili-lesson-parent-export-' + new Date().toISOString().slice(0, 10) + '.json'
+          document.body.appendChild(a)
+          a.click()
+          a.remove()
+          setTimeout(() => URL.revokeObjectURL(url), 1000)
+          flash('导出文件已生成，保存在你选的位置。')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setParentDataBusy(false)
+        }
+      }, [parentPinEntry, flash, fail])
+
+      const deleteParentData = useCallback(async (keys) => {
+        const pin = parentPinEntry.trim()
+        if (!pin) return flash('先输入 4 位家长 PIN')
+        if (!keys || !keys.length) return flash('至少勾选一类数据')
+        if (!window.confirm('确定清空所选本机数据吗？此操作不可撤销。\n\n请输入/确认 DELETE 以继续。')) return
+        setParentDataBusy(true)
+        try {
+          const data = await send('/parent/data/delete', 'POST', { pin, keys, confirm: 'DELETE' })
+          flash('已清空 ' + ((data && data.cleared) || keys).length + ' 类数据。')
+          setParentData(null)
+          setParentDataKeys([])
+          await loadParentBrief().catch(() => {})
+        } catch (e) {
+          fail(e)
+        } finally {
+          setParentDataBusy(false)
+        }
+      }, [parentPinEntry, flash, fail, loadParentBrief])
+
+      const copyParentReport = useCallback(async () => {
+        const text = (parentBrief && typeof parentBrief.text === 'string' && parentBrief.text.trim())
+          || '还没有本周周报，先去家长驾驶舱刷新。'
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text)
+          } else {
+            throw new Error('clipboard unavailable')
+          }
+          flash('周报文字已复制。')
+        } catch (_) {
+          const box = document.createElement('textarea')
+          box.value = text
+          box.setAttribute('readonly', '')
+          box.style.position = 'fixed'
+          box.style.left = '-9999px'
+          document.body.appendChild(box)
+          box.select()
+          let ok = false
+          try { ok = document.execCommand('copy') } catch (_) {}
+          box.remove()
+          flash(ok ? '周报文字已复制。' : '复制失败，请在打印周报里手动选择文字。')
+        }
+      }, [parentBrief, flash])
 
       const draftOfPrize = (row) => ({
         id: row.id || '',
@@ -3800,8 +4051,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       }, [tab, loadRewards])
 
       useEffect(() => {
-        if (tab === 'insights' || tab === 'island') loadWeekly().catch(() => {})
-      }, [tab, loadWeekly])
+        if (tab === 'insights' || tab === 'island') {
+          loadWeekly().catch(() => {})
+          loadParentBrief().catch(() => {})
+        }
+      }, [tab, loadWeekly, loadParentBrief])
 
       useEffect(() => {
         if (tab === 'island' || tab === 'learn') loadGrowthMap().catch(() => {})
@@ -4389,6 +4643,14 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                   onChange: (e) => setSettings({ ...settings, weeklyBoxLimit: Number(e.target.value) }),
                 }),
               ]),
+              h('div', { key: 'screenLimitMinutes', className: 'bl-field' }, [
+                h('span', { key: 'l', className: 'bl-label' }, '每日屏幕分钟上限（0 = 只提醒不设限）'),
+                h('input', {
+                  key: 'i', className: 'bl-input', type: 'number', min: 0, max: 720, step: 5,
+                  value: settings.screenLimitMinutes,
+                  onChange: (e) => setSettings({ ...settings, screenLimitMinutes: Number(e.target.value) }),
+                }),
+              ]),
               h('label', { key: 'embed', className: 'bl-field', style: { flexDirection: 'row', alignItems: 'center', gap: '8px' } }, [
                 h('input', {
                   key: 'i', type: 'checkbox', checked: settings.embedPlay,
@@ -4398,8 +4660,37 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                 h('span', { key: 'l', className: 'bl-label', style: { fontSize: '12px' } }, '点开视频直接内嵌播放'),
               ]),
             ]),
+            h('div', { key: 'parentRules', className: 'bl-parent-rules' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, h('b', { key: 't' }, '如果…就…规则（soft reminders · 不阻断观看）')),
+              PARENT_RULE_FIELDS.map((rule) => {
+                const conf = (settings.parentRules && settings.parentRules[rule.id]) || { enabled: true, threshold: rule.threshold }
+                return h('div', { key: rule.id, className: 'bl-rule-card' }, [
+                  h('label', { key: 'on', className: 'bl-rule-check' }, [
+                    h('input', {
+                      key: 'i', type: 'checkbox', checked: conf.enabled !== false,
+                      onChange: (e) => setSettings({
+                        ...settings,
+                        parentRules: { ...settings.parentRules, [rule.id]: { ...conf, enabled: e.target.checked } },
+                      }),
+                    }),
+                    h('b', { key: 't' }, rule.title),
+                  ]),
+                  rule.min !== rule.max
+                    ? h('input', {
+                      key: 'threshold', className: 'bl-input', type: 'number', min: rule.min, max: rule.max,
+                      title: '阈值范围 ' + rule.min + (rule.unit || '') + '-' + rule.max + (rule.unit || ''),
+                      value: conf.threshold,
+                      onChange: (e) => setSettings({
+                        ...settings,
+                        parentRules: { ...settings.parentRules, [rule.id]: { ...conf, threshold: Number(e.target.value) } },
+                      }),
+                    })
+                    : h('span', { key: 'fixed', className: 'bl-hint' }, '自动'),
+                ])
+              }),
+            ]),
             h('div', { key: 'note', className: 'bl-note' },
-              'perDay 决定「自动排本周」每天排几条，maxAge 是新加片子的默认年龄，weeklyBoxLimit 限制每周能抽几个盲盒，embedPlay 决定点开时直接内嵌播放还是只给入口。已经排好的计划和片库里的年龄不会被改动。'),
+              'perDay 决定「自动排本周」每天排几条，maxAge 是新加片子的默认年龄，weeklyBoxLimit 限制每周能抽几个盲盒，embedPlay 决定点开时直接内嵌播放还是只给入口。屏幕时间只做软提醒，超过上限不会锁观看；规则阈值由后端按各规则范围钳制。已经排好的计划和片库里的年龄不会被改动。'),
           ]),
           h('div', { key: 'pack', className: 'bl-panel' }, [
             h('div', { key: 'head', className: 'bl-panel-head' }, [
@@ -4741,6 +5032,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       /* 主渲染                                                              */
       /* ------------------------------------------------------------------ */
 
+      const printAdvice = Array.isArray(parentBrief && parentBrief.advice)
+        ? ((parentBrief.advice[0] || {}))
+        : ((parentBrief && parentBrief.advice) || {})
+      const printAdviceList = Array.isArray(parentBrief && parentBrief.advice)
+        ? parentBrief.advice
+        : (parentBrief && parentBrief.advice ? [parentBrief.advice] : [])
+
       const body = tab === 'library'
         ? renderBridge()
         : tab === 'plan'
@@ -4844,6 +5142,31 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('div', { key: 'h', className: 'bl-panel-head' }, [h('b', { key: 't' }, '本周成长海报'), h('div', { key: 'sp', className: 'bl-spacer' }), h('button', { key: 'x', className: 'bl-btn bl-btn-sm', onClick: () => setPosterOpen(false) }, '关闭')]),
             h('img', { key: 'img', src: posterUrl, alt: '本周成长海报' }),
             h('div', { key: 'hint', className: 'bl-hint' }, '右键图片可以保存；海报只在本地生成，不会上传。'),
+          ]),
+        ]) : null,
+        reportOpen ? h('div', { key: 'report', className: 'bl-modal', onClick: () => setReportOpen(false) }, [
+          h('div', { key: 'sheet', className: 'bl-print-sheet', onClick: (e) => e.stopPropagation() }, [
+            h('div', { key: 'h', className: 'bl-panel-head' }, [
+              h('h2', { key: 't' }, '星火课堂 · 文本周报'),
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              h('button', { key: 'copy', className: 'bl-btn bl-btn-sm', onClick: copyParentReport }, '复制文字'),
+              h('button', { key: 'print', className: 'bl-btn bl-btn-sm bl-btn-primary', onClick: () => { setReportMode('printing'); setTimeout(() => { window.print(); setReportMode('') }, 30) } }, '打印 / 存 PDF'),
+              h('button', { key: 'x', className: 'bl-btn bl-btn-sm', onClick: () => setReportOpen(false) }, '关闭'),
+            ]),
+            h('pre', { key: 'text' }, (parentBrief && parentBrief.text) || '还没有本周周报，先去家长驾驶舱刷新。'),
+            h('div', { key: 'advice', className: 'bl-print-section' }, [
+              h('h3', { key: 'h' }, '如果就建议'),
+              h('div', { key: 'd' }, (printAdvice && printAdvice.title) || '暂无建议'),
+              printAdviceList.length > 1
+                ? h('ul', { key: 'more' }, printAdviceList.slice(1).map((item, i) => h('li', { key: item.id || i }, (item.title || '') + (item.action ? '：' + item.action : ''))))
+                : null,
+              h('div', { key: 'a' }, (printAdvice && printAdvice.action) || ''),
+            ]),
+            h('div', { key: 'screen', className: 'bl-print-section' }, [
+              h('h3', { key: 'h' }, '屏幕时间摘要'),
+              h('div', { key: 'd' }, (parentBrief && parentBrief.screen && parentBrief.screen.suggestion) || '未设置每日屏幕分钟上限；只做软提醒，不会锁屏。'),
+            ]),
+            reportMode === 'printing' ? h('div', { key: 'printing', className: 'bl-hint' }, '正在打开打印面板…') : null,
           ]),
         ]) : null,
       ])
