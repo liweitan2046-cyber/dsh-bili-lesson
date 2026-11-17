@@ -12,6 +12,7 @@ import { autoFill, mondayOf, normalizePlan, toDate, weekDates } from './plan.js'
 import { normalizeLesson } from './lesson.js'
 import { suggestLessonDraft } from './draft.js'
 import { buildContentPack, applyContentPack } from './contentpack.js'
+import { DAY_MS, buildGrowthMap, isDue, migrateReviewState, nextReviewState } from './growth.js'
 import { DEFAULT_SETTINGS, Store } from './store.js'
 import {
   availableOf,
@@ -162,6 +163,68 @@ export class Routes {
       watch: Array.isArray(watch) ? watch : [],
       attempts,
     })
+  }
+
+  /** attempts 里做错过的题，按 lessonId:qid 去重取最近；/mistakes 与 /review/due 共用。 */
+  async mistakeItems() {
+    const [attempts, lessons, videos, ledger] = await Promise.all([
+      this.attempts(),
+      this.store.read('lessons'),
+      this.store.read('videos'),
+      this.ledger.read('mistakes'),
+    ])
+    const reviewed = ledger && ledger.reviewed && typeof ledger.reviewed === 'object' ? ledger.reviewed : {}
+    const lessonById = new Map()
+    for (const row of Array.isArray(lessons) ? lessons : []) {
+      if (row && row.id) lessonById.set(row.id, row)
+    }
+    const videoOf = (id) => {
+      if (!id) return null
+      if (Array.isArray(videos)) return videos.find(row => row && row.id === id) || null
+      return (videos && videos[id]) || null
+    }
+    const map = new Map()
+    const ordered = attempts.slice().sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0))
+    for (const attempt of ordered) {
+      if (!attempt) continue
+      const lesson = lessonById.get(attempt.lessonId)
+      for (const row of Array.isArray(attempt.answers) ? attempt.answers : []) {
+        if (!row || row.correct !== false) continue
+        const key = attempt.lessonId + ':' + row.qid
+        const seen = map.get(key)
+        if (seen) {
+          seen.wrongCount += 1
+          continue
+        }
+        const question = lesson ? (lesson.questions || []).find(item => item && item.id === row.qid) : null
+        const video = videoOf(attempt.videoId || (lesson && lesson.videoId))
+        const state = migrateReviewState(reviewed[key])
+        map.set(key, {
+          key,
+          qid: row.qid,
+          lessonId: attempt.lessonId,
+          videoId: attempt.videoId || (lesson && lesson.videoId) || '',
+          videoTitle: (video && video.title) || (lesson && lesson.title) || '（这条片子已不在片库）',
+          category: (video && video.category) || '',
+          prompt: question ? question.prompt : '（这道题已经从课卡里删掉了）',
+          spokenPrompt: question ? question.spokenPrompt || '' : '',
+          options: question && Array.isArray(question.options) ? question.options : [],
+          answer: question ? Number(question.answer) : -1,
+          hint: question ? question.hint || '' : '',
+          explanation: question ? question.explanation || '' : '',
+          difficulty: question ? Number(question.difficulty) || 1 : 1,
+          lastChoice: Number(row.choice),
+          lastAt: Number(attempt.createdAt) || 0,
+          wrongCount: 1,
+          stage: Number(state && state.stage) || 0,
+          dueAt: Number(state && state.dueAt) || 0,
+          at: Number(state && state.at) || 0,
+          tries: state ? Number(state.tries) || 0 : 0,
+          resolved: Boolean(state && state.resolved),
+        })
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => b.lastAt - a.lastAt)
   }
 
   /** 家长驾驶舱：按周聚合观看/答题/错题/勋章/盲盒，只读，不写任何 ledger。 */
@@ -916,6 +979,46 @@ export class Routes {
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
     }
 
+    /* ---------------- 成长地图 / 复习提醒 ---------------- */
+
+    if (head === 'growth' && tail === 'map') {
+      if (method !== 'GET') throw Object.assign(new Error('成长地图只支持 GET'), { status: 405 })
+      const [stats, honors] = await Promise.all([this.studyStats(), this.honors()])
+      return json(res, 200, buildGrowthMap({ stats, honors, xpStep: 200 }))
+    }
+
+    if (head === 'review' && tail === 'due') {
+      if (method !== 'GET') throw Object.assign(new Error('复习提醒只支持 GET'), { status: 405 })
+      const now = Date.now()
+      let due = 0
+      let upcoming = 0
+      let mastered = 0
+      const items = (await this.mistakeItems()).map(item => {
+        const state = { resolved: item.resolved, stage: item.stage, dueAt: item.dueAt, tries: item.tries, at: item.at }
+        const isOverdue = isDue(state, now)
+        if (item.resolved) mastered += 1
+        if (isOverdue) due += 1
+        else if (item.resolved) upcoming += 1
+        return {
+          key: item.key,
+          qid: item.qid,
+          lessonId: item.lessonId,
+          videoId: item.videoId,
+          videoTitle: item.videoTitle,
+          prompt: item.prompt,
+          spokenPrompt: item.spokenPrompt,
+          options: item.options,
+          answer: item.answer,
+          stage: item.stage,
+          dueAt: item.dueAt,
+          overdueDays: isOverdue ? Math.max(0, Math.floor((now - item.dueAt) / DAY_MS)) : 0,
+          resolved: item.resolved,
+          at: item.at,
+        }
+      })
+      return json(res, 200, { items, summary: { total: items.length, due, upcoming, mastered } })
+    }
+
     /* ---------------- 错题本 ---------------- */
 
     if (head === 'mistakes') {
@@ -937,15 +1040,11 @@ export class Routes {
           throw Object.assign(new Error('选项越界'), { status: 400 })
         }
         const correct = choice === Number(question.answer)
+        const now = Date.now()
         const saved = await this.ledger.update('mistakes', current => {
           const reviewed = current && current.reviewed && typeof current.reviewed === 'object' ? { ...current.reviewed } : {}
-          const prev = reviewed[key] || {}
-          reviewed[key] = {
-            resolved: correct,
-            tries: (Number(prev.tries) || 0) + 1,
-            lastChoice: choice,
-            at: Date.now(),
-          }
+          const prev = reviewed[key] && typeof reviewed[key] === 'object' ? reviewed[key] : {}
+          reviewed[key] = nextReviewState({ ...prev, lastChoice: choice }, correct, now)
           return { reviewed }
         })
         const state = saved && saved.reviewed ? saved.reviewed[key] : null
@@ -955,64 +1054,12 @@ export class Routes {
           answer: Number(question.answer),
           resolved: Boolean(state && state.resolved),
           tries: state ? Number(state.tries) || 1 : 1,
+          stage: Number(state && state.stage) || 0,
+          dueAt: Number(state && state.dueAt) || 0,
         })
       }
       if (method === 'GET') {
-        const [attempts, lessons, videos, ledger] = await Promise.all([
-          this.attempts(),
-          this.store.read('lessons'),
-          this.store.read('videos'),
-          this.ledger.read('mistakes'),
-        ])
-        const reviewed = ledger && ledger.reviewed && typeof ledger.reviewed === 'object' ? ledger.reviewed : {}
-        const lessonById = new Map()
-        for (const row of Array.isArray(lessons) ? lessons : []) {
-          if (row && row.id) lessonById.set(row.id, row)
-        }
-        const videoOf = (id) => {
-          if (!id) return null
-          if (Array.isArray(videos)) return videos.find(row => row && row.id === id) || null
-          return (videos && videos[id]) || null
-        }
-        const map = new Map()
-        const ordered = attempts.slice().sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0))
-        for (const attempt of ordered) {
-          if (!attempt) continue
-          const lesson = lessonById.get(attempt.lessonId)
-          for (const row of Array.isArray(attempt.answers) ? attempt.answers : []) {
-            if (!row || row.correct !== false) continue
-            const key = attempt.lessonId + ':' + row.qid
-            const seen = map.get(key)
-            if (seen) {
-              seen.wrongCount += 1
-              continue
-            }
-            const question = lesson ? (lesson.questions || []).find(item => item && item.id === row.qid) : null
-            const video = videoOf(attempt.videoId || (lesson && lesson.videoId))
-            const state = reviewed[key]
-            map.set(key, {
-              key,
-              qid: row.qid,
-              lessonId: attempt.lessonId,
-              videoId: attempt.videoId || (lesson && lesson.videoId) || '',
-              videoTitle: (video && video.title) || (lesson && lesson.title) || '（这条片子已不在片库）',
-              category: (video && video.category) || '',
-              prompt: question ? question.prompt : '（这道题已经从课卡里删掉了）',
-              spokenPrompt: question ? question.spokenPrompt || '' : '',
-              options: question && Array.isArray(question.options) ? question.options : [],
-              answer: question ? Number(question.answer) : -1,
-              hint: question ? question.hint || '' : '',
-              explanation: question ? question.explanation || '' : '',
-              difficulty: question ? Number(question.difficulty) || 1 : 1,
-              lastChoice: Number(row.choice),
-              lastAt: Number(attempt.createdAt) || 0,
-              wrongCount: 1,
-              tries: state ? Number(state.tries) || 0 : 0,
-              resolved: Boolean(state && state.resolved),
-            })
-          }
-        }
-        const items = Array.from(map.values()).sort((a, b) => b.lastAt - a.lastAt)
+        const items = await this.mistakeItems()
         const pending = items.filter(item => !item.resolved).length
         const categories = new Map()
         for (const item of items) {

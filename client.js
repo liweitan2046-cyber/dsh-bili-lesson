@@ -191,6 +191,168 @@ window.__ModuleLoader__.load({
       })
     }
 
+    /* ---- 缺口2：朗读与低多边形老师 ---- */
+    let speechHandlers = null
+
+    function speechAvailable() {
+      return typeof window !== 'undefined' && Boolean(window.speechSynthesis && window.SpeechSynthesisUtterance)
+    }
+
+    function speak(text) {
+      const value = String(text == null ? '' : text)
+      if (!speechAvailable()) {
+        if (speechHandlers) speechHandlers.fallback(value)
+        return false
+      }
+      try {
+        window.speechSynthesis.cancel()
+        const utter = new window.SpeechSynthesisUtterance(value)
+        utter.lang = 'zh-CN'
+        utter.onstart = () => { if (speechHandlers) speechHandlers.setSpeaking(true) }
+        utter.onend = () => { if (speechHandlers) speechHandlers.setSpeaking(false) }
+        utter.onerror = () => { if (speechHandlers) speechHandlers.setSpeaking(false) }
+        window.speechSynthesis.speak(utter)
+        return true
+      } catch (e) {
+        if (speechHandlers) speechHandlers.fallback(value)
+        return false
+      }
+    }
+
+    function LowPolyTeacher(props) {
+      const speaking = Boolean(props && props.speaking)
+      const initialAngle = (props && props.angle) || 0
+      const angleRef = useRef(initialAngle)
+      const dragRef = useRef(null)
+      const timeRef = useRef(0)
+      const ref = useRef(null)
+
+      useEffect(() => {
+        if (typeof props.angle === 'number' && !dragRef.current) angleRef.current = props.angle
+      }, [props && props.angle])
+
+      useEffect(() => {
+        const canvas = ref.current
+        if (!canvas || typeof canvas.getContext !== 'function') return undefined
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return undefined
+        let raf = 0
+        let alive = true
+        const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1
+        const render = (ts) => {
+          if (!alive || !ctx) return
+          const rect = canvas.getBoundingClientRect()
+          const cssW = Math.max(1, Math.round(rect.width || 176))
+          const cssH = Math.max(1, Math.round(rect.height || 176))
+          const needW = Math.max(1, Math.round(cssW * dpr))
+          const needH = Math.max(1, Math.round(cssH * dpr))
+          if (canvas.width !== needW || canvas.height !== needH) {
+            canvas.width = needW
+            canvas.height = needH
+          }
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+          ctx.clearRect(0, 0, cssW, cssH)
+          const yaw = angleRef.current + ts / 9000
+          const bob = Math.sin(ts / 560) * 2
+          const mouth = speaking ? 2 + Math.abs(Math.sin(ts / 95)) * 7 : 1.5
+          const scale = Math.min(cssW, cssH) / 176
+          const cx = cssW / 2
+          const cy = cssH / 2 + bob
+          const proj = (p) => {
+            const cos = Math.cos(yaw), sin = Math.sin(yaw)
+            const x = p[0] * cos + p[2] * sin
+            const z = -p[0] * sin + p[2] * cos
+            const depth = 520
+            const k = (depth / (depth + z)) * scale
+            return { x: cx + x * k, y: cy + (p[1] - 6) * k, z }
+          }
+          const face = (points, fill, stroke) => {
+            const ps = points.map(proj)
+            ctx.beginPath()
+            ctx.moveTo(ps[0].x, ps[0].y)
+            for (let i = 1; i < ps.length; i++) ctx.lineTo(ps[i].x, ps[i].y)
+            ctx.closePath()
+            ctx.fillStyle = fill
+            ctx.fill()
+            if (stroke) {
+              ctx.strokeStyle = stroke
+              ctx.lineWidth = 0.8
+              ctx.stroke()
+            }
+          }
+          const box = (x0, y0, z0, x1, y1, z1, colors) => {
+            const v = [
+              [x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0],
+              [x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1],
+            ]
+            const sides = [
+              { ids: [4, 5, 6, 7], c: colors.front },
+              { ids: [1, 2, 6, 5], c: colors.right },
+              { ids: [0, 3, 7, 4], c: colors.left },
+              { ids: [3, 2, 6, 7], c: colors.bottom },
+            ]
+            sides.forEach((s) => face(s.ids.map((i) => v[i]), s.c, 'rgba(10,26,40,.55)'))
+          }
+          const headY = -22
+          box(-24, headY - 24, -21, 24, headY + 24, 21, { front: '#f0d7b8', right: '#d8b894', left: '#e2c39f', bottom: '#c9a17e' })
+          box(-15, headY - 36, -15, 15, headY - 22, 15, { front: '#263547', right: '#1b2838', left: '#223044', bottom: '#152131' })
+          box(-22, headY - 27, 19, 22, headY - 23, 27, { front: '#1e3c50', right: '#183145', left: '#234458', bottom: '#142a3b' })
+          const eye = (ex) => {
+            const p = proj([ex, headY - 4, 22])
+            ctx.beginPath()
+            ctx.arc(p.x, p.y, 2.4 * scale, 0, Math.PI * 2)
+            ctx.fillStyle = '#1b2b3a'
+            ctx.fill()
+          }
+          if (Math.cos(yaw) > -0.18) {
+            eye(-9)
+            eye(9)
+            face([[ -10, headY + 9, 22 ], [ 10, headY + 9, 22 ], [ 10, headY + 9 + mouth, 22 ], [ -10, headY + 9 + mouth, 22 ]], speaking ? '#8f3434' : '#9a6858')
+            face([[ -7, headY + 10, 22.5 ], [ 7, headY + 10, 22.5 ], [ 7, headY + 10 + mouth * 0.55, 22.5 ], [ -7, headY + 10 + mouth * 0.55, 22.5 ]], speaking ? '#ffd9d9' : '#d8a398')
+          }
+          box(-19, 16, -14, 19, 70, 14, { front: '#2a6383', right: '#1d4b66', left: '#235873', bottom: '#173b52' })
+          box(-8, 70, -8, 8, 108, 8, { front: '#1e3a4d', right: '#162d3d', left: '#1a3346', bottom: '#122534' })
+          timeRef.current = ts
+          raf = requestAnimationFrame(render)
+        }
+        raf = requestAnimationFrame(render)
+        return () => { alive = false; cancelAnimationFrame(raf) }
+      }, [speaking])
+
+      const onDown = (e) => {
+        dragRef.current = { x: e.clientX, angle: angleRef.current }
+        if (typeof e.currentTarget.setPointerCapture === 'function') e.currentTarget.setPointerCapture(e.pointerId)
+        if (typeof props.onAngle === 'function') props.onAngle(angleRef.current)
+      }
+      const onMove = (e) => {
+        if (!dragRef.current) return
+        angleRef.current = dragRef.current.angle + (e.clientX - dragRef.current.x) * 0.012
+        if (typeof props.onAngle === 'function') props.onAngle(angleRef.current)
+      }
+      const onUp = () => { dragRef.current = null }
+
+      return h('div', { className: 'bl-teacher' }, [
+        h('div', { key: 'stage', className: 'bl-teacher-stage' }, [
+          h('canvas', {
+            key: 'canvas',
+            ref,
+            className: 'bl-teacher-canvas',
+            width: 176,
+            height: 176,
+            onPointerDown: onDown,
+            onPointerMove: onMove,
+            onPointerUp: onUp,
+            onPointerCancel: onUp,
+          }),
+          h('div', { key: 'side', className: 'bl-teacher-side' }, [
+            h('b', { key: 't' }, '小星老师'),
+            h('div', { key: 'b', className: 'bl-teacher-bubble' }, speaking ? '老师正在读题…' : (props && props.text) || '点「老师读题」听我念一遍'),
+            h('div', { key: 'h', className: 'bl-hint' }, '拖动画布可以转一转老师'),
+          ]),
+        ]),
+      ])
+    }
+
     function errorText(e) {
       if (!e) return '出了点问题'
       return e.message || String(e)
@@ -1151,6 +1313,35 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-poster-modal img{width:100%;border-radius:10px;border:1px solid var(--bl-line)}
 @media (max-width:880px){.bl-island-layout,.bl-parent-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:880px){.bl-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* ---- Gap2: teacher / growth / review ---- */
+.bl-teacher{display:flex;flex-direction:column;gap:6px}
+.bl-teacher-stage{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bl-line);border-radius:10px;background:rgba(8,20,34,.72)}
+.bl-teacher-canvas{width:176px;height:176px;flex:none;display:block;border-radius:10px;background:radial-gradient(circle at 50% 35%,rgba(53,216,255,.14),rgba(4,10,18,.9));border:1px solid var(--bl-line);cursor:grab;touch-action:none}
+.bl-teacher-canvas:active{cursor:grabbing}
+.bl-teacher-side{display:flex;flex-direction:column;gap:6px;min-width:0}
+.bl-teacher-side>b{font-size:12.5px;color:#dbeaf8}
+.bl-teacher-bubble{position:relative;max-width:280px;padding:7px 10px;border-radius:8px;border:1px solid rgba(92,200,255,.4);background:rgba(18,44,68,.9);color:#dff2ff;font-size:12px;line-height:1.5}
+.bl-teacher-bubble::before{content:"";position:absolute;left:-6px;top:12px;width:10px;height:10px;transform:rotate(45deg);background:rgba(18,44,68,.9);border-left:1px solid rgba(92,200,255,.4);border-bottom:1px solid rgba(92,200,255,.4)}
+.bl-learn-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+.bl-growth{display:flex;flex-direction:column;gap:10px}
+.bl-growth-stars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+@media(max-width:880px){.bl-growth-stars{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.bl-growth-star{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 8px;border:1px solid var(--bl-line);border-radius:10px;background:rgba(8,16,28,.72);opacity:.55;text-align:center;min-width:0}
+.bl-growth-star.on{opacity:1;border-color:rgba(92,200,255,.5);background:linear-gradient(180deg,rgba(24,56,86,.82),rgba(8,20,34,.9));box-shadow:0 0 18px rgba(92,200,255,.18)}
+.bl-growth-icon{font-size:22px;line-height:1.1;color:#bfe8ff}
+.bl-growth-star b{font-size:12px;color:#e4f1ff;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-growth-star em{font-style:normal;font-size:10.5px;color:var(--bl-muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-growth-bar{width:100%;height:5px;border-radius:3px;background:rgba(96,176,255,.14);overflow:hidden}
+.bl-growth-bar i{display:block;height:100%;background:linear-gradient(90deg,#5cc8ff,#ffd88a)}
+.bl-growth-pct{font-size:10.5px;color:var(--bl-cyan-2);font-variant-numeric:tabular-nums}
+.bl-growth-story{display:flex;flex-direction:column;gap:6px;padding-top:8px;border-top:1px solid var(--bl-line)}
+.bl-growth-event{display:flex;align-items:baseline;gap:9px;font-size:11.5px;color:#c3d6e8}
+.bl-growth-event time{flex:none;color:var(--bl-dim);font-size:10.5px;font-variant-numeric:tabular-nums}
+.bl-review-banner{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 12px;border:1px solid var(--bl-line);border-radius:10px;background:rgba(8,20,34,.72);font-size:12px;color:#c9dcee}
+.bl-review-banner.due{border-color:rgba(243,179,76,.5);background:rgba(243,179,76,.08)}
+.bl-review-banner>b{color:#eaf5ff}
+.bl-review-banner.due>b{color:#ffe0a6}
+.bl-review-list{display:flex;flex-direction:column;gap:9px;width:100%;padding-top:9px;border-top:1px solid var(--bl-line)}
 `
 
 
@@ -1255,6 +1446,12 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [pinOld, setPinOld] = useState('')
       const [error, setError] = useState('')
       const [notice, setNotice] = useState('')
+      const [growthMap, setGrowthMap] = useState(null)
+      const [reviewDue, setReviewDue] = useState(null)
+      const [teacherSpeaking, setTeacherSpeaking] = useState(false)
+      const [teacherAngle, setTeacherAngle] = useState(null)
+      const [teacherBubble, setTeacherBubble] = useState('')
+      const [reviewOpen, setReviewOpen] = useState(false)
 
       const noticeTimer = useRef(null)
       const filterRef = useRef({ q: '', category: '' })
@@ -1263,6 +1460,51 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
       const fail = useCallback((e) => {
         setError(errorText(e))
+      }, [])
+
+      useEffect(() => {
+        speechHandlers = {
+          setSpeaking: (on) => setTeacherSpeaking(Boolean(on)),
+          fallback: (value) => {
+            setTeacherBubble(value ? String(value).slice(0, 80) : '')
+            if (typeof window !== 'undefined') {
+              if (window.__blSpeechTimer) clearTimeout(window.__blSpeechTimer)
+              window.__blSpeechTimer = setTimeout(() => setTeacherBubble(''), 3800)
+            }
+          },
+        }
+        return () => {
+          speechHandlers = null
+          if (typeof window !== 'undefined' && window.__blSpeechTimer) clearTimeout(window.__blSpeechTimer)
+          if (speechAvailable()) {
+            try { window.speechSynthesis.cancel() } catch (_) {}
+          }
+        }
+      }, [])
+
+      const loadGrowthMap = useCallback(async () => {
+        try {
+          const data = await api('/growth/map')
+          setGrowthMap(data && typeof data === 'object' ? data : {})
+        } catch (_) {
+          setGrowthMap({})
+        }
+      }, [])
+
+      const loadReviewDue = useCallback(async () => {
+        try {
+          const data = await api('/review/due')
+          setReviewDue(data && typeof data === 'object' ? data : { items: [], summary: { due: 0 } })
+        } catch (_) {
+          setReviewDue({ items: [], summary: { due: 0 } })
+        }
+      }, [])
+
+      const speakQuestion = useCallback((question) => {
+        const text = (question && (question.spokenPrompt || question.prompt)) || ''
+        if (!text) return
+        const ok = speak(text)
+        if (!ok) setNotice('当前环境不支持语音朗读，已用文字气泡显示')
       }, [])
 
       const MONSTER_FACES = ['ò_ó', '>_<', 'x_x', '˘◡˘']
@@ -2843,8 +3085,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           if (data.correct) {
             setMonsterHits((prev) => ({ ...prev, [item.key]: (Number(prev[item.key]) || 0) + 1 }))
             loadWeekly().catch(() => {})
+            loadReviewDue().catch(() => {})
+            loadGrowthMap().catch(() => {})
             flash('怪兽掉血啦，这题算掌握')
           } else {
+            loadReviewDue().catch(() => {})
             flash('还差一点，看一眼解释再试一次')
           }
           setMistakes((prev) => {
@@ -2919,6 +3164,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             kpi('c', '涉及片子', Number(sum.videos) || 0, '条', '错的题落在哪几条片子上'),
             kpi('d', '错题总数', Number(sum.total) || 0, '道', (sum.categories && sum.categories[0]) ? ('最多：' + sum.categories[0].name + ' ' + sum.categories[0].count + ' 道') : '还没有错题', 'cyan'),
           ]),
+          renderReviewBanner(),
+          renderDueReviewList(),
           h('div', { key: 'filter', className: 'bl-subtabs' }, chips.map((chip) => h('button', {
             key: chip.id,
             className: 'bl-subtab' + (filter === chip.id ? ' on' : ''),
@@ -2926,6 +3173,92 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           }, chip.text))),
           list,
         ]
+      }
+
+      function reviewSummary() {
+        const sum = (reviewDue && reviewDue.summary) || {}
+        return {
+          total: Number(sum.total) || 0,
+          due: Number(sum.due) || 0,
+          upcoming: Number(sum.upcoming) || 0,
+          mastered: Number(sum.mastered) || 0,
+        }
+      }
+
+      function renderGrowthMap() {
+        const data = growthMap || {}
+        const stars = Array.isArray(data.stars) ? data.stars : []
+        const narrative = Array.isArray(data.narrative) ? data.narrative : []
+        const unlocked = Number(data.unlocked) || 0
+        const totalStars = Number(data.total) || stars.length
+        return h('div', { key: 'growth', className: 'bl-panel bl-growth' }, [
+          h('div', { key: 'head', className: 'bl-panel-head' }, [
+            h('b', { key: 't' }, '成长地图'),
+            h('div', { key: 'sp', className: 'bl-spacer' }),
+            h('span', { key: 'lv', className: 'bl-chip cyan' }, 'Lv.' + (Number(data.level) || 1)),
+            h('span', { key: 'xp', className: 'bl-hint' }, '星火 ' + (Number(data.xp) || 0) + ' · 已点亮 ' + unlocked + '/' + totalStars),
+          ]),
+          stars.length
+            ? h('div', { key: 'stars', className: 'bl-growth-stars' }, stars.map((star, i) => {
+              const pct = Math.max(0, Math.min(100, Number(star.pct) || 0))
+              return h('div', { key: star.id || i, className: 'bl-growth-star' + (star.unlocked ? ' on' : '') }, [
+                h('span', { key: 'icon', className: 'bl-growth-icon' }, star.icon || (star.unlocked ? '★' : '☆')),
+                h('b', { key: 'name', title: star.name || '' }, star.name || ('星球 ' + (i + 1))),
+                h('em', { key: 'sub', title: star.subtitle || '' }, star.subtitle || (star.metric ? (star.metric + ' ' + (Number(star.value) || 0) + '/' + (Number(star.target) || 0)) : '')),
+                h('div', { key: 'bar', className: 'bl-growth-bar' }, h('i', { style: { width: pct + '%' } })),
+                h('span', { key: 'pct', className: 'bl-growth-pct' }, pct + '%'),
+              ])
+            }))
+            : h('div', { key: 'empty', className: 'bl-hint' }, '成长星图加载中…'),
+          narrative.length
+            ? h('div', { key: 'story', className: 'bl-growth-story' }, [
+              h('b', { key: 't' }, '成长轨迹'),
+              narrative.map((row, i) => h('div', { key: row.at + '-' + i, className: 'bl-growth-event' }, [
+                h('time', { key: 'at' }, shortDate(row.at)),
+                h('span', { key: 'text' }, (row.kind ? '[' + row.kind + '] ' : '') + (row.text || '')),
+              ])),
+            ])
+            : null,
+        ])
+      }
+
+      function renderReviewBanner() {
+        const sum = reviewSummary()
+        const due = sum.due
+        const label = due > 0 ? ('有 ' + due + ' 道错题到期，趁今天再答一次。') : '没有到期的错题，保持得不错。'
+        return h('div', { key: 'review', className: 'bl-review-banner' + (due > 0 ? ' due' : '') }, [
+          h('b', { key: 'n' }, '复习提醒 ' + due + ' 道到期'),
+          h('span', { key: 'm' }, label),
+          h('div', { key: 'sp', className: 'bl-spacer' }),
+          h('button', {
+            key: 'go',
+            className: 'bl-btn bl-btn-sm',
+            onClick: () => {
+              setReviewOpen((prev) => !prev)
+              if (!reviewDue) loadReviewDue().catch(() => {})
+            },
+          }, reviewOpen ? '收起到期题' : '看到期题'),
+        ])
+      }
+
+      function renderDueReviewList() {
+        if (!reviewOpen) return null
+        const items = (reviewDue && Array.isArray(reviewDue.items) ? reviewDue.items : []).filter((item) => item && item.resolved && Number(item.dueAt) > 0 && Number(item.dueAt) <= Date.now())
+        return h('div', { key: 'due-list', className: 'bl-review-list' }, items.length
+          ? items.map((item) => renderMistakeRow({
+            key: item.key || item.id,
+            videoTitle: item.videoTitle || item.videoId || '复习题',
+            category: item.category || '',
+            lastAt: item.dueAt || item.lastAt,
+            wrongCount: Number(item.wrongCount) || 0,
+            prompt: item.prompt || item.question,
+            options: Array.isArray(item.options) ? item.options : [],
+            resolved: Boolean(item.resolved),
+            tries: Number(item.tries) || 0,
+            hint: item.hint || '',
+            explanation: item.explanation || '',
+          }))
+          : h('div', { key: 'empty', className: 'bl-hint' }, '现在没有需要作答的到期题。'))
       }
 
       function renderTodayIsland() {
@@ -2960,6 +3293,9 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           pageHead('PLAY · 今日任务岛', '今日岛', '今天看什么、答什么，一眼就懂 · 完成一圈就点亮灯塔', [
             h('button', { key: 'route', className: 'bl-btn bl-btn-sm', onClick: () => setTab('plan') }, '本周航线 →'),
           ]),
+          renderGrowthMap(),
+          renderReviewBanner(),
+          renderDueReviewList(),
           h('div', { key: 'grid', className: 'bl-island-layout' }, [
             h('div', { key: 'world', className: 'bl-panel bl-island-world' }, [
               h('div', { key: 'head', className: 'bl-panel-head' }, [h('b', { key: 't' }, '今天的小岛'), h('div', { key: 'sp', className: 'bl-spacer' }), h('span', { key: 'c', className: 'bl-chip gold' }, done + ' / ' + fixed + ' 已点亮')]),
@@ -3009,6 +3345,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           pageHead('CARE · 错题医院', '错题医院', '每道错题都是一只小怪兽 · 连答对 2 次就能送进康复图鉴', [
             h('button', { key: 'book', className: 'bl-btn bl-btn-sm', onClick: () => setTab('mistakes') }, '错题本 →'),
           ]),
+          renderReviewBanner(),
+          renderDueReviewList(),
           h('div', { key: 'kpis', className: 'bl-kpis' }, [
             kpi('a', '待照顾', Number(box.summary?.pending) || 0, '只', '还没答对的错题怪兽', 'gold'),
             kpi('b', '已康复', healed, '只', '答对后进入图鉴', 'green'),
@@ -3466,6 +3804,14 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       }, [tab, loadWeekly])
 
       useEffect(() => {
+        if (tab === 'island' || tab === 'learn') loadGrowthMap().catch(() => {})
+      }, [tab, loadGrowthMap])
+
+      useEffect(() => {
+        if (tab === 'island' || tab === 'learn' || tab === 'mistakes' || tab === 'hospital') loadReviewDue().catch(() => {})
+      }, [tab, loadReviewDue])
+
+      useEffect(() => {
         if (tab !== 'mistakes' && tab !== 'hospital') return
         loadMistakes().catch((e) => fail(e))
       }, [tab, loadMistakes, fail])
@@ -3578,6 +3924,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               h('span', { key: 'diff', className: 'bl-hint' }, DIFFICULTY[question.difficulty] || DIFFICULTY[1]),
             ]),
             h('div', { key: 'prompt', className: 'bl-q-prompt' }, question.prompt),
+            h('button', {
+              key: 'speak',
+              className: 'bl-btn bl-btn-sm',
+              onClick: () => speakQuestion(question),
+            }, '老师读题'),
             h('div', { key: 'opts', className: 'bl-opts' }, question.options.map((option, oi) => h('label', {
               key: 'o' + oi,
               className: 'bl-opt-pick' + (chosen === oi ? ' on' : ''),
@@ -3628,6 +3979,8 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               : '得分到 80 才能拿盲盒，错的题看一眼解释再来一遍'),
         ]) : null
 
+        const firstQuestion = (lesson.questions || [])[0] || null
+        const teacherText = (firstQuestion && (firstQuestion.spokenPrompt || firstQuestion.prompt)) || ''
         return h('div', { key: 'sheet', className: 'bl-panel' }, [
           h('div', { key: 'head', className: 'bl-panel-head' }, [
             h('b', { key: 't' }, lesson.topic || '这套课卡'),
@@ -3640,6 +3993,19 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               onClick: resetLearn,
             }, '重选'),
           ]),
+          teacherText ? h('div', { key: 'teacher', className: 'bl-learn-right' }, [
+            h(LowPolyTeacher, {
+              speaking: teacherSpeaking,
+              angle: teacherAngle,
+              text: teacherBubble || teacherText,
+              onAngle: setTeacherAngle,
+            }),
+            h('button', {
+              key: 'read',
+              className: 'bl-btn bl-btn-primary',
+              onClick: () => speakQuestion(firstQuestion),
+            }, '老师读题'),
+          ]) : null,
           learnResult ? null : h('div', { key: 'tip', className: 'bl-note' }, '先看一遍视频，再把题目答完；满分 100，到 80 分能拿一个盲盒，同一套课卡每天只给一个。'),
           verdict,
           renderDrawCard(),

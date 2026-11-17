@@ -26,6 +26,7 @@ import {
 import { normalizePool, drawable, countUsage, pickPrize, prizeView } from './src/prizes.js'
 import { studyStats, progressOf, mergeMedals } from './src/medals.js'
 import { weekDates, mondayOf } from './src/plan.js'
+import { DAY_MS, EBBINGHAUS_DAYS, nextReviewState, isDue, migrateReviewState, buildGrowthMap } from './src/growth.js'
 
 const BV = 'BV1GJ411x7h7'
 const dir = await mkdtemp(join(tmpdir(), 'bili-lesson-'))
@@ -226,10 +227,14 @@ const mkItem = mk.data.items?.find(row => row.qid === card.questions[2].id)
 ok('mistakes collects wrong answer', mk.status === 200 && Boolean(mkItem) && mkItem.resolved === false && mkItem.prompt === '拍四下是几下？' && mkItem.options.length === 2 && mkItem.answer === 0 && mkItem.lastChoice === 1 && mkItem.wrongCount === 1, mk.data.summary)
 ok('mistakes summary counts', mk.data.summary.total >= 1 && mk.data.summary.pending === mk.data.items.filter(row => !row.resolved).length && mk.data.summary.videos >= 1, mk.data.summary)
 const mkKey = mkItem.key
+const mkWrongAt = Date.now()
 const mkWrong = await call('POST', '/mistakes/answer', { key: mkKey, choice: 1 })
 ok('mistake answer wrong keeps pending', mkWrong.status === 200 && mkWrong.data.correct === false && mkWrong.data.resolved === false && mkWrong.data.tries === 1, mkWrong.data)
+ok('mistake answer wrong advances stage and dueAt', mkWrong.status === 200 && mkWrong.data.ok === true && mkWrong.data.answer === 0 && mkWrong.data.stage === 0 && mkWrong.data.dueAt >= mkWrongAt + DAY_MS && mkWrong.data.dueAt <= Date.now() + DAY_MS, mkWrong.data)
+const mkRightAt = Date.now()
 const mkRight = await call('POST', '/mistakes/answer', { key: mkKey, choice: 0 })
 ok('mistake answer right resolves', mkRight.status === 200 && mkRight.data.correct === true && mkRight.data.resolved === true && mkRight.data.tries === 2, mkRight.data)
+ok('mistake answer right advances stage and dueAt', mkRight.status === 200 && mkRight.data.ok === true && mkRight.data.answer === 0 && mkRight.data.stage === 1 && mkRight.data.dueAt >= mkRightAt + EBBINGHAUS_DAYS[1] * DAY_MS && mkRight.data.dueAt <= Date.now() + EBBINGHAUS_DAYS[1] * DAY_MS, mkRight.data)
 const mkAfter = await call('GET', '/mistakes')
 ok('mistake resolved leaves pending', mkAfter.status === 200 && mkAfter.data.items.find(row => row.key === mkKey)?.resolved === true && mkAfter.data.summary.pending === 0 && mkAfter.data.summary.resolved >= 1, mkAfter.data.summary)
 const mkBadKey = await call('POST', '/mistakes/answer', { key: 'nope', choice: 0 })
@@ -514,6 +519,70 @@ ok('import ignores a secret field',
   { stored: JSON.stringify(storedFiles).slice(0, 200) })
 const badPack = await cpCall('POST', '/content-pack/import', { hello: 'world' }, cpTargetBase)
 ok('bad pack format 400', badPack.status === 400, badPack.data)
+
+/* ---- 缺口2：成长地图、到期复习、纯函数 ---- */
+const pureNow = Date.now()
+const s0 = nextReviewState({ tries: 0, lastChoice: -1 }, false, pureNow)
+const s1 = nextReviewState(s0, true, pureNow)
+ok('nextReviewState promotes on correct and resets on wrong',
+  s0.stage === 0 && s0.resolved === false && s1.stage === 1 && s1.resolved === true &&
+  s1.tries === 2 && s1.at === pureNow && s1.lastChoice === -1,
+  { s0, s1 })
+ok('nextReviewState clamps stage and dueAt advances',
+  nextReviewState({ stage: 99, tries: 1 }, true, pureNow).stage === EBBINGHAUS_DAYS.length - 1 &&
+  s1.dueAt === pureNow + EBBINGHAUS_DAYS[1] * DAY_MS &&
+  nextReviewState(s1, false, pureNow).dueAt === pureNow + EBBINGHAUS_DAYS[0] * DAY_MS,
+  { s1 })
+ok('isDue rejects unresolved and future states',
+  isDue(s0, pureNow) === false && isDue(s1, pureNow) === false &&
+  isDue(s1, s1.dueAt) === true && isDue({ ...s1, resolved: false }, s1.dueAt + DAY_MS) === false,
+  { s1 })
+const oldState = migrateReviewState({ resolved: true, tries: 2, at: pureNow })
+ok('migrateReviewState fills stage and dueAt for legacy review',
+  oldState.stage === 1 && oldState.dueAt === pureNow + EBBINGHAUS_DAYS[1] * DAY_MS &&
+  migrateReviewState(s1) === s1 && migrateReviewState(null) === null,
+  { oldState })
+
+await routes.ledger.update('honors', current => ({ ...(current || {}), xp: 600, earned: [{ id: 'md_first', name: '初次启航', at: pureNow }] }))
+const gm = await call('GET', '/growth/map')
+ok('growth map returns contract fields from studyStats and honors',
+  gm.status === 200 && gm.data.xpStep === 200 && gm.data.level === 4 && gm.data.xp === 600 &&
+  Array.isArray(gm.data.stars) && gm.data.stars.length === 8 &&
+  gm.data.stars.every(s => ['id', 'name', 'subtitle', 'icon', 'metric', 'value', 'target', 'pct', 'unlocked'].every(k => k in s)) &&
+  gm.data.unlocked === gm.data.stars.filter(s => s.unlocked).length && gm.data.total === 8 &&
+  Array.isArray(gm.data.narrative) && gm.data.narrative.some(n => n.kind === 'medal' && n.text.includes('初次启航')) &&
+  ['watch', 'correct', 'streak', 'medals', 'level'].every(k => k in gm.data.stats),
+  gm.data)
+const gmBad = await call('POST', '/growth/map')
+ok('growth map rejects non-GET', gmBad.status === 405, gmBad.data)
+
+const rdItemKey = mkItem.key
+await routes.ledger.update('mistakes', current => ({
+  reviewed: {
+    ...((current && current.reviewed) || {}),
+    [rdItemKey]: { resolved: true, stage: 2, dueAt: pureNow - DAY_MS, at: pureNow - 3 * DAY_MS, tries: 3 },
+  },
+}))
+const rd = await call('GET', '/review/due')
+const rdItem = rd.data.items?.find(row => row.key === rdItemKey)
+const rdFields = ['key', 'qid', 'lessonId', 'videoId', 'videoTitle', 'prompt', 'spokenPrompt', 'options', 'answer', 'stage', 'dueAt', 'overdueDays', 'resolved', 'at']
+ok('review due returns derived item fields and summary',
+  rd.status === 200 && Array.isArray(rd.data.items) && Boolean(rdItem) &&
+  rdFields.every(k => k in rdItem) &&
+  ['total', 'due', 'upcoming', 'mastered'].every(k => k in rd.data.summary) &&
+  rd.data.summary.total === rd.data.items.length && rd.data.summary.mastered === rd.data.items.filter(row => row.resolved).length,
+  { status: rd.status, item: rdItem, summary: rd.data.summary })
+ok('review due counts overdue as due, not upcoming',
+  rd.status === 200 && rdItem?.stage === 2 && rdItem?.dueAt === pureNow - DAY_MS && rdItem?.resolved === true &&
+  rdItem?.overdueDays >= 1 && rd.data.summary.due >= 1 &&
+  rd.data.summary.upcoming === rd.data.summary.mastered - rd.data.summary.due,
+  { item: rdItem, summary: rd.data.summary })
+const rdBad = await call('POST', '/review/due')
+ok('review due rejects non-GET', rdBad.status === 405, rdBad.data)
+const mapBuilt = buildGrowthMap({ stats: { watch: 1, correct: 0, streak: 0 }, honors: { xp: 0, earned: [] }, xpStep: 200 })
+ok('buildGrowthMap pure output structure',
+  mapBuilt.xpStep === 200 && mapBuilt.total === 8 && mapBuilt.stars[0].unlocked === true && mapBuilt.narrative.length === 0,
+  mapBuilt)
 
 cpServer.close()
 cpTargetServer.close()
