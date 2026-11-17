@@ -73,6 +73,15 @@ pwsh -ExecutionPolicy Bypass -File .\install.ps1
 
 > 装过旧名字（`@local/dsh-bili-lesson`）的，脚本会顺手清掉旧登记，不用手工删。
 
+## 不装 DSH 也能用（独立版）
+
+`standalone/` 里是一份不依赖宿主的运行方式：装好 Node 后双击 `standalone/start.bat`，
+浏览器打开 `http://127.0.0.1:7788/` 就是同一个界面。业务代码零改动，只是把"web 服务"和"React 挂载"
+这两件宿主本来替你做的事自己接上。
+
+第一次打开会自动铺一份 30 条片子的演示库（四个主题周，每天一条），所以不是空的。
+适合拿去给幼儿园或家长看效果 —— 前提是那台机器上有 Node 24。
+
 ## 自测
 
 ```powershell

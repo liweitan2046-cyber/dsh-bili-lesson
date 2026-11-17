@@ -80,6 +80,15 @@ The same thing by hand:
 
 > Installed under the older name (`@local/dsh-bili-lesson`)? The script removes the stale registration for you.
 
+## Running without DSH (standalone)
+
+`standalone/` is the same panel without the host: install Node, double-click `standalone/start.bat`,
+and the browser opens `http://127.0.0.1:7788/`. No business code changed — it just provides the two
+things DSH normally does (an HTTP server and the React mount).
+
+First launch seeds a 30-clip demo library (four themed weeks, one clip a day), so it is not empty —
+handy for showing a kindergarten or a parent. Node 24 required.
+
 ## Self-check
 
 ```powershell

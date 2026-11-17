@@ -30,13 +30,32 @@ cd standalone
 node server.mjs                       # 默认端口 7788，数据在 standalone/data
 BILI_LESSON_HOME=/path/to/data node server.mjs
 BILI_LESSON_PORT=8080 node server.mjs
+BILI_LESSON_SEED=force node server.mjs  # 片库清空或想重来：重铺演示片库
 ```
+
+第一次启动时如果数据目录是空的，会自动铺上演示片库（见下一节），所以双击完就能点。**
+
+## 演示片库
+
+`seed/demo-library.json` 里是 30 条片子和 30 套课卡（共 129 道题），已经按四个主题排好四周：
+
+| 周 | 主题 | 片子 |
+|---|---|---|
+| 第 1 周 | 认动物，说名字 | 100 种动物、海洋动物、认识动物、恐龙、海底 100 层的房子… |
+| 第 2 周 | 认形状，数数字 | 形状歌、立体图形、数字歌、宝宝学数字、颜色英语… |
+| 第 3 周 | 听故事，学汉字 | 牙齿大街、情绪小怪兽、自相矛盾、三只小猪、三十六个字… |
+| 第 4 周 | 好习惯，身体棒 | 洗手（两版）、消防安全、交通安全、律动、拍手歌… |
+
+每天一条（`perDay: 1`），从本周一开始，四个周一各排一周，正好一个月。
+
+**里面没有视频文件**：只有 BV 号、标题、封面地址、时长、UP 主和题目文本，画面仍然从 B 站加载，版权归原 UP 主。
+换掉它很容易 —— 直接改 `data/videos.json` 与 `data/lessons.json`，写法见 [HOW-TO-CURATE](../docs/HOW-TO-CURATE.md)。
 
 ## 与插件版的差异
 
 - **没有登录**。只监听本机回环地址，同机器上任何程序都能访问 —— 幼儿园单机场景可接受，接公网必须先加鉴权。
 - **家长锁仍然是软锁**：只有界面门禁，数据目录里的 JSON 谁都能改。
-- **不带片库**。第一次打开是空的，需要按 [HOW-TO-CURATE](../docs/HOW-TO-CURATE.md) 喂片子与题目。
+- **片库是一份内置演示数据**（30 条），插件版则空着等你喂。删掉 `data/` 再启动就会重铺。
 
 ## 目录
 
@@ -47,5 +66,6 @@ standalone/
   index.html      壳页面
   start.bat       Windows 双击启动
   vendor/         react.js / react-dom.js（18.3.1 UMD，MIT）
+  seed/           演示片库（30 条片子 + 30 套课卡 + 四周主题）
   data/           运行时生成的本地数据（已 gitignore）
 ```

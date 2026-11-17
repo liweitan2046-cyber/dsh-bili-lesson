@@ -1,0 +1,2855 @@
+{
+ "version": 1,
+ "note": "演示片库：只存 B 站视频的元数据（BV 号/标题/封面地址）和课卡题目，不含视频文件；画面仍来自 B 站，版权归原 UP 主。",
+ "perDay": 1,
+ "themes": [
+  {
+   "id": "animals",
+   "name": "第 1 周 · 认动物，说名字",
+   "videoIds": [
+    "BV1Mfx86vEbY",
+    "BV15t42187wi",
+    "BV1KsqaYqEUd",
+    "BV1tSPdzwEbS",
+    "BV1ojGGzVEkz",
+    "BV18K421h7pn",
+    "BV1HD4y147x1"
+   ]
+  },
+  {
+   "id": "shapes",
+   "name": "第 2 周 · 认形状，数数字",
+   "videoIds": [
+    "BV1kGxk6sEDT",
+    "BV1mf4y1g7X2",
+    "BV1FG411u7ag",
+    "BV11CA3zYEJ3",
+    "BV19x411V7Fr",
+    "BV1mD4y1h7aE",
+    "BV1VG411V78o"
+   ]
+  },
+  {
+   "id": "stories",
+   "name": "第 3 周 · 听故事，学汉字",
+   "videoIds": [
+    "BV17z4w6BE9z",
+    "BV1tG4y137aR",
+    "BV1FFTN6PEX2",
+    "BV1WoWa6oEr3",
+    "BV1FX4y1b7m1",
+    "BV1cD4y1o7RR",
+    "BV1Fzd2BBECu"
+   ]
+  },
+  {
+   "id": "habits",
+   "name": "第 4 周 · 好习惯，身体棒",
+   "videoIds": [
+    "BV1YTVgzvEbw",
+    "BV134411x7Uy",
+    "BV181421B7Qd",
+    "BV1Ld4y1n7iY",
+    "BV1q6kUBBEhb",
+    "BV1SG1HBXEjX",
+    "BV1mTPpe3EcW"
+   ]
+  }
+ ],
+ "alternates": [
+  "BV1Z14y1B7U4",
+  "BV1jY4y1C7Sm"
+ ],
+ "videos": {
+  "BV1SG1HBXEjX": {
+   "id": "BV1SG1HBXEjX",
+   "bvid": "BV1SG1HBXEjX",
+   "title": "拍手律动歌👏🎶  节奏感 启蒙幼儿 身体协调趣味 音乐律动 快乐成长儿歌🎵  宝贝多米",
+   "cover": "https://i1.hdslb.com/bfs/archive/b764f7489029110c3301f88115c61d87f0ff0245.jpg",
+   "duration": 292,
+   "owner": "中文儿歌・卡通动画",
+   "category": "儿歌",
+   "minAge": 3,
+   "reason": "拍手律动歌：跟着节奏拍手，练身体协调",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256295,
+   "checkedAt": 1794706256295
+  },
+  "BV1Fzd2BBECu": {
+   "id": "BV1Fzd2BBECu",
+   "bvid": "BV1Fzd2BBECu",
+   "title": "0-3岁早教儿歌大全，30首儿歌连放，儿歌连续播 #宝宝儿歌 #儿歌串烧 #启蒙早教儿歌 #儿歌100首最火 #益智儿歌",
+   "cover": "https://i2.hdslb.com/bfs/archive/eb24dbe92c1d6e35b06d31071e40606f87d650c2.jpg",
+   "duration": 705,
+   "owner": "喵喵唱儿歌呀",
+   "category": "儿歌",
+   "minAge": 2,
+   "reason": "0-3岁儿歌串烧 30 首，当背景音乐放着听",
+   "caution": "整段 11 分钟，别一次放完",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256375,
+   "checkedAt": 1794706256375
+  },
+  "BV1FX4y1b7m1": {
+   "id": "BV1FX4y1b7m1",
+   "bvid": "BV1FX4y1b7m1",
+   "title": "童话故事合集（一）： 三只小猪盖房子 +丑小鸭",
+   "cover": "https://i0.hdslb.com/bfs/archive/751cb18f1c06e7ee8e0cd543dd75521065f4302c.jpg",
+   "duration": 786,
+   "owner": "雨默99",
+   "category": "绘本",
+   "minAge": 3,
+   "reason": "三只小猪 + 丑小鸭，睡前听一个",
+   "caution": "两个故事连着，听一半可以停",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256446,
+   "checkedAt": 1794706256446
+  },
+  "BV11CA3zYEJ3": {
+   "id": "BV11CA3zYEJ3",
+   "bvid": "BV11CA3zYEJ3",
+   "title": "【数字启蒙儿歌】一起唱数字歌🔢 边唱边学1到10数字认知早教律动儿歌宝贝多米",
+   "cover": "https://i0.hdslb.com/bfs/archive/6481d8d8c7dc76cb2feaec215cd79acb97e4b48b.jpg",
+   "duration": 504,
+   "owner": "中文儿歌・卡通动画",
+   "category": "数学",
+   "minAge": 3,
+   "reason": "数字歌 1 到 10，边唱边认数字",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256511,
+   "checkedAt": 1794706256511
+  },
+  "BV19x411V7Fr": {
+   "id": "BV19x411V7Fr",
+   "bvid": "BV19x411V7Fr",
+   "title": "宝宝学数字-宝宝巴士儿歌",
+   "cover": "https://i2.hdslb.com/bfs/archive/28a4b61ec5a49b431363009a9e008d595c20d2b5.jpg",
+   "duration": 177,
+   "owner": "宝宝巴士BabyBus",
+   "category": "数学",
+   "minAge": 3,
+   "reason": "宝宝巴士学数字，短、节奏慢，适合反复看",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256580,
+   "checkedAt": 1794706256580
+  },
+  "BV1mD4y1h7aE": {
+   "id": "BV1mD4y1h7aE",
+   "bvid": "BV1mD4y1h7aE",
+   "title": "幼儿英语数字启蒙动画，数字儿歌，从1数到100",
+   "cover": "https://i1.hdslb.com/bfs/archive/0fe59fbf22868121c7e9ecac9265f2d76246b323.jpg",
+   "duration": 234,
+   "owner": "ComeAndPlay66",
+   "category": "英语",
+   "minAge": 4,
+   "reason": "英语数字儿歌，1 数到 100，先听个耳熟",
+   "caution": "语速快，不用跟着念",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256646,
+   "checkedAt": 1794706256646
+  },
+  "BV1ojGGzVEkz": {
+   "id": "BV1ojGGzVEkz",
+   "bvid": "BV1ojGGzVEkz",
+   "title": "恐龙的武器是什么？ # 动画 # 早教",
+   "cover": "https://i1.hdslb.com/bfs/archive/dbe8a801cd5292f085a33f48e59f76f18234f203.jpg",
+   "duration": 559,
+   "owner": "闪闪发光的小萌",
+   "category": "科学启蒙",
+   "minAge": 4,
+   "reason": "恐龙的武器：动画讲恐龙身体部位干什么用",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256710,
+   "checkedAt": 1794706256710
+  },
+  "BV18K421h7pn": {
+   "id": "BV18K421h7pn",
+   "bvid": "BV18K421h7pn",
+   "title": "【Kurzgesagt科普】(中文配音版)：恐龙是怎样灭绝的",
+   "cover": "https://i0.hdslb.com/bfs/archive/7c719e0374957f3c63b95613e6c0d68e92c1135f.jpg",
+   "duration": 762,
+   "owner": "月夜猫疯兔",
+   "category": "科学启蒙",
+   "minAge": 4,
+   "reason": "恐龙怎么灭绝的（Kurzgesagt 中文配音），信息量大",
+   "caution": "12 分钟，建议分两次看",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256777,
+   "checkedAt": 1794706256777
+  },
+  "BV1KsqaYqEUd": {
+   "id": "BV1KsqaYqEUd",
+   "bvid": "BV1KsqaYqEUd",
+   "title": "认识动物：狮子、猫、猴子、熊猫、河马、鸭子、猎豹、乌鸦、斑马 - 动物的声音｜动物英语｜动物大全",
+   "cover": "https://i0.hdslb.com/bfs/archive/731bcc4344df95dab8712dd9673f1d0d0d031bfb.jpg",
+   "duration": 301,
+   "owner": "六一儿童动画",
+   "category": "认知",
+   "minAge": 3,
+   "reason": "认识动物和它们的叫声",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794706256865,
+   "checkedAt": 1794706256865
+  },
+  "BV1Ld4y1n7iY": {
+   "id": "BV1Ld4y1n7iY",
+   "bvid": "BV1Ld4y1n7iY",
+   "title": "安全系列 变形警车珀利 交通安全 儿童动画  变形警车珀利",
+   "cover": "https://i2.hdslb.com/bfs/archive/99a27370f0da271c2dd91a71ca8d6146c27a98e0.jpg",
+   "duration": 1250,
+   "owner": "玩乐剧场",
+   "category": "安全",
+   "minAge": 3,
+   "reason": "变形警车珀利讲过马路和乘车安全，一集看完正好聊一遍规则",
+   "caution": "21 分钟偏长，可分成两次看",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794725470148,
+   "checkedAt": 1794725470148
+  },
+  "BV1tSPdzwEbS": {
+   "id": "BV1tSPdzwEbS",
+   "bvid": "BV1tSPdzwEbS",
+   "title": "趣味动物科普合集17分钟",
+   "cover": "https://i2.hdslb.com/bfs/archive/7ad31ecc802880686cc6a9d82b2912ae8e3afda3.jpg",
+   "duration": 1042,
+   "owner": "童学趣知",
+   "category": "科学启蒙",
+   "minAge": 4,
+   "reason": "17 分钟动物科普合集，一个接一个认识动物的本事",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794725470148,
+   "checkedAt": 1794725470148
+  },
+  "BV1Z14y1B7U4": {
+   "id": "BV1Z14y1B7U4",
+   "bvid": "BV1Z14y1B7U4",
+   "title": "宝宝学画画：今天我们绘画美丽的鲜花，儿童简笔画色彩早教",
+   "cover": "https://i1.hdslb.com/bfs/archive/334d4837e483a05c81373ea43ba310117bb51750.jpg",
+   "duration": 595,
+   "owner": "森森爱画画",
+   "category": "美术",
+   "minAge": 3,
+   "reason": "跟着画一朵鲜花，练握笔和配色",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794725470148,
+   "checkedAt": 1794725470148
+  },
+  "BV1HD4y147x1": {
+   "id": "BV1HD4y147x1",
+   "bvid": "BV1HD4y147x1",
+   "title": "【科普·好奇心】绘本《海底100层的房子》有声儿童绘本故事",
+   "cover": "https://i2.hdslb.com/bfs/archive/b692ee12667b2db5eaf26d5489f569c91f71f0e3.jpg",
+   "duration": 624,
+   "owner": "南瓜妈妈讲绘本",
+   "category": "绘本",
+   "minAge": 4,
+   "reason": "有声绘本，一层层往下看海底的房子，练观察和数数",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794725470148,
+   "checkedAt": 1794725470148
+  },
+  "BV1q6kUBBEhb": {
+   "id": "BV1q6kUBBEhb",
+   "bvid": "BV1q6kUBBEhb",
+   "title": "幼少儿课前互动热身律动，音乐律动尊巴舞蹈",
+   "cover": "https://i2.hdslb.com/bfs/archive/888a4052d24bea97f62d8c48ad1397df217ed360.jpg",
+   "duration": 168,
+   "owner": "西卡卡资源铺",
+   "category": "律动",
+   "minAge": 3,
+   "reason": "两分半的律动热身，跟着跳一跳放电",
+   "caution": "没有字幕，跟着画面动就行",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794725470148,
+   "checkedAt": 1794725470148
+  },
+  "BV1jY4y1C7Sm": {
+   "id": "BV1jY4y1C7Sm",
+   "bvid": "BV1jY4y1C7Sm",
+   "title": "趣味填色#儿童简笔画 3分钟教宝宝学画和识别10种常见蔬菜，涂色美美哒",
+   "cover": "https://i1.hdslb.com/bfs/archive/7c6f4f3a327704dbb504100a8a4d3d1a0e762a53.jpg",
+   "duration": 249,
+   "owner": "彩虹手填色画",
+   "category": "认知",
+   "minAge": 2,
+   "reason": "边涂色边认 10 种常见蔬菜",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794725470148,
+   "checkedAt": 1794725470148
+  },
+  "BV1cD4y1o7RR": {
+   "id": "BV1cD4y1o7RR",
+   "bvid": "BV1cD4y1o7RR",
+   "title": "【1080P】三十六个字 - 豆瓣8.8分寓教短片",
+   "cover": "https://i2.hdslb.com/bfs/archive/9b1d2e4c95e6966a953552c16513bd9cd09b88c0.png",
+   "duration": 632,
+   "owner": "飞雨沐风",
+   "category": "识字",
+   "minAge": 3,
+   "reason": "象形字动画：把“日、山、手、口”这些字画成图画，正对题库前 8 题的象形字",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794727135658,
+   "checkedAt": 1794727135658
+  },
+  "BV1mTPpe3EcW": {
+   "id": "BV1mTPpe3EcW",
+   "bvid": "BV1mTPpe3EcW",
+   "title": "儿童益智早教动画，童谣和儿歌  认识颜色幼儿英语早教启蒙",
+   "cover": "https://i0.hdslb.com/bfs/archive/73492307cbd0c06c1c6043bf7a8c7ea7eaeb334d.jpg",
+   "duration": 771,
+   "owner": "ABC早教乐园",
+   "category": "英语",
+   "minAge": 4,
+   "reason": "用儿歌认 red/blue/green/yellow/black/white，正好接题库的 6 道颜色题",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794727135658,
+   "checkedAt": 1794727135658
+  },
+  "BV1Mfx86vEbY": {
+   "id": "BV1Mfx86vEbY",
+   "bvid": "BV1Mfx86vEbY",
+   "title": "100种动物喷泉穿越变身！你认识多少种动物？",
+   "cover": "http://i1.hdslb.com/bfs/archive/856534bc3eaa611d809ee213722cd16713260102.jpg",
+   "duration": 301,
+   "owner": "3D动物乐园",
+   "category": "认知",
+   "minAge": 3,
+   "reason": "100 种动物轮番出场，适合认动物、说名字",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879628948,
+   "checkedAt": 1794879628948
+  },
+  "BV15t42187wi": {
+   "id": "BV15t42187wi",
+   "bvid": "BV15t42187wi",
+   "title": "学习海洋动物-认知学习动物名字-虎鲸-鲨鱼-儿童科教启蒙-英语早教学习-大白鲨",
+   "cover": "http://i0.hdslb.com/bfs/archive/172fa1243c3613125ea779d34279a3daf53a685a.jpg",
+   "duration": 860,
+   "owner": "lwb1991",
+   "category": "科学启蒙",
+   "minAge": 4,
+   "reason": "海洋动物认知，虎鲸鲨鱼等真实画面",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879628983,
+   "checkedAt": 1794879628983
+  },
+  "BV1kGxk6sEDT": {
+   "id": "BV1kGxk6sEDT",
+   "bvid": "BV1kGxk6sEDT",
+   "title": "💜儿童图形绘画｜跟着色彩认识形状｜",
+   "cover": "http://i1.hdslb.com/bfs/archive/39227ab00e98f032725cf05e02fd80b61a3f394b.jpg",
+   "duration": 372,
+   "owner": "酱大头",
+   "category": "数学",
+   "minAge": 3,
+   "reason": "边涂色边认形状，适合形状第一课",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629018,
+   "checkedAt": 1794879629018
+  },
+  "BV1mf4y1g7X2": {
+   "id": "BV1mf4y1g7X2",
+   "bvid": "BV1mf4y1g7X2",
+   "title": "【形状歌合集】教宝宝认识形状",
+   "cover": "http://i0.hdslb.com/bfs/archive/ee68d864e32453fba9461835875068b274efa8af.jpg",
+   "duration": 637,
+   "owner": "堕落的甜菜",
+   "category": "数学",
+   "minAge": 3,
+   "reason": "形状歌合集，靠儿歌记形状特征",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629057,
+   "checkedAt": 1794879629057
+  },
+  "BV1FG411u7ag": {
+   "id": "BV1FG411u7ag",
+   "bvid": "BV1FG411u7ag",
+   "title": "认识立体图形‖幼小衔接，一年级数学",
+   "cover": "http://i2.hdslb.com/bfs/archive/ce0a03395f52632833605aed6034a4faf645858f.jpg",
+   "duration": 383,
+   "owner": "程子与橙子",
+   "category": "数学",
+   "minAge": 5,
+   "reason": "立体图形，幼小衔接向，偏难",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629095,
+   "checkedAt": 1794879629095
+  },
+  "BV17z4w6BE9z": {
+   "id": "BV17z4w6BE9z",
+   "bvid": "BV17z4w6BE9z",
+   "title": "寓言故事《小鸭与笨狼》，主页看100+精品原创动画故事！",
+   "cover": "http://i1.hdslb.com/bfs/archive/b250499f834c0ade51fc4db6d5aa2aad73d11982.jpg",
+   "duration": 205,
+   "owner": "中外童话故事",
+   "category": "绘本",
+   "minAge": 4,
+   "reason": "寓言动画，讲小鸭与笨狼的道理",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629135,
+   "checkedAt": 1794879629135
+  },
+  "BV1tG4y137aR": {
+   "id": "BV1tG4y137aR",
+   "bvid": "BV1tG4y137aR",
+   "title": "绘本故事《牙齿大街的新鲜事》",
+   "cover": "http://i0.hdslb.com/bfs/archive/063722f88c60f866992a483686fee23d77a5e115.jpg",
+   "duration": 808,
+   "owner": "云朵绘本故事",
+   "category": "绘本",
+   "minAge": 3,
+   "reason": "牙齿大街的故事，讲刷牙和蛀牙",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629174,
+   "checkedAt": 1794879629174
+  },
+  "BV1FFTN6PEX2": {
+   "id": "BV1FFTN6PEX2",
+   "bvid": "BV1FFTN6PEX2",
+   "title": "《我的情绪小怪兽》绘本故事完整版",
+   "cover": "http://i2.hdslb.com/bfs/archive/6a24f5eba1509be19585b702492a1af2bda467aa.jpg",
+   "duration": 470,
+   "owner": "格子酱讲绘本",
+   "category": "绘本",
+   "minAge": 3,
+   "reason": "情绪小怪兽，把情绪分成颜色",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629243,
+   "checkedAt": 1794879629243
+  },
+  "BV1WoWa6oEr3": {
+   "id": "BV1WoWa6oEr3",
+   "bvid": "BV1WoWa6oEr3",
+   "title": "成语故事动画《自相矛盾》",
+   "cover": "http://i2.hdslb.com/bfs/archive/54ca1831a61457a9e70ed27e5849f482a4b958bb.jpg",
+   "duration": 178,
+   "owner": "露娜儿童故事",
+   "category": "识字",
+   "minAge": 5,
+   "reason": "成语自相矛盾，需要讲一遍再答",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629279,
+   "checkedAt": 1794879629279
+  },
+  "BV1YTVgzvEbw": {
+   "id": "BV1YTVgzvEbw",
+   "bvid": "BV1YTVgzvEbw",
+   "title": "洗手！学校版[新] 儿童健康习惯 | 童谣",
+   "cover": "http://i2.hdslb.com/bfs/archive/d92f563ecbc47280870b3a063b2e81a52260a72f.jpg",
+   "duration": 215,
+   "owner": "亲子英语动画站",
+   "category": "安全",
+   "minAge": 3,
+   "reason": "洗手学校版童谣，健康习惯",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629384,
+   "checkedAt": 1794879629384
+  },
+  "BV181421B7Qd": {
+   "id": "BV181421B7Qd",
+   "bvid": "BV181421B7Qd",
+   "title": "消防安全，我知道",
+   "cover": "http://i2.hdslb.com/bfs/archive/39e659629bfe2e8696181266e0ea72f5d50d7659.jpg",
+   "duration": 323,
+   "owner": "balabala的大世界",
+   "category": "安全",
+   "minAge": 4,
+   "reason": "消防安全我知道，火警与逃生常识",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629416,
+   "checkedAt": 1794879629416
+  },
+  "BV134411x7Uy": {
+   "id": "BV134411x7Uy",
+   "bvid": "BV134411x7Uy",
+   "title": "正确洗手-儿童健康教育系列动画片",
+   "cover": "http://i2.hdslb.com/bfs/archive/b92fc5a6ae8c474c3d10b794df853f40474214fd.jpg",
+   "duration": 285,
+   "owner": "bili_431388620",
+   "category": "安全",
+   "minAge": 3,
+   "reason": "正确洗手的分步动画",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629452,
+   "checkedAt": 1794879629452
+  },
+  "BV1VG411V78o": {
+   "id": "BV1VG411V78o",
+   "bvid": "BV1VG411V78o",
+   "title": "儿童英语启蒙学习--Color（颜色）英语单词识记",
+   "cover": "http://i1.hdslb.com/bfs/archive/4caad1e4dbad54cb2aaa19eb9b54e9c5c13cbd3b.jpg",
+   "duration": 277,
+   "owner": "趣味英语动画",
+   "category": "英语",
+   "minAge": 3,
+   "reason": "Color 颜色单词识记",
+   "caution": "",
+   "note": "",
+   "dead": false,
+   "addedAt": 1794879629483,
+   "checkedAt": 1794879629483
+  }
+ },
+ "lessons": [
+  {
+   "id": "ls_f7b38cbb",
+   "videoId": "BV1cD4y1o7RR",
+   "topic": "象形字：看图认字",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "哪个字表示太阳？（太阳）",
+     "spokenPrompt": "哪个字表示太阳？",
+     "options": [
+      "日",
+      "月",
+      "山"
+     ],
+     "answer": 0,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「日」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "哪个字像一座山？（⛰️）",
+     "spokenPrompt": "哪个字像一座山？",
+     "options": [
+      "火",
+      "山",
+      "木"
+     ],
+     "answer": 1,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「山」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "找出“小手”的手（👋）",
+     "spokenPrompt": "找出“小手”的手",
+     "options": [
+      "水",
+      "木",
+      "手"
+     ],
+     "answer": 2,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「手」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "小嘴巴对应哪个字？（👄）",
+     "spokenPrompt": "小嘴巴对应哪个字？",
+     "options": [
+      "口",
+      "日",
+      "田"
+     ],
+     "answer": 0,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「口」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q5",
+     "prompt": "月亮对应哪个字？（🌙）",
+     "spokenPrompt": "月亮对应哪个字？",
+     "options": [
+      "日",
+      "目",
+      "月"
+     ],
+     "answer": 2,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「月」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q6",
+     "prompt": "大树对应哪个字？（🌳）",
+     "spokenPrompt": "大树对应哪个字？",
+     "options": [
+      "木",
+      "水",
+      "火"
+     ],
+     "answer": 0,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「木」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q7",
+     "prompt": "火焰对应哪个字？（🔥）",
+     "spokenPrompt": "火焰对应哪个字？",
+     "options": [
+      "山",
+      "火",
+      "人"
+     ],
+     "answer": 1,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「火」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q8",
+     "prompt": "水滴对应哪个字？（💧）",
+     "spokenPrompt": "水滴对应哪个字？",
+     "options": [
+      "木",
+      "水",
+      "田"
+     ],
+     "answer": 1,
+     "hint": "想一想这个字画的是什么",
+     "explanation": "答案是「水」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135658,
+   "createdAt": 1794727135658
+  },
+  {
+   "id": "ls_bd46983e",
+   "videoId": "BV19x411V7Fr",
+   "topic": "数一数：跟宝宝巴士学数字",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "这里有几块能量晶体？（◇◇◇）",
+     "spokenPrompt": "这里有几块能量晶体？",
+     "options": [
+      "2",
+      "3",
+      "4"
+     ],
+     "answer": 1,
+     "hint": "一个一个数",
+     "explanation": "答案是 3。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "这里有几颗星星？（★★）",
+     "spokenPrompt": "这里有几颗星星？",
+     "options": [
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": 1,
+     "hint": "一个一个数",
+     "explanation": "答案是 2。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "这里有几个苹果？（🍎🍎🍎）",
+     "spokenPrompt": "这里有几个苹果？",
+     "options": [
+      "4",
+      "2",
+      "3"
+     ],
+     "answer": 2,
+     "hint": "一个一个数",
+     "explanation": "答案是 3。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "这里有几条小鱼？（🐟🐟🐟🐟）",
+     "spokenPrompt": "这里有几条小鱼？",
+     "options": [
+      "3",
+      "4",
+      "5"
+     ],
+     "answer": 1,
+     "hint": "一个一个数",
+     "explanation": "答案是 4。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q5",
+     "prompt": "这里有几个气球？（🎈🎈）",
+     "spokenPrompt": "这里有几个气球？",
+     "options": [
+      "2",
+      "1",
+      "3"
+     ],
+     "answer": 0,
+     "hint": "一个一个数",
+     "explanation": "答案是 2。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q6",
+     "prompt": "这里有几个香蕉？（🍌）",
+     "spokenPrompt": "这里有几个香蕉？",
+     "options": [
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": 0,
+     "hint": "一个一个数",
+     "explanation": "答案是 1。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q7",
+     "prompt": "这里有几朵花？（🌼🌼🌼🌼🌼）",
+     "spokenPrompt": "这里有几朵花？",
+     "options": [
+      "4",
+      "5",
+      "6"
+     ],
+     "answer": 1,
+     "hint": "一个一个数",
+     "explanation": "答案是 5。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q8",
+     "prompt": "1个苹果加1个苹果，一共有几个？（🍎🍎）",
+     "spokenPrompt": "1个苹果加1个苹果，一共有几个？",
+     "options": [
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": 1,
+     "hint": "一个一个数",
+     "explanation": "答案是 2。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135658,
+   "createdAt": 1794727135658
+  },
+  {
+   "id": "ls_e54a088b",
+   "videoId": "BV11CA3zYEJ3",
+   "topic": "数数：1 到 10",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "唱数字歌的时候，1 后面是几？",
+     "spokenPrompt": "一后面是几呀？",
+     "options": [
+      "2",
+      "3",
+      "5"
+     ],
+     "answer": 0,
+     "hint": "一二三，二在一下面",
+     "explanation": "1 后面就是 2。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "数到 5 的时候，要伸出几根手指？",
+     "spokenPrompt": "五要伸几根手指？",
+     "options": [
+      "3 根",
+      "5 根",
+      "2 根"
+     ],
+     "answer": 1,
+     "hint": "数一下：1、2、3、4、5",
+     "explanation": "数到 5 就伸出 5 根手指。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "这首数字歌里，最后数到几？",
+     "spokenPrompt": "歌里最后数到几？",
+     "options": [
+      "10",
+      "5",
+      "100"
+     ],
+     "answer": 0,
+     "hint": "唱到最后一句听一听",
+     "explanation": "这首歌数到 10。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q1",
+     "prompt": "哪个数字在2的后面？（12？）",
+     "spokenPrompt": "哪个数字在2的后面？",
+     "options": [
+      "3",
+      "4",
+      "5"
+     ],
+     "answer": 0,
+     "hint": "按顺序数一数",
+     "explanation": "正确答案是「3」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "哪个数字在4的前面？（？45）",
+     "spokenPrompt": "哪个数字在4的前面？",
+     "options": [
+      "2",
+      "3",
+      "6"
+     ],
+     "answer": 1,
+     "hint": "按顺序数一数",
+     "explanation": "正确答案是「3」。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794706256888
+  },
+  {
+   "id": "ls_a667c188",
+   "videoId": "BV1mTPpe3EcW",
+   "topic": "Colors：用儿歌认颜色",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "哪一个是 red？（红色）",
+     "spokenPrompt": "哪一个是 red？",
+     "options": [
+      "🔴",
+      "🔵",
+      "🟡"
+     ],
+     "answer": 0,
+     "hint": "🔴 就是这个颜色",
+     "explanation": "正确答案是「🔴」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "哪一个是 blue？（蓝色）",
+     "spokenPrompt": "哪一个是 blue？",
+     "options": [
+      "🟢",
+      "🟡",
+      "🔵"
+     ],
+     "answer": 2,
+     "hint": "🔵 就是这个颜色",
+     "explanation": "正确答案是「🔵」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "哪一个是 green？（绿色）",
+     "spokenPrompt": "哪一个是 green？",
+     "options": [
+      "🔵",
+      "🟢",
+      "🟡"
+     ],
+     "answer": 1,
+     "hint": "🟢 就是这个颜色",
+     "explanation": "正确答案是「🟢」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "哪一个是 yellow？（黄色）",
+     "spokenPrompt": "哪一个是 yellow？",
+     "options": [
+      "🟡",
+      "🔴",
+      "🟣"
+     ],
+     "answer": 0,
+     "hint": "🟡 就是这个颜色",
+     "explanation": "正确答案是「🟡」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q5",
+     "prompt": "哪一个是 black？（黑色）",
+     "spokenPrompt": "哪一个是 black？",
+     "options": [
+      "⚪",
+      "⚫",
+      "🟤"
+     ],
+     "answer": 1,
+     "hint": "⚫ 就是这个颜色",
+     "explanation": "正确答案是「⚫」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q6",
+     "prompt": "哪一个是 white？（白色）",
+     "spokenPrompt": "哪一个是 white？",
+     "options": [
+      "⚫",
+      "🟤",
+      "⚪"
+     ],
+     "answer": 2,
+     "hint": "⚪ 就是这个颜色",
+     "explanation": "正确答案是「⚪」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_8813a2b9",
+   "videoId": "BV1mD4y1h7aE",
+   "topic": "Numbers：one · two · three",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "哪一个表示 one？（1）",
+     "spokenPrompt": "哪一个表示 one？",
+     "options": [
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": 0,
+     "hint": "one/two/three 就是 1/2/3",
+     "explanation": "正确答案是「1」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "哪一个表示 two？（2）",
+     "spokenPrompt": "哪一个表示 two？",
+     "options": [
+      "1",
+      "2",
+      "3"
+     ],
+     "answer": 1,
+     "hint": "one/two/three 就是 1/2/3",
+     "explanation": "正确答案是「2」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "哪一个表示 three？（3）",
+     "spokenPrompt": "哪一个表示 three？",
+     "options": [
+      "2",
+      "4",
+      "3"
+     ],
+     "answer": 2,
+     "hint": "one/two/three 就是 1/2/3",
+     "explanation": "正确答案是「3」。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_acc38a37",
+   "videoId": "BV1SG1HBXEjX",
+   "topic": "拍手律动：跟着节奏动起来",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "拍手的时候，两只小手要怎么样？",
+     "spokenPrompt": "拍手的时候，两只小手要怎么样？",
+     "options": [
+      "碰在一起",
+      "放进兜里",
+      "举起来不动"
+     ],
+     "answer": 0,
+     "hint": "拍手就是两只手相碰",
+     "explanation": "正确答案是「碰在一起」。拍手就是两只手相碰",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "拍手的声音是怎么样的？",
+     "spokenPrompt": "拍手的声音是怎么样的？",
+     "options": [
+      "啪啪啪",
+      "喵喵喵",
+      "滴滴滴"
+     ],
+     "answer": 0,
+     "hint": "手掌相碰发出“啪啪”的声音",
+     "explanation": "正确答案是「啪啪啪」。手掌相碰发出“啪啪”的声音",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "跟着音乐拍手，要注意听什么？",
+     "spokenPrompt": "跟着音乐拍手，要注意听什么？",
+     "options": [
+      "音乐的节奏",
+      "外面的汽车声",
+      "电视里的广告"
+     ],
+     "answer": 0,
+     "hint": "跟着音乐的拍子拍才整齐",
+     "explanation": "正确答案是「音乐的节奏」。跟着音乐的拍子拍才整齐",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "音乐停下来的时候，我们应该？",
+     "spokenPrompt": "音乐停下来的时候，我们应该？",
+     "options": [
+      "安静下来",
+      "继续大喊",
+      "跑出房间"
+     ],
+     "answer": 0,
+     "hint": "音乐停了就停下来",
+     "explanation": "正确答案是「安静下来」。音乐停了就停下来",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_19d8b497",
+   "videoId": "BV1Fzd2BBECu",
+   "topic": "儿歌连唱：跟着唱、跟着动",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "听儿歌的时候，小手可以跟着做什么？",
+     "spokenPrompt": "听儿歌的时候，小手可以跟着做什么？",
+     "options": [
+      "打节拍",
+      "捂耳朵",
+      "乱挥打人"
+     ],
+     "answer": 0,
+     "hint": "跟着节奏拍一拍",
+     "explanation": "正确答案是「打节拍」。跟着节奏拍一拍",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "儿歌里唱到小动物，我们可以跟着？",
+     "spokenPrompt": "儿歌里唱到小动物，我们可以跟着？",
+     "options": [
+      "学它的叫声",
+      "关掉声音",
+      "闭上眼睛睡觉"
+     ],
+     "answer": 0,
+     "hint": "学一学小动物的叫声",
+     "explanation": "正确答案是「学它的叫声」。学一学小动物的叫声",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "跟着儿歌唱，对我们的什么有帮助？",
+     "spokenPrompt": "跟着儿歌唱，对我们的什么有帮助？",
+     "options": [
+      "说话和发音",
+      "长高",
+      "视力"
+     ],
+     "answer": 0,
+     "hint": "唱歌能练发音",
+     "explanation": "正确答案是「说话和发音」。唱歌能练发音",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "一首儿歌唱完，接下来通常会？",
+     "spokenPrompt": "一首儿歌唱完，接下来通常会？",
+     "options": [
+      "唱下一首",
+      "一整天结束",
+      "停电"
+     ],
+     "answer": 0,
+     "hint": "30 首儿歌是连唱的",
+     "explanation": "正确答案是「唱下一首」。30 首儿歌是连唱的",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_ae0a60fa",
+   "videoId": "BV1FX4y1b7m1",
+   "topic": "童话故事：三只小猪 · 丑小鸭",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "三只小猪里，谁的房子最结实？",
+     "spokenPrompt": "三只小猪里，谁的房子最结实？",
+     "options": [
+      "老三的砖房子",
+      "老大的草房子",
+      "老二的木房子"
+     ],
+     "answer": 0,
+     "hint": "砖头最结实",
+     "explanation": "正确答案是「老三的砖房子」。砖头最结实",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "大灰狼用力吹，最后吹不倒的是？",
+     "spokenPrompt": "大灰狼用力吹，最后吹不倒的是？",
+     "options": [
+      "砖房子",
+      "草房子",
+      "木房子"
+     ],
+     "answer": 0,
+     "hint": "砖房子吹不倒",
+     "explanation": "正确答案是「砖房子」。砖房子吹不倒",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "丑小鸭长大以后变成了什么？",
+     "spokenPrompt": "丑小鸭长大以后变成了什么？",
+     "options": [
+      "白天鹅",
+      "大公鸡",
+      "小鸭子"
+     ],
+     "answer": 0,
+     "hint": "丑小鸭其实是天鹅",
+     "explanation": "正确答案是「白天鹅」。丑小鸭其实是天鹅",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "丑小鸭小时候为什么被大家笑？",
+     "spokenPrompt": "丑小鸭小时候为什么被大家笑？",
+     "options": [
+      "它长得跟别的小鸭子不一样",
+      "它不会游泳",
+      "它不爱吃饭"
+     ],
+     "answer": 0,
+     "hint": "它长得灰灰的、不一样",
+     "explanation": "正确答案是「它长得跟别的小鸭子不一样」。它长得灰灰的、不一样",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_9dec83ad",
+   "videoId": "BV1ojGGzVEkz",
+   "topic": "恐龙的武器",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "霸王龙最厉害的武器是？",
+     "spokenPrompt": "霸王龙最厉害的武器是？",
+     "options": [
+      "又大又尖的牙齿",
+      "长长的脖子",
+      "一对翅膀"
+     ],
+     "answer": 0,
+     "hint": "霸王龙的牙齿很锋利",
+     "explanation": "正确答案是「又大又尖的牙齿」。霸王龙的牙齿很锋利",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "三角龙头上长着什么？",
+     "spokenPrompt": "三角龙头上长着什么？",
+     "options": [
+      "三只尖角",
+      "长长的鼻子",
+      "一个大壳"
+     ],
+     "answer": 0,
+     "hint": "三角龙名字就来自它的三只角",
+     "explanation": "正确答案是「三只尖角」。三角龙名字就来自它的三只角",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "剑龙的背上有一排什么？",
+     "spokenPrompt": "剑龙的背上有一排什么？",
+     "options": [
+      "骨板",
+      "羽毛",
+      "鳞片"
+     ],
+     "answer": 0,
+     "hint": "剑龙背上有高高的骨板",
+     "explanation": "正确答案是「骨板」。剑龙背上有高高的骨板",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "甲龙的武器长在哪里？",
+     "spokenPrompt": "甲龙的武器长在哪里？",
+     "options": [
+      "尾巴末端的骨锤",
+      "头顶的角",
+      "前爪"
+     ],
+     "answer": 0,
+     "hint": "甲龙用尾锤保护自己",
+     "explanation": "正确答案是「尾巴末端的骨锤」。甲龙用尾锤保护自己",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_f9276204",
+   "videoId": "BV18K421h7pn",
+   "topic": "恐龙是怎么灭绝的",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "恐龙大概在多少年前灭绝？",
+     "spokenPrompt": "恐龙大概在多少年前灭绝？",
+     "options": [
+      "大约 6600 万年前",
+      "大约 200 年前",
+      "大约 1000 年前"
+     ],
+     "answer": 0,
+     "hint": "6600 万年前",
+     "explanation": "正确答案是「大约 6600 万年前」。6600 万年前",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "科学家认为，恐龙灭绝和什么有关？",
+     "spokenPrompt": "科学家认为，恐龙灭绝和什么有关？",
+     "options": [
+      "小行星撞击地球",
+      "恐龙打不过老虎",
+      "天气变暖和了"
+     ],
+     "answer": 0,
+     "hint": "一颗很大的小行星撞上了地球",
+     "explanation": "正确答案是「小行星撞击地球」。一颗很大的小行星撞上了地球",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "撞击之后，天空被什么遮住了？",
+     "spokenPrompt": "撞击之后，天空被什么遮住了？",
+     "options": [
+      "厚厚的尘埃",
+      "彩虹",
+      "白雪"
+     ],
+     "answer": 0,
+     "hint": "尘埃挡住阳光，植物枯死",
+     "explanation": "正确答案是「厚厚的尘埃」。尘埃挡住阳光，植物枯死",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "恐龙灭绝以后，哪类动物慢慢兴旺起来？",
+     "spokenPrompt": "恐龙灭绝以后，哪类动物慢慢兴旺起来？",
+     "options": [
+      "哺乳动物",
+      "巨型昆虫",
+      "更多恐龙"
+     ],
+     "answer": 0,
+     "hint": "哺乳动物接替了恐龙的生态位",
+     "explanation": "正确答案是「哺乳动物」。哺乳动物接替了恐龙的生态位",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_76b8e8fd",
+   "videoId": "BV1KsqaYqEUd",
+   "topic": "认识动物和它们的叫声",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "身上有黑白条纹的动物是？",
+     "spokenPrompt": "身上有黑白条纹的动物是？",
+     "options": [
+      "斑马",
+      "熊猫",
+      "河马"
+     ],
+     "answer": 0,
+     "hint": "斑马一身黑白条纹",
+     "explanation": "正确答案是「斑马」。斑马一身黑白条纹",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "脖子特别长、能吃高处树叶的动物是？",
+     "spokenPrompt": "脖子特别长、能吃高处树叶的动物是？",
+     "options": [
+      "长颈鹿",
+      "狮子",
+      "猴子"
+     ],
+     "answer": 0,
+     "hint": "长颈鹿的脖子最长",
+     "explanation": "正确答案是「长颈鹿」。长颈鹿的脖子最长",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "会学人说话的鸟是？",
+     "spokenPrompt": "会学人说话的鸟是？",
+     "options": [
+      "鹦鹉",
+      "鸭子",
+      "乌鸦"
+     ],
+     "answer": 0,
+     "hint": "鹦鹉会学人说话",
+     "explanation": "正确答案是「鹦鹉」。鹦鹉会学人说话",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "爱吃竹子的大熊猫，主要住在哪里？",
+     "spokenPrompt": "爱吃竹子的大熊猫，主要住在哪里？",
+     "options": [
+      "中国的竹林里",
+      "沙漠里",
+      "北极"
+     ],
+     "answer": 0,
+     "hint": "大熊猫住在中国的竹林",
+     "explanation": "正确答案是「中国的竹林里」。大熊猫住在中国的竹林",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_385e5838",
+   "videoId": "BV1Ld4y1n7iY",
+   "topic": "交通安全：珀利教你怎么走",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "过马路应该走哪里？",
+     "spokenPrompt": "过马路应该走哪里？",
+     "options": [
+      "斑马线",
+      "马路正中间",
+      "车道旁边"
+     ],
+     "answer": 0,
+     "hint": "斑马线是行人过马路的地方",
+     "explanation": "正确答案是「斑马线」。斑马线是行人过马路的地方",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "人行横道的红灯亮了，要怎么做？",
+     "spokenPrompt": "人行横道的红灯亮了，要怎么做？",
+     "options": [
+      "停下来等绿灯",
+      "快点跑过去",
+      "慢慢走过去"
+     ],
+     "answer": 0,
+     "hint": "红灯停、绿灯行",
+     "explanation": "正确答案是「停下来等绿灯」。红灯停、绿灯行",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "坐小汽车时，小朋友应该？",
+     "spokenPrompt": "坐小汽车时，小朋友应该？",
+     "options": [
+      "坐安全座椅、系好安全带",
+      "把头伸出窗外",
+      "在车里站起来玩"
+     ],
+     "answer": 0,
+     "hint": "安全带和安全座椅能保护你",
+     "explanation": "正确答案是「坐安全座椅、系好安全带」。安全带和安全座椅能保护你",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "变形警车珀利它们的工作是？",
+     "spokenPrompt": "变形警车珀利它们的工作是？",
+     "options": [
+      "保护大家的安全",
+      "送外卖",
+      "打扫街道"
+     ],
+     "answer": 0,
+     "hint": "它们是救援小队",
+     "explanation": "正确答案是「保护大家的安全」。它们是救援小队",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_61e87c66",
+   "videoId": "BV1tSPdzwEbS",
+   "topic": "动物小知识",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "长颈鹿的脖子为什么那么长？",
+     "spokenPrompt": "长颈鹿的脖子为什么那么长？",
+     "options": [
+      "为了吃到高处的树叶",
+      "为了打架更方便",
+      "为了睡觉"
+     ],
+     "answer": 0,
+     "hint": "高处的树叶别的动物吃不到",
+     "explanation": "正确答案是「为了吃到高处的树叶」。高处的树叶别的动物吃不到",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "大象用什么喝水、洗澡？",
+     "spokenPrompt": "大象用什么喝水、洗澡？",
+     "options": [
+      "长鼻子",
+      "尾巴",
+      "大耳朵"
+     ],
+     "answer": 0,
+     "hint": "大象用长鼻子吸水",
+     "explanation": "正确答案是「长鼻子」。大象用长鼻子吸水",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "蝙蝠在夜里靠什么认路？",
+     "spokenPrompt": "蝙蝠在夜里靠什么认路？",
+     "options": [
+      "发出声音再听回声",
+      "用眼睛看",
+      "用脚摸"
+     ],
+     "answer": 0,
+     "hint": "这叫回声定位",
+     "explanation": "正确答案是「发出声音再听回声」。这叫回声定位",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "企鹅主要住在什么样的地方？",
+     "spokenPrompt": "企鹅主要住在什么样的地方？",
+     "options": [
+      "很冷的地方",
+      "沙漠里",
+      "大树上"
+     ],
+     "answer": 0,
+     "hint": "企鹅住在寒冷的南极附近",
+     "explanation": "正确答案是「很冷的地方」。企鹅住在寒冷的南极附近",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_6b5bf244",
+   "videoId": "BV1Z14y1B7U4",
+   "topic": "画一朵鲜花",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "画花之前，先在纸上做什么？",
+     "spokenPrompt": "画花之前，先在纸上做什么？",
+     "options": [
+      "定好花的位置和大小",
+      "把纸涂满颜色",
+      "擦掉纸"
+     ],
+     "answer": 0,
+     "hint": "先定位置，再画细节",
+     "explanation": "正确答案是「定好花的位置和大小」。先定位置，再画细节",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "花瓣常用的形状是？",
+     "spokenPrompt": "花瓣常用的形状是？",
+     "options": [
+      "椭圆形（水滴形）",
+      "长方形",
+      "三角形"
+     ],
+     "answer": 0,
+     "hint": "花瓣多是圆圆的、一头尖",
+     "explanation": "正确答案是「椭圆形（水滴形）」。花瓣多是圆圆的、一头尖",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "花茎和叶子一般用什么颜色？",
+     "spokenPrompt": "花茎和叶子一般用什么颜色？",
+     "options": [
+      "绿色",
+      "黑色",
+      "紫色"
+     ],
+     "answer": 0,
+     "hint": "叶子和茎是绿色的",
+     "explanation": "正确答案是「绿色」。叶子和茎是绿色的",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "花瓣的颜色可以怎么涂？",
+     "spokenPrompt": "花瓣的颜色可以怎么涂？",
+     "options": [
+      "可以涂很多种颜色",
+      "只能涂黑色",
+      "只能涂一种颜色"
+     ],
+     "answer": 0,
+     "hint": "花有各种各样的颜色",
+     "explanation": "正确答案是「可以涂很多种颜色」。花有各种各样的颜色",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_71f1d44c",
+   "videoId": "BV1HD4y147x1",
+   "topic": "绘本：海底100层的房子",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "这本绘本里的房子建在哪里？",
+     "spokenPrompt": "这本绘本里的房子建在哪里？",
+     "options": [
+      "海底",
+      "云朵上",
+      "沙漠里"
+     ],
+     "answer": 0,
+     "hint": "书名就是“海底100层的房子”",
+     "explanation": "正确答案是「海底」。书名就是“海底100层的房子”",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "海洋里最大的动物是？",
+     "spokenPrompt": "海洋里最大的动物是？",
+     "options": [
+      "蓝鲸",
+      "海豚",
+      "小丑鱼"
+     ],
+     "answer": 0,
+     "hint": "蓝鲸是地球上最大的动物",
+     "explanation": "正确答案是「蓝鲸」。蓝鲸是地球上最大的动物",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "房子里住的是谁？",
+     "spokenPrompt": "房子里住的是谁？",
+     "options": [
+      "各种各样的海洋动物",
+      "一群恐龙",
+      "没有人"
+     ],
+     "answer": 0,
+     "hint": "每一层住着不同的海洋动物",
+     "explanation": "正确答案是「各种各样的海洋动物」。每一层住着不同的海洋动物",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "数一数：100 层的房子一共有多少层？",
+     "spokenPrompt": "数一数：100 层的房子一共有多少层？",
+     "options": [
+      "100 层",
+      "10 层",
+      "1000 层"
+     ],
+     "answer": 0,
+     "hint": "一层一层数到 100",
+     "explanation": "正确答案是「100 层」。一层一层数到 100",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_db2b52f8",
+   "videoId": "BV1q6kUBBEhb",
+   "topic": "课前热身：跟着音乐动起来",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "运动之前要先做什么？",
+     "spokenPrompt": "运动之前要先做什么？",
+     "options": [
+      "热身",
+      "马上快跑",
+      "坐着不动"
+     ],
+     "answer": 0,
+     "hint": "热身能让身体准备好",
+     "explanation": "正确答案是「热身」。热身能让身体准备好",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "跟着尊巴音乐动起来，身体会？",
+     "spokenPrompt": "跟着尊巴音乐动起来，身体会？",
+     "options": [
+      "变热、心跳加快",
+      "变冷",
+      "睡着"
+     ],
+     "answer": 0,
+     "hint": "动起来身体就热了",
+     "explanation": "正确答案是「变热、心跳加快」。动起来身体就热了",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "热身的时候要注意？",
+     "spokenPrompt": "热身的时候要注意？",
+     "options": [
+      "动作不要做得太猛",
+      "一直闭着眼睛",
+      "屏住呼吸"
+     ],
+     "answer": 0,
+     "hint": "慢慢加大动作，别拉伤",
+     "explanation": "正确答案是「动作不要做得太猛」。慢慢加大动作，别拉伤",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_d75074ad",
+   "videoId": "BV1jY4y1C7Sm",
+   "topic": "认识 10 种蔬菜和它们的颜色",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "胡萝卜通常是什么颜色？",
+     "spokenPrompt": "胡萝卜通常是什么颜色？",
+     "options": [
+      "橙色",
+      "蓝色",
+      "灰色"
+     ],
+     "answer": 0,
+     "hint": "胡萝卜是橙色的",
+     "explanation": "正确答案是「橙色」。胡萝卜是橙色的",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "西红柿成熟以后是什么颜色？",
+     "spokenPrompt": "西红柿成熟以后是什么颜色？",
+     "options": [
+      "红色",
+      "黑色",
+      "紫色"
+     ],
+     "answer": 0,
+     "hint": "熟透的西红柿是红的",
+     "explanation": "正确答案是「红色」。熟透的西红柿是红的",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "青菜的叶子主要是什么颜色？",
+     "spokenPrompt": "青菜的叶子主要是什么颜色？",
+     "options": [
+      "绿色",
+      "红色",
+      "白色"
+     ],
+     "answer": 0,
+     "hint": "叶子是绿色的",
+     "explanation": "正确答案是「绿色」。叶子是绿色的",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "茄子常见是什么颜色？",
+     "spokenPrompt": "茄子常见是什么颜色？",
+     "options": [
+      "紫色",
+      "黄色",
+      "蓝色"
+     ],
+     "answer": 0,
+     "hint": "紫皮茄子最常见",
+     "explanation": "正确答案是「紫色」。紫皮茄子最常见",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ],
+   "updatedAt": 1794727135659,
+   "createdAt": 1794727135659
+  },
+  {
+   "id": "ls_dae431c4",
+   "videoId": "BV1Mfx86vEbY",
+   "topic": "认识动物：住在哪里",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "小鱼生活在哪里？（🐟）",
+     "spokenPrompt": "小鱼生活在哪里？",
+     "options": [
+      "树上",
+      "水里",
+      "沙子里"
+     ],
+     "answer": 1,
+     "hint": "看看它的鳍和尾巴，它得在什么东西里面才能游",
+     "explanation": "答案是「水里」——鱼用鳃呼吸，一离开水就喘不上气。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "哪个动物有长长的鼻子？（🐘）",
+     "spokenPrompt": "哪个动物有长长的鼻子？",
+     "options": [
+      "小鸟",
+      "小猫",
+      "大象"
+     ],
+     "answer": 2,
+     "hint": "它洗澡不用盆，把水吸进鼻子里往身上喷",
+     "explanation": "答案是「大象」——大象的长鼻子能卷东西，还能当淋浴头。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "小鸟的窝一般搭在哪里？",
+     "spokenPrompt": "小鸟的窝一般搭在哪里？",
+     "options": [
+      "树枝上",
+      "水底下",
+      "石头缝里"
+     ],
+     "answer": 0,
+     "hint": "抬头看看，它们的家离天空更近一点",
+     "explanation": "答案是「树枝上」——窝在高处，猫爬不上去，蛋才安全。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "蜜蜂采花蜜是为了做什么？（🐝）",
+     "spokenPrompt": "蜜蜂采花蜜是为了做什么？",
+     "options": [
+      "织毛衣",
+      "挖地洞",
+      "做蜂蜜"
+     ],
+     "answer": 2,
+     "hint": "早餐涂在面包上甜甜的那个东西",
+     "explanation": "答案是「做蜂蜜」——花蜜被蜜蜂加工后，就变成罐子里的蜂蜜。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_b5ff5a10",
+   "videoId": "BV15t42187wi",
+   "topic": "海洋动物：海底朋友",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "虎鲸生活在哪里？（🐳）",
+     "spokenPrompt": "虎鲸生活在哪里？",
+     "options": [
+      "森林里",
+      "沙漠里",
+      "大海里"
+     ],
+     "answer": 2,
+     "hint": "它背上有个喷水孔，身体又大又滑",
+     "explanation": "答案是「大海里」——虎鲸是海里的大家伙，靠游动找鱼吃。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "鲨鱼在水里靠什么呼吸？",
+     "spokenPrompt": "鲨鱼在水里靠什么呼吸？",
+     "options": [
+      "用鳃",
+      "用耳朵",
+      "用翅膀"
+     ],
+     "answer": 0,
+     "hint": "鱼身体两侧有一道一道的小口子",
+     "explanation": "答案是「用鳃」——水从鳃里流过去，鲨鱼就把水里的空气吸走了。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "鲸鱼游到水面是为了什么？（💨）",
+     "spokenPrompt": "鲸鱼游到水面是为了什么？",
+     "options": [
+      "找树叶吃",
+      "换一口气",
+      "晒干身体"
+     ],
+     "answer": 1,
+     "hint": "它头上会喷出一股白白的水柱",
+     "explanation": "答案是「换一口气」——鲸鱼在水下憋着气，得浮上来再吸满。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "下面哪个是住在海里的动物？",
+     "spokenPrompt": "下面哪个是住在海里的动物？",
+     "options": [
+      "老虎",
+      "骆驼",
+      "海豚"
+     ],
+     "answer": 2,
+     "hint": "它会跳出水面，还爱跟着船一起游",
+     "explanation": "答案是「海豚」——海豚一辈子泡在海水里，老虎和骆驼都住陆地上。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_3584298f",
+   "videoId": "BV1YTVgzvEbw",
+   "topic": "洗手习惯：什么时候洗",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "吃饭前应该先做什么？",
+     "spokenPrompt": "吃饭前应该先做什么？",
+     "options": [
+      "看电视",
+      "洗手",
+      "睡觉"
+     ],
+     "answer": 1,
+     "hint": "手上的东西会跟着饭一起进肚子",
+     "explanation": "答案是「洗手」——手摸过玩具再拿馒头，脏东西就一起吃下去了。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "上完厕所第一件事是什么？",
+     "spokenPrompt": "上完厕所第一件事是什么？",
+     "options": [
+      "洗洗手",
+      "吃零食",
+      "跑出去玩"
+     ],
+     "answer": 0,
+     "hint": "这件事要在水龙头前面做",
+     "explanation": "答案是「洗洗手」——厕所里细菌多，先冲干净再去做别的。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "洗手时用什么才洗得干净？（🧼）",
+     "spokenPrompt": "洗手时用什么才洗得干净？",
+     "options": [
+      "肥皂加流水",
+      "干毛巾擦",
+      "清水冲一下"
+     ],
+     "answer": 0,
+     "hint": "光用水冲，油和脏印子还在手上",
+     "explanation": "答案是「肥皂加流水」——肥皂把脏东西泡松，水一冲就带走了。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "洗手要搓多久才算够？",
+     "spokenPrompt": "洗手要搓多久才算够？",
+     "options": [
+      "数到三",
+      "眨一下眼",
+      "唱两遍生日歌"
+     ],
+     "answer": 2,
+     "hint": "唱得慢一点，一首歌要唱完两遍",
+     "explanation": "答案是「唱两遍生日歌」——差不多二十秒，细菌才被搓掉。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_226ff274",
+   "videoId": "BV181421B7Qd",
+   "topic": "消防安全：着火怎么办",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "火警电话是多少？（📞）",
+     "spokenPrompt": "火警电话是多少？",
+     "options": [
+      "110",
+      "120",
+      "119"
+     ],
+     "answer": 2,
+     "hint": "三个数字里有两个一样的，开头和结尾都是它",
+     "explanation": "答案是「119」——记住这三个数，着火了马上打给消防员。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "楼里着火了，该怎么下楼？",
+     "spokenPrompt": "楼里着火了，该怎么下楼？",
+     "options": [
+      "坐电梯",
+      "走安全出口的楼梯",
+      "从窗户跳下去"
+     ],
+     "answer": 1,
+     "hint": "着火时电梯可能停电，把人关在里面",
+     "explanation": "答案是「走安全出口的楼梯」——绿灯牌指的路最安全，电梯千万不能坐。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "小朋友可以玩打火机吗？",
+     "spokenPrompt": "小朋友可以玩打火机吗？",
+     "options": [
+      "不可以，很危险",
+      "可以，很好玩",
+      "大人不在就可以"
+     ],
+     "answer": 0,
+     "hint": "一点小火苗，几秒钟就能烧到窗帘",
+     "explanation": "答案是「不可以，很危险」——打火机不是玩具，小孩子碰都不该碰。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "身上的衣服着火了怎么办？",
+     "spokenPrompt": "身上的衣服着火了怎么办？",
+     "options": [
+      "跑起来让风吹灭",
+      "躺下打滚压灭火",
+      "躲进柜子里"
+     ],
+     "answer": 1,
+     "hint": "跑得越快，火苗烧得越旺",
+     "explanation": "答案是「躺下打滚压灭火」——躺下来滚一滚，把空气挡住火就灭了。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_80680cab",
+   "videoId": "BV134411x7Uy",
+   "topic": "正确洗手：洗得干净",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "洗手的第一步是什么？",
+     "spokenPrompt": "洗手的第一步是什么？",
+     "options": [
+      "抹上肥皂",
+      "把手淋湿",
+      "擦干手"
+     ],
+     "answer": 1,
+     "hint": "先让手上全是水，肥皂才起泡泡",
+     "explanation": "答案是「把手淋湿」——手是干的，肥皂搓不出泡，也带不走脏东西。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "洗完手以后该做什么？（🧻）",
+     "spokenPrompt": "洗完手以后该做什么？",
+     "options": [
+      "用干净毛巾擦干",
+      "甩甩手就走",
+      "在衣服上蹭一蹭"
+     ],
+     "answer": 0,
+     "hint": "湿手最容易沾上新的灰尘",
+     "explanation": "答案是「用干净毛巾擦干」——手擦干了，细菌才不容易再粘上去。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "手指缝里的脏东西怎么洗掉？",
+     "spokenPrompt": "手指缝里的脏东西怎么洗掉？",
+     "options": [
+      "不用管它",
+      "用嘴吹一吹",
+      "两只手搓手指缝"
+     ],
+     "answer": 2,
+     "hint": "两只手要十指交叉，来回蹭一蹭",
+     "explanation": "答案是「两只手搓手指缝」——指缝最容易被漏掉，交叉搓才洗得到。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "为什么一定要把手洗干净？",
+     "spokenPrompt": "为什么一定要把手洗干净？",
+     "options": [
+      "因为手会变白",
+      "不让病菌进肚子",
+      "因为水很好玩"
+     ],
+     "answer": 1,
+     "hint": "手会拿东西吃，脏东西也跟着进嘴",
+     "explanation": "答案是「不让病菌进肚子」——洗干净手，肚子就不容易疼。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_96e414c5",
+   "videoId": "BV1kGxk6sEDT",
+   "topic": "认识形状：圆和方",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "哪个是圆形？（⭕）",
+     "spokenPrompt": "哪个是圆形？",
+     "options": [
+      "方方的书",
+      "圆圆的钟",
+      "尖尖的角"
+     ],
+     "answer": 1,
+     "hint": "看看哪个的边是弯弯的",
+     "explanation": "答案是「圆圆的钟」——钟面找不到一个尖角，就是圆形。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "三角形有几条边？（🔺）",
+     "spokenPrompt": "三角形有几条边？",
+     "options": [
+      "三条边",
+      "四条边",
+      "六条边"
+     ],
+     "answer": 0,
+     "hint": "从一个角出发，绕着数一圈",
+     "explanation": "答案是「三条边」，因为三角形有三只尖角，边也正好三条。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "车轮是什么形状？",
+     "spokenPrompt": "车轮是什么形状？",
+     "options": [
+      "方形",
+      "三角",
+      "圆形"
+     ],
+     "answer": 2,
+     "hint": "轮子要能一直往前滚",
+     "explanation": "答案是「圆形」。圆轮子每一个方向都一样宽，推着就能滚。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "哪个东西像三角形？",
+     "spokenPrompt": "哪个东西像三角形？",
+     "options": [
+      "皮球",
+      "三角尺",
+      "圆盘子"
+     ],
+     "answer": 1,
+     "hint": "找一找哪样东西有三个角",
+     "explanation": "答案是「三角尺」——它三条直边、三个尖角，名字里就带三角。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_bfa09eeb",
+   "videoId": "BV1mf4y1g7X2",
+   "topic": "形状歌：认识各种形状",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "哪个形状没有角？（⭕）",
+     "spokenPrompt": "哪个形状没有角？",
+     "options": [
+      "圆形",
+      "正方形",
+      "三角形"
+     ],
+     "answer": 0,
+     "hint": "用手指沿着边轻轻摸一圈",
+     "explanation": "对啦，就是「圆形」，它是一整条弯弯的线，摸不到尖角。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "正方形的四条边一样长吗？",
+     "spokenPrompt": "正方形的四条边一样长吗？",
+     "options": [
+      "只有两条一样长",
+      "四条一样长",
+      "每条都不一样"
+     ],
+     "answer": 1,
+     "hint": "把正方形转个方向再看看",
+     "explanation": "答案是「四条一样长」，正方形不光边一样，四个角也一样大。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "星星是什么形状？（⭐）",
+     "spokenPrompt": "星星是什么形状？",
+     "options": [
+      "三角形的",
+      "圆形的",
+      "五角星的"
+     ],
+     "answer": 2,
+     "hint": "抬头看看晚上天上的亮点",
+     "explanation": "答案是「五角星的」——一个星星有五个尖尖的角。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "哪样东西有正方形？",
+     "spokenPrompt": "哪样东西有正方形？",
+     "options": [
+      "硬币",
+      "魔方的一面",
+      "太阳"
+     ],
+     "answer": 1,
+     "hint": "找一找哪边是四条直直的边",
+     "explanation": "答案是「魔方的一面」。魔方每一面都是四条边一样长的正方形。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_6ce67f49",
+   "videoId": "BV1FG411u7ag",
+   "topic": "认识立体图形：球和正方体",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "球和画在纸上的圆，一样吗？",
+     "spokenPrompt": "球和画在纸上的圆，一样吗？",
+     "options": [
+      "球能滚，圆是平的",
+      "完全一样",
+      "球有尖角"
+     ],
+     "answer": 0,
+     "hint": "用手摸一摸，一个鼓鼓的",
+     "explanation": "答案是「球能滚，圆是平的」——球鼓鼓的是立体的，圆只是纸上的一条线。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "正方体有几个面？（🎲）",
+     "spokenPrompt": "正方体有几个面？",
+     "options": [
+      "四个面",
+      "六个面",
+      "八个面"
+     ],
+     "answer": 1,
+     "hint": "像骰子一样，一面对着数过去",
+     "explanation": "答案是「六个面」，骰子就是正方体，上下前后左右各一面。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "哪个东西像圆柱？（🥫）",
+     "spokenPrompt": "哪个东西像圆柱？",
+     "options": [
+      "皮球",
+      "积木块",
+      "易拉罐"
+     ],
+     "answer": 2,
+     "hint": "找找上下一样粗的那个",
+     "explanation": "答案是「易拉罐」——它上面下面都是圆，中间直直的一圈。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "足球是什么形状？",
+     "spokenPrompt": "足球是什么形状？",
+     "options": [
+      "球",
+      "正方体",
+      "长方体"
+     ],
+     "answer": 0,
+     "hint": "想想它能不能朝着哪边都滚",
+     "explanation": "答案是「球」，足球圆滚滚的，往哪个方向推都能滚走。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_eac12259",
+   "videoId": "BV1VG411V78o",
+   "topic": "颜色英语：红黄蓝绿",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "red 是什么颜色？（🍎）",
+     "spokenPrompt": "red 是什么颜色？",
+     "options": [
+      "红色",
+      "蓝色",
+      "黄色"
+     ],
+     "answer": 0,
+     "hint": "熟透的苹果就是这个颜色",
+     "explanation": "答案是「红色」，苹果红红的，英语就说 red。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "blue 是什么颜色？（🌊）",
+     "spokenPrompt": "blue 是什么颜色？",
+     "options": [
+      "绿色",
+      "蓝色",
+      "红色"
+     ],
+     "answer": 1,
+     "hint": "抬头看看晴朗的天空",
+     "explanation": "答案是「蓝色」——晴天的天空和大海都是 blue。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "yellow 是哪个颜色？",
+     "spokenPrompt": "yellow 是哪个颜色？",
+     "options": [
+      "红色",
+      "绿色",
+      "黄色"
+     ],
+     "answer": 2,
+     "hint": "香蕉放熟了就会变成它",
+     "explanation": "答案是「黄色」，香蕉和太阳都是 yellow。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "green 是什么颜色？",
+     "spokenPrompt": "green 是什么颜色？",
+     "options": [
+      "蓝色",
+      "绿色",
+      "紫色"
+     ],
+     "answer": 1,
+     "hint": "小草和树叶都是这个颜色",
+     "explanation": "答案是「绿色」——树叶绿绿的，英语里叫 green。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_532faaa4",
+   "videoId": "BV17z4w6BE9z",
+   "topic": "寓言里的聪明办法",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "「笨狼」这个名字说明它什么？（🐺）",
+     "spokenPrompt": "笨狼这个名字说明它什么？",
+     "options": [
+      "力气特别大",
+      "脑子不太好使",
+      "跑得特别快"
+     ],
+     "answer": 1,
+     "hint": "名字里那个字在偷偷提示你",
+     "explanation": "答案是「脑子不太好使」——名字里带个「笨」，说的就是不够聪明。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "小鸭子个头小，遇到危险怎么办？",
+     "spokenPrompt": "小鸭子个头小，遇到危险怎么办？",
+     "options": [
+      "和狼比力气",
+      "站着不动弹",
+      "动脑筋想办法"
+     ],
+     "answer": 2,
+     "hint": "个头小的时候，靠什么最管用",
+     "explanation": "答案是「动脑筋想办法」，因为力气比不过，就得用脑子。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "这个故事想告诉小朋友什么道理？",
+     "spokenPrompt": "这个故事想告诉小朋友什么道理？",
+     "options": [
+      "力气大最厉害",
+      "遇到麻烦先想办法",
+      "小动物别出门"
+     ],
+     "answer": 1,
+     "hint": "听完故事，想想它想教你什么",
+     "explanation": "答案是「遇到麻烦先想办法」，故事讲的就是弱小也能靠智慧赢。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "「笨」的反义词是哪个词？",
+     "spokenPrompt": "笨的反义词是哪个词？",
+     "options": [
+      "聪明",
+      "勇敢",
+      "安静"
+     ],
+     "answer": 0,
+     "hint": "找和「笨」意思正相反的那个",
+     "explanation": "答案是「聪明」，它和「笨」正好是相反的意思。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_02b6fa8c",
+   "videoId": "BV1tG4y137aR",
+   "topic": "刷牙和蛀牙的秘密",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "哈克和迪克是什么东西？（🦠）",
+     "spokenPrompt": "哈克和迪克是什么东西？",
+     "options": [
+      "牙细菌",
+      "小牙刷",
+      "水果糖"
+     ],
+     "answer": 0,
+     "hint": "它们就住在牙齿大街上",
+     "explanation": "答案是「牙细菌」——哈克和迪克专门在牙齿上捣乱。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "什么东西吃多了容易长蛀牙？",
+     "spokenPrompt": "什么东西吃多了容易长蛀牙？",
+     "options": [
+      "胡萝卜",
+      "甜糖果",
+      "白开水"
+     ],
+     "answer": 1,
+     "hint": "哪种零食黏黏的、甜甜的",
+     "explanation": "答案是「甜糖果」，糖黏在牙上，细菌最爱吃。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "小朋友每天应该刷几次牙？",
+     "spokenPrompt": "小朋友每天应该刷几次牙？",
+     "options": [
+      "三天刷一次",
+      "吃完糖不用刷",
+      "早晚各一次"
+     ],
+     "answer": 2,
+     "hint": "想想起床以后和睡觉以前",
+     "explanation": "答案是「早晚各一次」，早上和睡前都要把牙刷干净。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "牙齿被蛀出洞会怎么样？（😣）",
+     "spokenPrompt": "牙齿被蛀出洞会怎么样？",
+     "options": [
+      "会疼还咬不动",
+      "会变得更白",
+      "能长出新牙"
+     ],
+     "answer": 0,
+     "hint": "牙疼过的小朋友都知道",
+     "explanation": "答案是「会疼还咬不动」，牙上有了洞，吃冷吃甜都难受。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_15556ca0",
+   "videoId": "BV1FFTN6PEX2",
+   "topic": "认识情绪的颜色",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "书里生气是什么颜色？（😡）",
+     "spokenPrompt": "书里生气是什么颜色？",
+     "options": [
+      "红色",
+      "蓝色",
+      "绿色"
+     ],
+     "answer": 0,
+     "hint": "想想火和辣椒的样子",
+     "explanation": "答案是「红色」——书里那团红色一冒出来，就是生气了。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "难过的时候可以怎么办？",
+     "spokenPrompt": "难过的时候可以怎么办？",
+     "options": [
+      "憋在心里不说",
+      "找爸爸妈妈抱一抱",
+      "对别人发脾气"
+     ],
+     "answer": 1,
+     "hint": "憋着和说出来，哪个更舒服",
+     "explanation": "答案是「找爸爸妈妈抱一抱」，难过说出来，心里就轻一点。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "开心的时候像什么颜色？",
+     "spokenPrompt": "开心的时候像什么颜色？",
+     "options": [
+      "黑色",
+      "灰色",
+      "明亮的黄色"
+     ],
+     "answer": 2,
+     "hint": "太阳出来时，天空是什么感觉",
+     "explanation": "答案是「明亮的黄色」，快乐的时候整个人像小太阳。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "每个人都会有各种情绪，对吗？",
+     "spokenPrompt": "每个人都会有各种情绪，对吗？",
+     "options": [
+      "不对，只能开心",
+      "对，这很正常",
+      "只有大人才有"
+     ],
+     "answer": 1,
+     "hint": "数数你今天变了几次心情",
+     "explanation": "答案是「对，这很正常」，一天里心情变来变去也没关系。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  },
+  {
+   "id": "ls_64c0922b",
+   "videoId": "BV1WoWa6oEr3",
+   "topic": "成语故事：自相矛盾",
+   "questions": [
+    {
+     "id": "q1",
+     "prompt": "「自相矛盾」是什么意思？",
+     "spokenPrompt": "自相矛盾是什么意思？",
+     "options": [
+      "说话前后打架",
+      "力气特别大",
+      "做生意很快"
+     ],
+     "answer": 0,
+     "hint": "把两个说法摆在一起比一比",
+     "explanation": "答案是「说话前后打架」，前一句和后一句对不上，就叫自相矛盾。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q2",
+     "prompt": "他说他的盾谁也戳不破，他的矛呢？",
+     "spokenPrompt": "他说他的盾谁也戳不破，他的矛呢？",
+     "options": [
+      "连石头都戳不穿",
+      "什么都能戳穿",
+      "只能戳破布"
+     ],
+     "answer": 1,
+     "hint": "他的两句话凑到一起会怎样",
+     "explanation": "答案是「什么都能戳穿」——矛什么都戳得穿，盾又谁都戳不破。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q3",
+     "prompt": "「矛」和「盾」各是做什么的？",
+     "spokenPrompt": "矛和盾各是做什么的？",
+     "options": [
+      "矛刺人，盾挡人",
+      "两个都是衣服",
+      "两个都是食物"
+     ],
+     "answer": 0,
+     "hint": "一个往前刺，一个往后挡",
+     "explanation": "答案是「矛刺人，盾挡人」，一个用来进攻，一个用来拦住。",
+     "difficulty": 1,
+     "variant": 1,
+     "mode": "choice"
+    },
+    {
+     "id": "q4",
+     "prompt": "说话前后打架，别人会怎么想？",
+     "spokenPrompt": "说话前后打架，别人会怎么想？",
+     "options": [
+      "大家会更信你",
+      "话会更有力",
+      "别人就不信你"
+     ],
+     "answer": 2,
+     "hint": "被自己拆穿的话，还站得住吗",
+     "explanation": "答案是「别人就不信你」，话被自己拆穿，谁还敢当真。",
+     "difficulty": 2,
+     "variant": 1,
+     "mode": "choice"
+    }
+   ]
+  }
+ ]
+}

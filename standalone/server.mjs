@@ -11,6 +11,7 @@ import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import { dirname, extname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { emptyPlan, mondayOf, normalizePlan } from '../src/plan.js'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(HERE, '..')
@@ -35,6 +36,55 @@ const ctx = {
 const store = new Store()
 const routes = new Routes(ctx, store)
 await store.ensure()
+
+const SEED_FILE = join(HERE, 'seed', 'demo-library.json')
+
+/**
+ * 空数据目录第一次启动时铺上演示片库 —— 双击打开就是满的，不是四个 0。
+ * 只在片库为空时触发；BILI_LESSON_SEED=force 可强制重铺（覆盖片库与课卡，不动记录和奖励）。
+ */
+async function seedLibrary() {
+  const force = process.env.BILI_LESSON_SEED === 'force'
+  const current = await store.read('videos')
+  if (!force && current && Object.keys(current).length) return
+
+  let pack
+  try {
+    pack = JSON.parse(await readFile(SEED_FILE, 'utf8'))
+  } catch {
+    return // 没有 seed 就照常空着起，不影响使用
+  }
+
+  const perDay = Math.max(1, Math.min(6, Number(pack.perDay) || 1))
+  await store.write('videos', pack.videos)
+  await store.write('lessons', pack.lessons)
+  const settings = await store.read('settings')
+  await store.write('settings', { ...settings, perDay })
+
+  // 四周主题各排一周：本周起连续四个周一，每天一条，播完正好一个月。
+  const week0 = mondayOf(new Date().toISOString().slice(0, 10))
+  await store.update('plans', plans => {
+    const next = { ...(plans || {}) }
+    pack.themes.forEach((theme, index) => {
+      const at = new Date(new Date(week0 + 'T00:00:00Z').getTime() + index * 7 * 86400000)
+      const weekStart = at.toISOString().slice(0, 10)
+      const plan = emptyPlan(weekStart, perDay)
+      const ids = (theme.videoIds || []).filter(id => pack.videos[id])
+      plan.days.forEach((day, i) => {
+        if (ids[i]) day.videoIds.push(ids[i])
+      })
+      next[weekStart] = normalizePlan(plan, perDay)
+    })
+    return next
+  })
+
+  console.log('')
+  console.log('  已载入演示片库：' + Object.keys(pack.videos).length + ' 条片子，'
+    + Object.keys(pack.lessons).length + ' 套课卡，' + pack.themes.length + ' 周已排（从 ' + week0 + ' 起）')
+  pack.themes.forEach(theme => console.log('    · ' + theme.name))
+}
+
+await seedLibrary()
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
