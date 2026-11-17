@@ -1,6 +1,6 @@
 {
   "name": "dsh-bili-lesson",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "星火课堂：DSH 桌面端插件 —— 家长挑片、按周排课、孩子看完打勾、课卡判分、错题回炉、盲盒与勋章，附带家长锁。",
   "license": "MIT",
   "keywords": ["dsh", "dsh-plugin", "bilibili", "kids", "education"],
@@ -19,7 +19,8 @@
     "icon.svg",
     "LICENSE",
     "README.md",
-    "README.en.md"
+    "README.en.md",
+    "assets/**"
   ],
   "scripts": {
     "check": "node --check index.js && node --check client.js && node --check src/store.js && node --check src/bili.js && node --check src/plan.js && node --check src/lesson.js && node --check src/routes.js && node --check src/rewards.js && node --check src/contentpack.js && node --check src/draft.js && node --check src/growth.js && node --check src/parent.js",

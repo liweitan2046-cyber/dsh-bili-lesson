@@ -28,6 +28,14 @@ It is not a recommendation algorithm — the parent chooses every clip and has t
 | Card workshop | One quiz card per video, 3–8 questions each |
 | Bridge settings | Clips per day / default age / weekly box cap; the 54-item prize pool with stock and weights; medal thresholds; **parent-lock PIN**; content pack export/import; replay onboarding |
 
+### New in 0.9.1 (light children's-education theme)
+
+- **Light theme across every page**: white cards, pale-blue dividers, solid blue current nav item with a "current" pill; star map, timeline, growth poster and empty states all brightened to match the parent's reference design, with deep ink-blue text kept for contrast.
+- **The 20 illustrations are actually wired in** (`assets/art/`): monster states, today-island hero, teacher portrait, 8 planet badges, blind-box rarity backdrops, empty states, poster background, onboarding banner. Assets are downscaled to display size — the bundle drops from 23 MB to about 7 MB.
+- **Teacher stage**: light canvas with a radial fade, so the old dark square is gone; mouth animation and self-rotation are unchanged.
+- **Medal wall**: fixed stretched glyphs, overlapping progress numbers and clipped second row; locked medals now use a pale-blue shield with a muted glyph.
+- To swap art: [`docs/ART-GENERATION-BRIEF.md`](./docs/ART-GENERATION-BRIEF.md) carries all 20 prompts, sizes and negatives — overwrite `assets/art/` with the same filenames.
+
 ### New in 0.9.0 (self-sustaining content → growth story → parent action → distribution)
 
 - **Self-sustaining content**: in Card Workshop, "Draft from title" builds 3–8 questions from local rules plus public Bilibili metadata (no key, no API settings page) for the parent to edit; Settings → Basics → "Content pack" exports/imports the library and cards as JSON (scrubbed, dead clips never revived).

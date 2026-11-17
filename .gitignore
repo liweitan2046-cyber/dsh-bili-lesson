@@ -5,3 +5,13 @@ assets/deck-bg-raw.png
 standalone/.tmp-*/
 .v*.css
 dist/
+
+# 本地视觉调试工作区（不入库）
+_uat/
+_ref/
+_cmpsync.mjs
+_crop.py
+_pal.py
+_pal2.py
+_pal3.py
+client.dark.bak.js

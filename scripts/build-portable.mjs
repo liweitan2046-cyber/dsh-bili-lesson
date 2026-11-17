@@ -6,7 +6,7 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(SCRIPT_DIR, '..')
 const OUT = join(ROOT, 'dist', 'portable', 'xinghuo-lesson-portable-win-x64')
 
-const DIRECTORIES = ['standalone', 'src']
+const DIRECTORIES = ['standalone', 'src', 'assets']
 const FILES = ['package.json', 'index.js', 'icon.svg', 'LICENSE', 'README.md', 'client.js']
 
 console.log('构建便携绿色包：' + OUT)
@@ -67,7 +67,7 @@ const readme = [
 ].join('\r\n')
 writeFileSync(join(OUT, 'README-PORTABLE.txt'), readme, { encoding: 'utf8' })
 
-const required = ['node.exe', 'start-portable.bat', 'README-PORTABLE.txt', 'standalone/server.mjs', 'src/store.js', 'client.js']
+const required = ['node.exe', 'start-portable.bat', 'README-PORTABLE.txt', 'standalone/server.mjs', 'src/store.js', 'client.js', 'assets/art/island-hero.png']
 for (const file of required) {
   const target = join(OUT, file)
   if (!existsSync(target)) {

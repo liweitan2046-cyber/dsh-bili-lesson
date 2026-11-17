@@ -31,7 +31,29 @@ import { buildParentBrief, normalizeParentRules } from './parent.js'
 export const PREFIX = '/bili-lesson'
 const MAX_JSON = 1_000_000
 const ASSET_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
-const ASSETS = { 'deck-bg.jpg': 'image/jpeg' }
+const ASSETS = {
+  'deck-bg.jpg': 'image/jpeg',
+  'monster-hp2.png': 'image/png',
+  'monster-hp1.png': 'image/png',
+  'monster-hp0.png': 'image/png',
+  'island-hero.png': 'image/png',
+  'teacher-portrait.png': 'image/png',
+  'poster-bg.png': 'image/png',
+  'onboarding-welcome.png': 'image/png',
+  'empty-healed.png': 'image/png',
+  'empty-content.png': 'image/png',
+  'rarity-common.png': 'image/png',
+  'rarity-rare.png': 'image/png',
+  'rarity-epic.png': 'image/png',
+  'star-1.png': 'image/png',
+  'star-2.png': 'image/png',
+  'star-3.png': 'image/png',
+  'star-4.png': 'image/png',
+  'star-5.png': 'image/png',
+  'star-6.png': 'image/png',
+  'star-7.png': 'image/png',
+  'star-8.png': 'image/png',
+}
 
 /** 学习闭环新增的两个数据文件，沿用 Store 的 tmp + rename 与串行写。 */
 const LEDGER_FILES = { attempts: 'attempts.json', rewards: 'rewards.json', honors: 'honors.json', mistakes: 'mistakes.json' }
@@ -482,7 +504,8 @@ export class Routes {
       if (method !== 'GET') return json(res, 405, { error: '资源只支持 GET' })
       const type = ASSETS[tail]
       if (!type) return json(res, 404, { error: '没有这个资源' })
-      const buf = await readFile(join(ASSET_DIR, tail))
+      const dir = tail === 'deck-bg.jpg' ? ASSET_DIR : join(ASSET_DIR, 'art')
+      const buf = await readFile(join(dir, tail))
       res.statusCode = 200
       res.setHeader('content-type', type)
       res.setHeader('cache-control', 'public, max-age=86400')
