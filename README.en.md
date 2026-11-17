@@ -28,6 +28,11 @@ It is not a recommendation algorithm — the parent chooses every clip and has t
 | Card workshop | One quiz card per video, 3–8 questions each |
 | Bridge settings | Clips per day / default age / weekly box cap; the 54-item prize pool with stock and weights; medal thresholds; **parent-lock PIN**; content pack export/import; replay onboarding |
 
+### New in 0.9.3 (round avatar frame for the teacher)
+
+- The teacher portrait now sits in a **circular avatar frame** (white ring, soft blue outer stroke, gentle drop shadow), so the artwork's dark background reads as portrait depth instead of a navy block on a light card.
+- Horizontal squeeze during the drag-to-turn animation is reduced from 0.5–1.0 to 0.84–1.0 with a larger draw size, so no angle exposes the colour outside the circle; the speaking glow now stays inside the circle.
+
 ### New in 0.9.2 (asset size)
 
 - All 20 illustrations are now **WebP** (quality 88, alpha preserved): `assets/art` drops from 7.0MB to 0.64MB and the delivery zip from 9.4MB to 1.9MB.

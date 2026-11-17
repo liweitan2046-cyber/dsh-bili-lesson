@@ -283,23 +283,26 @@ window.__ModuleLoader__.load({
           const cy = cssH / 2 + bob - speak * 1.6
           const art = teacherArtImage()
           if (art && art.complete && art.naturalWidth > 0 && typeof ctx.drawImage === 'function') {
-            if (speaking) {
-              const glow = ctx.createRadialGradient(cx, cy - 8 * scale, 6 * scale, cx, cy - 8 * scale, 66 * scale)
-              glow.addColorStop(0, 'rgba(124,214,255,' + (0.18 + speak * 0.2).toFixed(3) + ')')
-              glow.addColorStop(1, 'rgba(124,214,255,0)')
-              ctx.fillStyle = glow
-              ctx.beginPath()
-              ctx.arc(cx, cy - 8 * scale, 66 * scale, 0, Math.PI * 2)
-              ctx.fill()
-            }
-            const side = Math.max(cssW, cssH) * 1.04 * breath
+            // 圆形头像框：素材是不透明深底，圆形裁切把深底变成「相框」
+            const faceR = Math.min(cssW, cssH) * 0.46
+            const ringW = Math.max(3, Math.round(Math.min(cssW, cssH) * 0.026))
+            const side = Math.max(cssW, cssH) * 1.32 * breath
             const cos = Math.cos(yaw)
-            const squeeze = 0.5 + 0.5 * Math.abs(cos)
+            const squeeze = 0.84 + 0.16 * Math.abs(cos)
             ctx.save()
             ctx.beginPath()
-            if (typeof ctx.roundRect === 'function') ctx.roundRect(0, 0, cssW, cssH, 10)
-            else ctx.rect(0, 0, cssW, cssH)
+            ctx.arc(cx, cy, faceR, 0, Math.PI * 2)
+            ctx.fillStyle = '#f7faff'
+            ctx.shadowColor = 'rgba(23,58,110,0.16)'
+            ctx.shadowBlur = 9 * scale
+            ctx.shadowOffsetY = 3 * scale
+            ctx.fill()
+            ctx.restore()
+            ctx.save()
+            ctx.beginPath()
+            ctx.arc(cx, cy, faceR, 0, Math.PI * 2)
             ctx.clip()
+            ctx.save()
             ctx.imageSmoothingEnabled = true
             ctx.imageSmoothingQuality = 'high'
             ctx.translate(cx, cy)
@@ -307,15 +310,32 @@ window.__ModuleLoader__.load({
             ctx.scale(cos < 0 ? -1 : 1, 1)
             ctx.drawImage(art, -side * squeeze / 2, -side / 2, side * squeeze, side)
             ctx.restore()
-            // 老师原图自带深色底，用径向淡出把四角融进浅色卡片，只留人物周围的柔和暗晕
-            const vignette = ctx.createRadialGradient(cx, cy - 4 * scale, Math.min(cssW, cssH) * 0.30, cx, cy - 4 * scale, Math.min(cssW, cssH) * 0.53)
-            vignette.addColorStop(0, 'rgba(0,0,0,0)')
-            vignette.addColorStop(0.62, 'rgba(0,0,0,0.35)')
-            vignette.addColorStop(1, 'rgba(0,0,0,1)')
+            if (speaking) {
+              const glow = ctx.createRadialGradient(cx, cy - 14 * scale, 4 * scale, cx, cy - 14 * scale, faceR * 1.1)
+              glow.addColorStop(0, 'rgba(124,214,255,' + (0.16 + speak * 0.22).toFixed(3) + ')')
+              glow.addColorStop(1, 'rgba(124,214,255,0)')
+              ctx.fillStyle = glow
+              ctx.beginPath()
+              ctx.arc(cx, cy, faceR, 0, Math.PI * 2)
+              ctx.fill()
+            }
+            const lift = ctx.createLinearGradient(0, cy + faceR * 0.1, 0, cy + faceR)
+            lift.addColorStop(0, 'rgba(247,250,255,0)')
+            lift.addColorStop(1, 'rgba(247,250,255,0.5)')
+            ctx.fillStyle = lift
+            ctx.fillRect(cx - faceR, cy + faceR * 0.1, faceR * 2, faceR)
+            ctx.restore()
             ctx.save()
-            ctx.globalCompositeOperation = 'destination-out'
-            ctx.fillStyle = vignette
-            ctx.fillRect(0, 0, cssW, cssH)
+            ctx.beginPath()
+            ctx.arc(cx, cy, faceR, 0, Math.PI * 2)
+            ctx.lineWidth = ringW
+            ctx.strokeStyle = '#ffffff'
+            ctx.stroke()
+            ctx.beginPath()
+            ctx.arc(cx, cy, faceR + ringW / 2 + 0.5, 0, Math.PI * 2)
+            ctx.lineWidth = 1
+            ctx.strokeStyle = 'rgba(147,162,182,0.55)'
+            ctx.stroke()
             ctx.restore()
           }
           timeRef.current = ts
