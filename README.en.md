@@ -28,6 +28,12 @@ It is not a recommendation algorithm — the parent chooses every clip and has t
 | Card workshop | One quiz card per video, 3–8 questions each |
 | Bridge settings | Clips per day / default age / weekly box cap; the 54-item prize pool with stock and weights; medal thresholds; **parent-lock PIN**; content pack export/import; replay onboarding |
 
+### New in 0.9.2 (asset size)
+
+- All 20 illustrations are now **WebP** (quality 88, alpha preserved): `assets/art` drops from 7.0MB to 0.64MB and the delivery zip from 9.4MB to 1.9MB.
+- Visually indistinguishable: same-viewport page-by-page comparison gives byte-identical mistakes/rewards screenshots and <=0.04% differing pixels on home/island.
+- Asset URLs are now `/bili-lesson/assets/*.webp` (old `.png` returns 404); the portable bundle ships the WebP set.
+
 ### New in 0.9.1 (light children's-education theme)
 
 - **Light theme across every page**: white cards, pale-blue dividers, solid blue current nav item with a "current" pill; star map, timeline, growth poster and empty states all brightened to match the parent's reference design, with deep ink-blue text kept for contrast.

@@ -163,6 +163,7 @@
 - 相对项目根写作 `assets/art/`，与现有成品背景 `assets/deck-bg.jpg` 同一层级。
 - 目录若不存在先建：`mkdir assets/art`（Windows: `mkdir assets\art`）。
 - 插件打包时 `assets/**` 随 bundle 一起发布；独立版静态服务直接暴露 `assets/`，图片放进该目录即可被前端按现有背景图的引用方式加载。
+- **入库格式是 WebP**：生成时按 PNG 交原图即可，入库前统一转 WebP（`PIL`：`im.convert("RGBA").save(out, "WEBP", quality=88, method=6)`），`assets/art/` 只保留 `.webp`；PNG 原图另存 `_uat/art-orig`（已 gitignore）。服务端白名单与前端引用都要写 `.webp`（`src/routes.js` 的 ASSETS、`client.js` 的 `STAR_ART` 等）。
 - 每张图的完整落盘路径见下表，文件名与提示词编号一一对应。
 
 ## 20 张完整路径清单

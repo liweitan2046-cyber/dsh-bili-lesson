@@ -231,7 +231,7 @@ window.__ModuleLoader__.load({
       }
     }
 
-    const teacherArtSrc = '/bili-lesson/assets/teacher-portrait.png'
+    const teacherArtSrc = '/bili-lesson/assets/teacher-portrait.webp'
     let teacherArt = null
     function teacherArtImage() {
       if (teacherArt) return teacherArt
@@ -747,9 +747,9 @@ background:linear-gradient(180deg,rgba(255,255,255,0.97),rgba(255,255,255,0.97))
 .bl-draw-card{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;border:1px solid rgba(53,216,255,.5);
 background:linear-gradient(100deg,rgba(53,216,255,.18),rgba(255,255,255,0.70),rgba(255,196,77,.12))!important;box-shadow:0 8px 22px rgba(255,255,255,0.51),inset 0 8px 22px rgba(255,255,255,0.42)}
 .bl-draw-card .bl-sticker-emoji{font-size:36px}
-.bl-draw-card.rarity-common{background-image:linear-gradient(100deg,rgba(255,255,255,0.95),rgba(255,255,255,0.96)),url('/bili-lesson/assets/rarity-common.png')!important;background-size:cover,cover!important;background-position:center,center!important}
-.bl-draw-card.rarity-rare{background-image:linear-gradient(100deg,rgba(255,255,255,0.95),rgba(255,255,255,0.96)),url('/bili-lesson/assets/rarity-rare.png')!important;background-size:cover,cover!important;background-position:center,center!important}
-.bl-draw-card.rarity-epic{background-image:linear-gradient(100deg,rgba(255,255,255,0.95),rgba(255,255,255,0.96)),url('/bili-lesson/assets/rarity-epic.png')!important;background-size:cover,cover!important;background-position:center,center!important}
+.bl-draw-card.rarity-common{background-image:linear-gradient(100deg,rgba(255,255,255,0.95),rgba(255,255,255,0.96)),url('/bili-lesson/assets/rarity-common.webp')!important;background-size:cover,cover!important;background-position:center,center!important}
+.bl-draw-card.rarity-rare{background-image:linear-gradient(100deg,rgba(255,255,255,0.95),rgba(255,255,255,0.96)),url('/bili-lesson/assets/rarity-rare.webp')!important;background-size:cover,cover!important;background-position:center,center!important}
+.bl-draw-card.rarity-epic{background-image:linear-gradient(100deg,rgba(255,255,255,0.95),rgba(255,255,255,0.96)),url('/bili-lesson/assets/rarity-epic.webp')!important;background-size:cover,cover!important;background-position:center,center!important}
 .bl-draw-text{display:flex;flex-direction:column;gap:2px;min-width:0}
 .bl-draws{display:flex;flex-direction:column;gap:4px}
 .bl-draw-row{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:6px;background:rgba(250,252,255,0.95)!important;border:1px solid var(--bl-line);font-size:11.5px;color:#3b4a5f}
@@ -1740,7 +1740,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
               h('span', { key: 'step', className: 'bl-hint' }, (onboardingStep + 1) + ' / ' + steps.length),
             ]),
             h('div', { key: 'body', className: 'bl-dialog-body bl-onboarding-body' }, [
-              onboardingStep === 0 ? h('img', { key: 'art', className: 'bl-onboarding-art', src: '/bili-lesson/assets/onboarding-welcome.png', alt: '' }) : null,
+              onboardingStep === 0 ? h('img', { key: 'art', className: 'bl-onboarding-art', src: '/bili-lesson/assets/onboarding-welcome.webp', alt: '' }) : null,
               h('div', { key: 'dots', className: 'bl-onboarding-dots' }, steps.map((label, i) => h('i', { key: label, className: 'bl-onboarding-dot' + (i === onboardingStep ? ' on' : '') + (i < onboardingStep ? ' done' : '') }))),
               ...content,
               onboardingError ? h('div', { key: 'err', className: 'bl-pin-err' }, onboardingError) : null,
@@ -1813,7 +1813,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
 
       const MONSTER_FACES = ['ò_ó', '>_<', 'x_x', '˘◡˘']
       const monsterFace = (hp) => MONSTER_FACES[Math.max(0, Math.min(MONSTER_FACES.length - 1, hp))]
-      const monsterArt = (hp) => '/bili-lesson/assets/' + (hp <= 0 ? 'monster-hp0.png' : hp <= 1 ? 'monster-hp1.png' : 'monster-hp2.png')
+      const monsterArt = (hp) => '/bili-lesson/assets/' + (hp <= 0 ? 'monster-hp0.webp' : hp <= 1 ? 'monster-hp1.webp' : 'monster-hp2.webp')
       const monsterColor = (hp) => hp <= 0 ? '#4fd8a6' : hp <= 1 ? '#ffd88a' : '#ff8b8b'
 
       function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -3220,7 +3220,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
         const mine = h('div', { key: 'mine', className: 'bl-panelx', style: { padding: '12px' } }, [
           weekVideos.length
             ? h('div', { key: 'g', className: 'bl-grid' }, weekVideos.map(renderCard))
-            : h('div', { key: 'empty', className: 'bl-empty-panel', style: { background: 'linear-gradient(180deg,rgba(255,255,255,.92),rgba(247,250,253,.96)),url(/bili-lesson/assets/empty-content.png) right center/contain no-repeat #ffffff', minHeight: '220px', color: '#3b4a5f' } }, '本周还没排片。去「本周航线」点一下自动排片，或者手动加两集。'),
+            : h('div', { key: 'empty', className: 'bl-empty-panel', style: { background: 'linear-gradient(180deg,rgba(255,255,255,.92),rgba(247,250,253,.96)),url(/bili-lesson/assets/empty-content.webp) right center/contain no-repeat #ffffff', minHeight: '220px', color: '#3b4a5f' } }, '本周还没排片。去「本周航线」点一下自动排片，或者手动加两集。'),
         ])
 
         const nextRows = todayIds.length
@@ -3603,7 +3603,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
         const narrative = Array.isArray(data.narrative) ? data.narrative : []
         const unlocked = Number(data.unlocked) || 0
         const totalStars = Number(data.total) || stars.length
-        const STAR_ART = { rocket: 'star-1.png', question: 'star-2.png', calendar: 'star-3.png', compass: 'star-4.png', medal: 'star-5.png', star: 'star-6.png', gem: 'star-7.png', spark: 'star-8.png' }
+        const STAR_ART = { rocket: 'star-1.webp', question: 'star-2.webp', calendar: 'star-3.webp', compass: 'star-4.webp', medal: 'star-5.webp', star: 'star-6.webp', gem: 'star-7.webp', spark: 'star-8.webp' }
         return h('div', { key: 'growth', className: 'bl-panel bl-growth' }, [
           h('div', { key: 'head', className: 'bl-panel-head' }, [
             h('b', { key: 't' }, '成长地图'),
@@ -3615,7 +3615,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
             ? h('div', { key: 'stars', className: 'bl-growth-stars' }, stars.map((star, i) => {
               const pct = Math.max(0, Math.min(100, Number(star.pct) || 0))
               return h('div', { key: star.id || i, className: 'bl-growth-star' + (star.unlocked ? ' on' : '') }, [
-                h('span', { key: 'icon', className: 'bl-growth-icon', style: { backgroundImage: 'url(/bili-lesson/assets/' + (STAR_ART[star.icon] || 'star-1.png') + ')' } }),
+                h('span', { key: 'icon', className: 'bl-growth-icon', style: { backgroundImage: 'url(/bili-lesson/assets/' + (STAR_ART[star.icon] || 'star-1.webp') + ')' } }),
                 h('b', { key: 'name', title: star.name || '' }, star.name || ('星球 ' + (i + 1))),
                 h('em', { key: 'sub', title: star.subtitle || '' }, star.subtitle || (star.metric ? (star.metric + ' ' + (Number(star.value) || 0) + '/' + (Number(star.target) || 0)) : '')),
                 h('div', { key: 'bar', className: 'bl-growth-bar' }, h('i', { style: { width: pct + '%' } })),
@@ -3720,7 +3720,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
             h('div', { key: 'world', className: 'bl-panel bl-island-world' }, [
               h('div', { key: 'head', className: 'bl-panel-head' }, [h('b', { key: 't' }, '今天的小岛'), h('div', { key: 'sp', className: 'bl-spacer' }), h('span', { key: 'c', className: 'bl-chip gold' }, done + ' / ' + fixed + ' 已点亮')]),
               h('div', { key: 'island', className: 'bl-island-svg' }, [
-                h('img', { key: 'art', className: 'bl-island-art', src: '/bili-lesson/assets/island-hero.png', alt: '' }),
+                h('img', { key: 'art', className: 'bl-island-art', src: '/bili-lesson/assets/island-hero.webp', alt: '' }),
                 h('svg', { key: 'svg', viewBox: '0 0 800 340', className: 'bl-island-overlay', 'aria-hidden': 'true' }, [
                   h('circle', { key: 'rocket', cx: rocketX, cy: rocketY, r: 13, fill: '#ffd88a', stroke: '#fff4d2', strokeWidth: 2 }),
                   h('text', { key: 'rt', x: rocketX, y: rocketY + 5, textAnchor: 'middle', fontSize: 12 }, '▲'),
@@ -3767,7 +3767,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
           ]),
           monsters.length
             ? h('div', { key: 'wards', className: 'bl-monster-wards' }, monsters)
-            : h('div', { key: 'empty', className: 'bl-empty-panel', style: { background: 'linear-gradient(180deg,rgba(255,255,255,.92),rgba(247,250,253,.96)),url(/bili-lesson/assets/empty-healed.png) right center/contain no-repeat #ffffff', minHeight: '220px', color: '#3b4a5f' } }, [h('div', { key: 't' }, '病房空空的，怪兽都康复啦。'), h('div', { key: 's', className: 'bl-hint' }, '去做一套课卡，答错的题会变成新怪兽。'), h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: () => setTab('learn') }, '去训练舱')]),
+            : h('div', { key: 'empty', className: 'bl-empty-panel', style: { background: 'linear-gradient(180deg,rgba(255,255,255,.92),rgba(247,250,253,.96)),url(/bili-lesson/assets/empty-healed.webp) right center/contain no-repeat #ffffff', minHeight: '220px', color: '#3b4a5f' } }, [h('div', { key: 't' }, '病房空空的，怪兽都康复啦。'), h('div', { key: 's', className: 'bl-hint' }, '去做一套课卡，答错的题会变成新怪兽。'), h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: () => setTab('learn') }, '去训练舱')]),
         ]
       }
 
@@ -3857,7 +3857,7 @@ background:#f5f8fc!important;color:#16233a!important;color-scheme:light}
           const bg = new Image()
           bg.onload = () => paint(bg)
           bg.onerror = () => paint(null)
-          bg.src = '/bili-lesson/assets/poster-bg.png'
+          bg.src = '/bili-lesson/assets/poster-bg.webp'
         }
 
         return [
