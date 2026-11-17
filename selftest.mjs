@@ -406,6 +406,120 @@ const fwDefault = await call('GET', '/family/weekly')
 ok('family weekly default weekStart is this Monday',
   fwDefault.status === 200 && fwDefault.data.weekStart === mondayOf(localDay()), fwDefault.data.weekStart)
 
+/* ---- 课卡草稿与内容包：仅验证本插件新增接口 ---- */
+const cpVideoA = {
+  id: 'BV_PACK_A', bvid: 'BV_PACK_A', title: '数字启蒙：1 到 5', cover: '', duration: 120,
+  owner: '测试UP', category: '数学', reason: '认识数字', note: '', minAge: 4,
+  addedAt: 1, checkedAt: 1,
+}
+const cpVideoB = {
+  id: 'BV_PACK_B', bvid: 'BV_PACK_B', title: '颜色认知', cover: '', duration: 90,
+  owner: '测试UP', category: '生活', reason: '认识颜色', note: '', minAge: 3,
+  addedAt: 2, checkedAt: 2,
+}
+const cpQuestion = (id, prompt, answer) => ({
+  id, prompt, spokenPrompt: prompt,
+  options: ['甲', '乙', '丙', '丁'], answer,
+  hint: '想一想', explanation: '说明 ' + prompt,
+  difficulty: 1, variant: 101, mode: 'choice',
+})
+const cpLessonA = {
+  id: 'ls_pack_a', videoId: cpVideoA.id, topic: '数字启蒙',
+  questions: [cpQuestion('q_a1', '1 后面是几？', 1), cpQuestion('q_a2', '2 后面是几？', 2)],
+  createdAt: 1, updatedAt: 1,
+}
+const cpLessonB = {
+  id: 'ls_pack_b', videoId: cpVideoB.id, topic: '颜色认知',
+  questions: [cpQuestion('q_b1', '天空是什么颜色？', 0)],
+  createdAt: 2, updatedAt: 2,
+}
+const cpSourceDir = await mkdtemp(join(tmpdir(), 'bili-lesson-pack-src-'))
+const cpSource = new Store(cpSourceDir)
+const cpCtx = {
+  get: name => (name === 'connection' ? { requestRejection: () => 0 } : undefined),
+  logger: { warn: message => console.warn(message) },
+}
+const cpRoutes = new Routes(cpCtx, cpSource)
+const cpServer = createServer((req, res) => cpRoutes.handle(req, res))
+await new Promise(resolve => cpServer.listen(0, '127.0.0.1', resolve))
+const cpBase = 'http://127.0.0.1:' + cpServer.address().port + '/bili-lesson'
+async function cpCall(method, path, body, base = cpBase) {
+  const res = await fetch(base + path, {
+    method,
+    headers: body ? { 'content-type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  })
+  const raw = await res.text()
+  let data = {}
+  try { data = JSON.parse(raw) } catch { data = { raw: raw.slice(0, 200) } }
+  return { status: res.status, data }
+}
+await cpSource.write('videos', { [cpVideoA.id]: cpVideoA, [cpVideoB.id]: cpVideoB })
+await cpSource.write('lessons', [cpLessonA, cpLessonB])
+
+const draftRes = await cpCall('GET', '/lessons/draft?videoId=' + cpVideoA.id)
+const draft = draftRes.data.item
+ok('draft preserves 3-8 valid questions from seeded video',
+  draftRes.status === 200 && draft?.videoId === cpVideoA.id &&
+  typeof draft.topic === 'string' && draft.topic.length > 0 &&
+  Array.isArray(draft.questions) && draft.questions.length >= 3 && draft.questions.length <= 8 &&
+  draft.questions.every(q =>
+    typeof q.id === 'string' && q.id &&
+    typeof q.prompt === 'string' && q.prompt &&
+    typeof q.spokenPrompt === 'string' && q.spokenPrompt &&
+    Array.isArray(q.options) && q.options.length === 4 && q.options.every(o => typeof o === 'string' && o) &&
+    Number.isInteger(q.answer) && q.answer >= 0 && q.answer < q.options.length &&
+    typeof q.hint === 'string' && typeof q.explanation === 'string' &&
+    typeof q.difficulty === 'number' && ['string', 'number'].includes(typeof q.variant) && q.mode === 'choice'),
+  draftRes.data)
+const draftMissing = await cpCall('GET', '/lessons/draft?videoId=NOT_EXIST')
+ok('draft on unknown videoId 404', draftMissing.status === 404, draftMissing.data)
+const draftBadMethod = await cpCall('POST', '/lessons/draft?videoId=' + cpVideoA.id)
+ok('draft rejects non-GET', draftBadMethod.status === 405, draftBadMethod.data)
+
+const cpWeek = '2026-11-16'
+const exportRes = await cpCall('POST', '/content-pack/export', { ids: [cpVideoA.id], weekStart: cpWeek })
+const pack = exportRes.data
+const packVideos = Array.isArray(pack.videos) ? pack.videos : []
+const packLessons = Array.isArray(pack.lessons) ? pack.lessons : []
+ok('export includes only chosen ids',
+  exportRes.status === 200 &&
+  packVideos.every(v => v.id === cpVideoA.id) &&
+  packVideos.some(v => v.id === cpVideoA.id) &&
+  packLessons.every(l => l.videoId === cpVideoA.id) &&
+  !packVideos.some(v => v.id === cpVideoB.id) &&
+  !packLessons.some(l => l.videoId === cpVideoB.id),
+  { ids: packVideos.map(v => v.id), lessons: packLessons.map(l => l.videoId) })
+
+const cpTargetDir = await mkdtemp(join(tmpdir(), 'bili-lesson-pack-target-'))
+const cpTarget = new Store(cpTargetDir)
+const cpTargetRoutes = new Routes(cpCtx, cpTarget)
+const cpTargetServer = createServer((req, res) => cpTargetRoutes.handle(req, res))
+await new Promise(resolve => cpTargetServer.listen(0, '127.0.0.1', resolve))
+const cpTargetBase = 'http://127.0.0.1:' + cpTargetServer.address().port + '/bili-lesson'
+const exportJson = JSON.stringify(pack)
+const packWithSecret = JSON.parse(exportJson)
+packWithSecret.secret = 'SECRET_SHOULD_BE_IGNORED'
+const importRes = await cpCall('POST', '/content-pack/import', packWithSecret, cpTargetBase)
+const targetVideos = await cpTarget.read('videos') || {}
+const targetLessons = await cpTarget.read('lessons') || []
+ok('import into fresh store yields video and lesson',
+  importRes.status === 200 && importRes.data.ok === true &&
+  Boolean(targetVideos[cpVideoA.id]) &&
+  targetLessons.some(l => l.videoId === cpVideoA.id),
+  { status: importRes.status, result: importRes.data, videos: Object.keys(targetVideos) })
+const storedFiles = await Promise.all(['videos', 'lessons', 'settings', 'plans', 'watch'].map(name => cpTarget.read(name)))
+ok('import ignores a secret field',
+  importRes.status === 200 && !JSON.stringify(storedFiles).includes('SECRET_SHOULD_BE_IGNORED'),
+  { stored: JSON.stringify(storedFiles).slice(0, 200) })
+const badPack = await cpCall('POST', '/content-pack/import', { hello: 'world' }, cpTargetBase)
+ok('bad pack format 400', badPack.status === 400, badPack.data)
+
+cpServer.close()
+cpTargetServer.close()
+await rm(cpSourceDir, { recursive: true, force: true })
+await rm(cpTargetDir, { recursive: true, force: true })
+
 server.close()
 await rm(dir, { recursive: true, force: true })
 console.log('\n' + pass + ' passed, ' + fail + ' failed')

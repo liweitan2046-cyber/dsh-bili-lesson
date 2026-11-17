@@ -1215,6 +1215,9 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [lessonVideo, setLessonVideo] = useState('')
       const [lessonDraft, setLessonDraft] = useState(null)
       const [lessonBusy, setLessonBusy] = useState(false)
+      const [lessonDraftBusy, setLessonDraftBusy] = useState(false)
+      const [packText, setPackText] = useState('')
+      const [packBusy, setPackBusy] = useState(false)
       const [learnPick, setLearnPick] = useState('')
       const [learnBig, setLearnBig] = useState(false)
       const [learnPicks, setLearnPicks] = useState({})
@@ -1624,6 +1627,29 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 
       /* ---------------- 课卡操作 ---------------- */
 
+      async function draftFromTitle() {
+        const draft = lessonDraft
+        if (!draft || !draft.videoId || lessonDraftBusy) return
+        const hasPrompt = (draft.questions || []).some((q) => String((q && q.prompt) || '').trim())
+        if (hasPrompt && typeof window.confirm === 'function') {
+          if (!window.confirm('用片名草稿替换现在的题目吗？这一步不可撤销。')) return
+        }
+        setError('')
+        setLessonDraftBusy(true)
+        try {
+          const data = await api('/lessons/draft?videoId=' + encodeURIComponent(draft.videoId))
+          const item = data && data.item
+          if (!item) throw new Error('服务端没回草稿内容')
+          const questions = Array.isArray(item.questions) ? item.questions.map(cloneQuestion) : []
+          setLessonDraft({ ...draft, topic: item.topic || '', questions })
+          flash('片名草稿填好了，记得保存课卡')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setLessonDraftBusy(false)
+        }
+      }
+
       function openLesson(videoId) {
         const existing = lessons.find((l) => l.videoId === videoId)
         setLessonVideo(videoId)
@@ -1757,6 +1783,96 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           flash('课卡已删，这条视频回到待写')
         } catch (e) {
           fail(e)
+        }
+      }
+
+      /* ---------------- 内容包操作 ---------------- */
+
+      async function exportPack() {
+        if (packBusy) return
+        setError('')
+        setPackBusy(true)
+        try {
+          const data = await send('/content-pack/export', 'POST', {})
+          setPackText(JSON.stringify(data, null, 2))
+          flash('内容包已生成，可以下载或复制保存')
+        } catch (e) {
+          fail(e)
+        } finally {
+          setPackBusy(false)
+        }
+      }
+
+      function downloadPack() {
+        const text = packText.trim()
+        if (!text) {
+          flash('先导出或粘贴内容包，再下载')
+          return
+        }
+        if (typeof Blob !== 'function' || !window.URL || typeof window.URL.createObjectURL !== 'function') {
+          flash('这个浏览器不支持直接下载，可以复制文本另存为 .json')
+          return
+        }
+        const blob = new Blob([text], { type: 'application/json' })
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'bili-lesson-content-pack.json'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        if (typeof window.URL.revokeObjectURL === 'function') {
+          setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+        }
+      }
+
+      function readPackFile(e) {
+        const file = e && e.target && e.target.files && e.target.files[0]
+        if (!file) return
+        if (typeof FileReader !== 'function') {
+          flash('这个浏览器不支持读取文件，可以粘贴 JSON 文本')
+          return
+        }
+        const reader = new FileReader()
+        reader.onload = () => {
+          setPackText(String(reader.result || ''))
+          flash('内容包已读入，点「导入内容包」继续')
+        }
+        reader.onerror = () => fail(new Error('文件内容读不出来'))
+        reader.readAsText(file)
+      }
+
+      async function importPack() {
+        if (packBusy) return
+        const text = packText.trim()
+        if (!text) {
+          setError('先把内容包粘贴进来，或选一个 .json 文件')
+          return
+        }
+        let pack
+        try {
+          pack = JSON.parse(text)
+        } catch (e) {
+          setError('JSON 格式不对：' + errorText(e))
+          return
+        }
+        setError('')
+        setPackBusy(true)
+        try {
+          const result = await send('/content-pack/import', 'POST', pack)
+          const num = (n) => Number(n) || 0
+          flash('导入完成：片库 +' + num(result.addedVideos) + '/改' + num(result.updatedVideos)
+            + '，课卡 +' + num(result.addedLessons) + '/改' + num(result.updatedLessons)
+            + '，跳过 ' + num(result.skipped))
+          await Promise.allSettled([
+            loadLibrary(q.trim(), category),
+            loadAllVideos(),
+            api('/lessons').then((d) => setLessons(Array.isArray(d.items) ? d.items : [])),
+          ])
+        } catch (e) {
+          fail(e)
+        } finally {
+          setPackBusy(false)
         }
       }
 
@@ -3171,6 +3287,9 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
                 ])),
               ])
               : null,
+            h('div', { key: 'pack', className: 'bl-toolbar', style: { marginTop: '10px' } }, [
+              h('span', { key: 'hint', className: 'bl-hint' }, '内容包：在「舰桥设置 → 基础设置」导入/导出'),
+            ]),
           ])
         }
         const video = byId[draft.videoId] || planById[draft.videoId] || null
@@ -3179,6 +3298,14 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             h('b', { key: 't' }, draft.id ? '改这套课卡' : '新写一套课卡'),
             h('span', { key: 'v', className: 'bl-hint' }, video ? video.title : draft.videoId),
             h('div', { key: 'sp', className: 'bl-spacer' }),
+            draft.videoId
+              ? h('button', {
+                key: 'draft',
+                className: 'bl-btn',
+                onClick: draftFromTitle,
+                disabled: lessonDraftBusy,
+              }, lessonDraftBusy ? '起草中…' : '根据片名起草稿')
+              : null,
             h('button', {
               key: 'add',
               className: 'bl-btn',
@@ -3907,6 +4034,35 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             ]),
             h('div', { key: 'note', className: 'bl-note' },
               'perDay 决定「自动排本周」每天排几条，maxAge 是新加片子的默认年龄，weeklyBoxLimit 限制每周能抽几个盲盒，embedPlay 决定点开时直接内嵌播放还是只给入口。已经排好的计划和片库里的年龄不会被改动。'),
+          ]),
+          h('div', { key: 'pack', className: 'bl-panel' }, [
+            h('div', { key: 'head', className: 'bl-panel-head' }, [
+              h('b', { key: 't' }, '内容包（换机器 / 备份）'),
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              h('button', { key: 'export', className: 'bl-btn', onClick: exportPack, disabled: packBusy }, packBusy ? '处理中…' : '导出内容包'),
+              h('button', { key: 'download', className: 'bl-btn', onClick: downloadPack, disabled: packBusy }, '下载 .json'),
+              h('input', {
+                key: 'file',
+                type: 'file',
+                accept: 'application/json',
+                onChange: readPackFile,
+                disabled: packBusy,
+                style: { fontSize: '11px', maxWidth: '190px' },
+              }),
+              h('button', { key: 'import', className: 'bl-btn bl-btn-primary', onClick: importPack, disabled: packBusy }, packBusy ? '导入中…' : '导入内容包'),
+            ]),
+            h('div', { key: 'body', className: 'bl-field' }, [
+              h('span', { key: 'l', className: 'bl-label' }, '内容包 JSON：可导出后下载备份，也可粘贴或选文件后导入'),
+              h('textarea', {
+                key: 'text',
+                className: 'bl-textarea',
+                rows: 8,
+                value: packText,
+                placeholder: '点「导出内容包」生成 JSON，或把备份 JSON 粘贴到这里',
+                onChange: (e) => setPackText(e.target.value),
+              }),
+            ]),
+            h('div', { key: 'hint', className: 'bl-hint' }, '内容包含片库和课卡；导入会按 id 合并，覆盖同 id 的标题、题目等字段。'),
           ]),
           h('div', { key: 'state', className: 'bl-panel' }, [
             h('div', { key: 'head', className: 'bl-panel-head' }, [h('b', { key: 't' }, '现在这台的存量')]),

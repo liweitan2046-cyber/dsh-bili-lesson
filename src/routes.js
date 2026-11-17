@@ -10,6 +10,8 @@ import { fileURLToPath } from 'node:url'
 import { fetchVideo, parseBvid } from './bili.js'
 import { autoFill, mondayOf, normalizePlan, toDate, weekDates } from './plan.js'
 import { normalizeLesson } from './lesson.js'
+import { suggestLessonDraft } from './draft.js'
+import { buildContentPack, applyContentPack } from './contentpack.js'
 import { DEFAULT_SETTINGS, Store } from './store.js'
 import {
   availableOf,
@@ -629,6 +631,31 @@ export class Routes {
       })
     }
 
+    /* ---------------- 课卡草稿建议 ---------------- */
+
+    if (head === 'lessons' && tail === 'draft') {
+      if (method !== 'GET') throw Object.assign(new Error('课卡草稿请用 GET'), { status: 405 })
+      const videoId = text(q.videoId)
+      if (!videoId) throw Object.assign(new Error('缺少 videoId'), { status: 400 })
+      const videos = await this.store.read('videos')
+      const video = videos && videos[videoId]
+      if (!video) throw Object.assign(new Error('片库里没有这条'), { status: 404 })
+      const suggestion = suggestLessonDraft({
+        title: video.title,
+        desc: video.reason || video.note || '',
+        owner: video.owner,
+        category: video.category,
+        videoId,
+      })
+      return json(res, 200, {
+        item: {
+          videoId,
+          topic: suggestion.topic,
+          questions: Array.isArray(suggestion.questions) ? suggestion.questions : [],
+        },
+      })
+    }
+
     /* ---------------- 课卡 ---------------- */
 
     if (head === 'lessons') {
@@ -668,6 +695,21 @@ export class Routes {
         return json(res, 200, { ok: true })
       }
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
+    }
+
+    /* ---------------- 草稿建议与内容包 ---------------- */
+
+    if (head === 'content-pack' && tail === 'export') {
+      if (method !== 'POST') throw Object.assign(new Error('导出内容包请用 POST'), { status: 405 })
+      const body = await readJson(req)
+      return json(res, 200, await buildContentPack(this.store, body))
+    }
+
+    if (head === 'content-pack' && tail === 'import') {
+      if (method !== 'POST') throw Object.assign(new Error('导入内容包请用 POST'), { status: 405 })
+      const body = await readJson(req)
+      const result = await applyContentPack(this.store, body)
+      return json(res, 200, { ok: true, ...result })
     }
 
     /* ---------------- 奖励（学习闭环） ---------------- */
