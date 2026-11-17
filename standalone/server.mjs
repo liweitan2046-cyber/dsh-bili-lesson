@@ -14,7 +14,8 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(HERE, '..')
-const PORT = Number(process.env.BILI_LESSON_PORT) || 7788
+const BASE_PORT = Number(process.env.BILI_LESSON_PORT) || 7788
+const FIXED_PORT = Boolean(process.env.BILI_LESSON_PORT)
 
 // 数据默认落在应用目录旁边，不去碰 ~/.dsh —— 园所的机器上不该出现别人的家目录约定。
 if (!process.env.BILI_LESSON_HOME) process.env.BILI_LESSON_HOME = join(HERE, 'data')
@@ -64,13 +65,13 @@ async function sendFile(res, file) {
       'cache-control': 'no-cache',
     })
     res.end(body)
-  } catch (error) {
+  } catch {
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' })
     res.end('找不到 ' + file.replace(ROOT, ''))
   }
 }
 
-const server = createServer((req, res) => {
+function handler(req, res) {
   const url = new URL(req.url || '/', 'http://127.0.0.1')
   // 只按 STATIC 白名单取文件，不用 path.normalize —— 它在 Windows 上会把 / 变成 \，白名单全落空。
   const path = url.pathname
@@ -86,38 +87,82 @@ const server = createServer((req, res) => {
   }
   res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' })
   res.end('没有这个路径：' + path)
-})
+}
 
-const URL_ = 'http://127.0.0.1:' + PORT + '/'
+const urlOf = port => 'http://127.0.0.1:' + port + '/'
 
 /** 双击 start.bat 的人不会自己敲网址 —— 起来就替他打开。设 BILI_LESSON_NO_OPEN=1 可关闭。 */
-function openBrowser() {
+function openBrowser(port) {
   if (process.env.BILI_LESSON_NO_OPEN === '1') return
+  const target = urlOf(port)
   const [cmd, args] = process.platform === 'win32'
-    ? ['cmd', ['/c', 'start', '', URL_]]
-    : process.platform === 'darwin' ? ['open', [URL_]] : ['xdg-open', [URL_]]
+    ? ['cmd', ['/c', 'start', '', target]]
+    : process.platform === 'darwin' ? ['open', [target]] : ['xdg-open', [target]]
   try {
     spawn(cmd, args, { stdio: 'ignore', detached: true }).unref()
-  } catch (error) {
-    console.warn('没能自动打开浏览器，请手动访问 ' + URL_)
+  } catch {
+    console.warn('没能自动打开浏览器，请手动访问 ' + target)
   }
 }
 
-server.listen(PORT, '127.0.0.1', () => {
+/** 端口被占时先问一句：占着的是不是我们自己。是就别报错，直接把页面打开。 */
+async function mineOn(port) {
+  try {
+    const res = await fetch(urlOf(port) + 'bili-lesson/settings', { signal: AbortSignal.timeout(1500) })
+    if (!res.ok) return false
+    const data = await res.json()
+    return Boolean(data) && typeof data === 'object' && 'perDay' in data
+  } catch {
+    return false
+  }
+}
+
+function listen(port) {
+  return new Promise((resolve, reject) => {
+    const server = createServer(handler)
+    server.once('error', reject)
+    server.listen(port, '127.0.0.1', () => resolve(server))
+  })
+}
+
+function report(port) {
   console.log('')
   console.log('  星火课堂 · 独立版已启动')
-  console.log('  浏览器打开： ' + URL_)
+  console.log('  浏览器打开： ' + urlOf(port))
   console.log('  数据目录：   ' + process.env.BILI_LESSON_HOME)
   console.log('  关闭这个窗口即退出')
   console.log('')
-  openBrowser()
-})
+}
 
-server.on('error', error => {
-  if (error && error.code === 'EADDRINUSE') {
-    console.error('端口 ' + PORT + ' 已被占用：可能是星火课堂已经在运行，或换个 BILI_LESSON_PORT。')
-  } else {
-    console.error('启动失败：', error)
+let started = false
+for (let i = 0; i < 10 && !started; i++) {
+  const port = BASE_PORT + i
+  try {
+    await listen(port)
+    started = true
+    report(port)
+    openBrowser(port)
+  } catch (error) {
+    if (error?.code !== 'EADDRINUSE') {
+      console.error('启动失败：', error)
+      process.exit(1)
+    }
+    if (await mineOn(port)) {
+      console.log('')
+      console.log('  星火课堂已经在运行： ' + urlOf(port))
+      console.log('  已经帮你打开浏览器，这个窗口可以关掉。')
+      console.log('')
+      openBrowser(port)
+      process.exit(0)
+    }
+    if (FIXED_PORT) {
+      console.error('端口 ' + port + ' 被别的程序占用了，换一个：set BILI_LESSON_PORT=7801')
+      process.exit(1)
+    }
   }
+}
+
+if (!started) {
+  console.error('7788 起的十个端口都被占用，换一个：set BILI_LESSON_PORT=7801')
   process.exit(1)
-})
+}
