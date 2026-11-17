@@ -26,6 +26,7 @@ export const DEFAULT_SETTINGS = {
   weeklyBoxLimit: 0,
   screenLimitMinutes: 0,
   parentRules: {},
+  onboardingDone: false,
   parentPin: '',
 }
 

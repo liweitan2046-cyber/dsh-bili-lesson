@@ -412,7 +412,7 @@ export class Routes {
 
   async settings() {
     const saved = await this.store.read('settings')
-    return { ...DEFAULT_SETTINGS, ...(saved || {}) }
+    return { ...DEFAULT_SETTINGS, ...(saved || {}), onboardingDone: saved?.onboardingDone === true }
   }
 
   async publicSettings() {
@@ -1033,6 +1033,9 @@ export class Routes {
           perDay: Math.max(1, Math.min(6, Number(body.perDay) || current.perDay || 2)),
           maxAge: Math.max(1, Math.min(12, Number(body.maxAge) || current.maxAge || 6)),
           embedPlay: typeof body.embedPlay === 'boolean' ? body.embedPlay : (current.embedPlay !== false),
+          onboardingDone: typeof body.onboardingDone === 'boolean'
+            ? body.onboardingDone
+            : Boolean(current.onboardingDone === true),
           weeklyBoxLimit: body.weeklyBoxLimit === undefined
             ? (Number(current.weeklyBoxLimit) || 0)
             : Math.max(0, Math.min(20, Math.round(Number(body.weeklyBoxLimit) || 0))),
@@ -1047,6 +1050,29 @@ export class Routes {
         return json(res, 200, { ...rest, parentPinSet: Boolean(parentPin) })
       }
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
+    }
+
+    /* ---------------- 首次 onboarding ---------------- */
+
+    if (head === 'onboarding') {
+      if (tail === 'status') {
+        if (method !== 'GET') throw Object.assign(new Error('不支持的方法'), { status: 405 })
+        const [videos, stats] = await Promise.all([this.store.read('videos'), this.studyStats()])
+        return json(res, 200, {
+          done: settings.onboardingDone,
+          needsOnboarding: !settings.onboardingDone,
+          version: 1,
+          hasVideos: Object.keys(videos || {}).length > 0,
+          hasWatch: stats.watch > 0,
+        })
+      }
+      if (tail === 'complete' || tail === 'reset') {
+        if (method !== 'POST') throw Object.assign(new Error('不支持的方法'), { status: 405 })
+        const done = tail === 'complete'
+        await this.store.update('settings', current => ({ ...current, onboardingDone: done }))
+        return json(res, 200, { ok: true, done, version: 1 })
+      }
+      throw Object.assign(new Error('没有这个 onboarding 接口'), { status: 404 })
     }
 
     /* ---------------- 成长地图 / 复习提醒 ---------------- */

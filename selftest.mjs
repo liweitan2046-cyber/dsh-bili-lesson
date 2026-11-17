@@ -196,6 +196,39 @@ ok('PUT settings accepts and clamps parent fields',
 const zeroSettings = await call('PUT', '/settings', { screenLimitMinutes: 0 })
 ok('PUT settings keeps explicit zero screen limit', zeroSettings.status === 200 && zeroSettings.data.screenLimitMinutes === 0, zeroSettings.data)
 
+/* ---- 缺口4：首次 onboarding 接口 ---- */
+const obBefore = await call('GET', '/onboarding/status')
+ok('onboarding defaults to not done with display-only flags',
+  obBefore.status === 200 && obBefore.data.done === false && obBefore.data.needsOnboarding === true &&
+  obBefore.data.version === 1 && obBefore.data.hasVideos === true && obBefore.data.hasWatch === true,
+  obBefore.data)
+const obPublicBefore = await call('GET', '/settings')
+ok('public settings exposes boolean onboardingDone and hides pin',
+  obPublicBefore.status === 200 && obPublicBefore.data.onboardingDone === false && obPublicBefore.data.parentPin === undefined,
+  obPublicBefore.data)
+const obPutKeepFalse = await call('PUT', '/settings', { perDay: 2 })
+ok('PUT settings keeps onboardingDone when omitted (false)', obPutKeepFalse.status === 200 && obPutKeepFalse.data.onboardingDone === false, obPutKeepFalse.data)
+const obComplete = await call('POST', '/onboarding/complete')
+ok('onboarding complete writes done=true', obComplete.status === 200 && obComplete.data.ok === true && obComplete.data.done === true && obComplete.data.version === 1, obComplete.data)
+const obStatusDone = await call('GET', '/onboarding/status')
+ok('onboarding status reflects completed state', obStatusDone.status === 200 && obStatusDone.data.done === true && obStatusDone.data.needsOnboarding === false && obStatusDone.data.version === 1, obStatusDone.data)
+const obPutKeepTrue = await call('PUT', '/settings', { perDay: 3 })
+ok('PUT settings keeps onboardingDone when omitted (true)', obPutKeepTrue.status === 200 && obPutKeepTrue.data.onboardingDone === true, obPutKeepTrue.data)
+const obPutClamp = await call('PUT', '/settings', { onboardingDone: 'false' })
+ok('PUT settings clamps non-boolean onboardingDone to current', obPutClamp.status === 200 && obPutClamp.data.onboardingDone === true, obPutClamp.data)
+const obPutExplicit = await call('PUT', '/settings', { onboardingDone: false })
+ok('PUT settings writes explicit onboardingDone=false', obPutExplicit.status === 200 && obPutExplicit.data.onboardingDone === false, obPutExplicit.data)
+const obReset = await call('POST', '/onboarding/reset')
+ok('onboarding reset writes done=false', obReset.status === 200 && obReset.data.ok === true && obReset.data.done === false && obReset.data.version === 1, obReset.data)
+const obStatusReset = await call('GET', '/onboarding/status')
+ok('onboarding status reflects reset state', obStatusReset.status === 200 && obStatusReset.data.done === false && obStatusReset.data.needsOnboarding === true, obStatusReset.data)
+const obMethods = await Promise.all([
+  call('POST', '/onboarding/status'),
+  call('GET', '/onboarding/complete'),
+  call('DELETE', '/onboarding/reset'),
+])
+ok('onboarding endpoints reject wrong methods with 405', obMethods.every(res => res.status === 405), obMethods.map(res => res.status))
+
 /* ---- 学习闭环：答题判分 → 盲盒 → 抽奖 ---- */
 const cardCreate = await call('POST', '/lessons', {
   videoId: BV,

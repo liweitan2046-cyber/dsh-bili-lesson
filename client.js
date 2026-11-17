@@ -33,6 +33,7 @@ window.__ModuleLoader__.load({
     const DIFFICULTY = { 1: '简单', 2: '适中', 3: '进阶' }
     const RARITY = { common: '常见', rare: '稀有', epic: '珍稀' }
     const DEFAULT_SETTINGS = {
+      onboardingDone: false,
       perDay: 2, maxAge: 6, embedPlay: false, weeklyBoxLimit: 0,
       screenLimitMinutes: 0, parentRules: {},
     }
@@ -450,6 +451,7 @@ window.__ModuleLoader__.load({
     function normalizeSettings(raw) {
       const s = raw && typeof raw === 'object' ? raw : {}
       return {
+        onboardingDone: s.onboardingDone === true,
         perDay: Number(s.perDay) > 0 ? Number(s.perDay) : DEFAULT_SETTINGS.perDay,
         maxAge: Number(s.maxAge) > 0 ? Number(s.maxAge) : DEFAULT_SETTINGS.maxAge,
         embedPlay: s.embedPlay === true,
@@ -699,6 +701,11 @@ background:linear-gradient(180deg,rgba(16,30,50,.86),rgba(8,16,28,.92))!importan
 .bl-dialog{position:relative;width:min(900px,96vw);max-height:92vh;display:flex;flex-direction:column;border-radius:12px;border:1px solid var(--bl-line-3);
 background:linear-gradient(180deg,rgba(14,28,46,.97),rgba(6,12,22,.98))!important;overflow:hidden;box-shadow:0 0 0 1px rgba(53,216,255,.14),0 30px 80px rgba(0,0,0,.7),0 0 60px rgba(20,90,150,.28)}
 .bl-dialog-narrow{width:min(580px,96vw)}
+.bl-onboarding-title{font-size:15px;color:#eaf7ff;letter-spacing:.4px}
+.bl-onboarding-dots{display:flex;align-items:center;gap:6px}
+.bl-onboarding-dot{width:22px;height:4px;border-radius:99px;background:rgba(255,255,255,.18);display:block}
+.bl-onboarding-dot.done{background:rgba(53,216,255,.5)}
+.bl-onboarding-dot.on{background:#35d8ff;box-shadow:0 0 10px rgba(53,216,255,.45)}
 .bl-dialog-head{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--bl-line);background:rgba(10,20,34,.9)!important;flex:none}
 .bl-dialog-title{flex:1;min-width:0;font-weight:700;font-size:13px;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bl-dialog-body{padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;min-height:0}
@@ -1501,6 +1508,112 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [teacherAngle, setTeacherAngle] = useState(null)
       const [teacherBubble, setTeacherBubble] = useState('')
       const [reviewOpen, setReviewOpen] = useState(false)
+      const [onboardingOpen, setOnboardingOpen] = useState(false)
+      const [onboardingStep, setOnboardingStep] = useState(0)
+      const [onboardingBusy, setOnboardingBusy] = useState(false)
+      const [onboardingStatus, setOnboardingStatus] = useState(null)
+      const [onboardingPin, setOnboardingPin] = useState('')
+      const [onboardingPinErr, setOnboardingPinErr] = useState('')
+      const [onboardingError, setOnboardingError] = useState('')
+      function renderOnboarding() {
+        const steps = ['欢迎', '每日节奏', '家长 PIN', '内容起点']
+        const status = onboardingStatus || {}
+        const busy = onboardingBusy || settingsBusy
+        const foot = [
+          h('button', {
+            key: 'skip',
+            className: 'bl-btn',
+            onClick: () => completeOnboarding(''),
+            disabled: busy,
+          }, '跳过引导'),
+        ]
+        let content = null
+        let next = null
+        if (onboardingStep === 0) {
+          content = [
+            h('b', { key: 't', className: 'bl-onboarding-title' }, '欢迎来到星火课堂'),
+            h('div', { key: 'd', className: 'bl-note' }, '这趟 4 步向导只做一次基础设置：每天看几条、是否设家长 PIN、从哪里开始。随时可以在「舰桥设置 → 重看新手引导」回来。'),
+            status.hasVideos !== undefined
+              ? h('div', { key: 's', className: 'bl-hint' }, '本机状态：片库 ' + (status.hasVideos ? '已有内容' : '暂空') + ' · 航行记录 ' + (status.hasWatch ? '已有内容' : '暂空'))
+              : null,
+          ]
+          next = h('button', { key: 'next', className: 'bl-btn bl-btn-primary', onClick: () => setOnboardingStep(1) }, '下一步')
+        } else if (onboardingStep === 1) {
+          content = [
+            h('b', { key: 't', className: 'bl-onboarding-title' }, '设定每日节奏'),
+            h('div', { key: 'd', className: 'bl-note' }, '这里填的值会走现有「保存设置」，决定自动排本周每天几条、新片默认最低年龄。'),
+            h('div', { key: 'grid', className: 'bl-form-grid' }, [
+              h('div', { key: 'perDay', className: 'bl-field' }, [
+                h('span', { key: 'l', className: 'bl-label' }, '每天几条'),
+                h('input', {
+                  key: 'i', className: 'bl-input', type: 'number', min: 1, max: 6,
+                  value: settings.perDay,
+                  disabled: busy,
+                  onChange: (e) => setSettings({ ...settings, perDay: Number(e.target.value) }),
+                }),
+              ]),
+              h('div', { key: 'maxAge', className: 'bl-field' }, [
+                h('span', { key: 'l', className: 'bl-label' }, '片库默认年龄'),
+                h('input', {
+                  key: 'i', className: 'bl-input', type: 'number', min: 1, max: 12,
+                  value: settings.maxAge,
+                  disabled: busy,
+                  onChange: (e) => setSettings({ ...settings, maxAge: Number(e.target.value) }),
+                }),
+              ]),
+            ]),
+          ]
+          next = h('button', { key: 'next', className: 'bl-btn bl-btn-primary', onClick: saveOnboardingRhythm, disabled: busy }, busy ? '保存中…' : '保存并继续')
+        } else if (onboardingStep === 2) {
+          content = [
+            h('b', { key: 't', className: 'bl-onboarding-title' }, '家长 PIN（可选）'),
+            h('div', { key: 'd', className: 'bl-note' }, '设置 4 位数字即可锁住家长驾驶舱和设置；留空跳过，之后也能在「舰桥设置」里改。'),
+            h('div', { key: 'field', className: 'bl-field' }, [
+              h('span', { key: 'l', className: 'bl-label' }, '新 PIN（4 位数字，留空跳过）'),
+              h('input', {
+                key: 'i', className: 'bl-input', type: 'password', inputMode: 'numeric', maxLength: 4,
+                value: onboardingPin,
+                disabled: busy,
+                placeholder: '••••',
+                onChange: (e) => { setOnboardingPin(e.target.value.replace(/\D/g, '').slice(0, 4)); setOnboardingPinErr('') },
+                onKeyDown: (e) => { if (e.key === 'Enter') saveOnboardingPin() },
+              }),
+            ]),
+            onboardingPinErr ? h('div', { key: 'err', className: 'bl-pin-err' }, onboardingPinErr) : null,
+          ]
+          next = h('button', { key: 'next', className: 'bl-btn bl-btn-primary', onClick: saveOnboardingPin, disabled: busy }, busy ? '处理中…' : (onboardingPin ? '开启并继续' : '下一步'))
+        } else {
+          content = [
+            h('b', { key: 't', className: 'bl-onboarding-title' }, '选一个起点'),
+            h('div', { key: 'd', className: 'bl-note' }, '想先看舰桥首页可以继续；换机器或刚安装，可以导入之前导出的内容包 JSON。'),
+            h('button', { key: 'demo', className: 'bl-btn', onClick: () => completeOnboarding('island') }, '用演示片库继续 → 今日岛'),
+            h('button', { key: 'pack', className: 'bl-btn', onClick: () => completeOnboarding('settings') }, '导入内容包 → 设置页'),
+            h('div', { key: 'hint', className: 'bl-hint' }, '内容包面板在「舰桥设置 → 基础设置」里；导入完成后点保存设置即可。'),
+          ]
+          next = h('button', { key: 'next', className: 'bl-btn bl-btn-primary', onClick: () => completeOnboarding('island'), disabled: busy }, '完成引导')
+        }
+        return h('div', { key: 'onboarding', className: 'bl-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': '新手引导' }, [
+          h('div', { key: 'card', className: 'bl-dialog bl-dialog-narrow bl-onboarding' }, [
+            h('div', { key: 'head', className: 'bl-dialog-head' }, [
+              h('b', { key: 't', className: 'bl-dialog-title' }, '新手引导 · ' + steps[onboardingStep]),
+              h('span', { key: 'step', className: 'bl-hint' }, (onboardingStep + 1) + ' / ' + steps.length),
+            ]),
+            h('div', { key: 'body', className: 'bl-dialog-body' }, [
+              h('div', { key: 'dots', className: 'bl-onboarding-dots' }, steps.map((label, i) => h('i', { key: label, className: 'bl-onboarding-dot' + (i === onboardingStep ? ' on' : '') + (i < onboardingStep ? ' done' : '') }))),
+              ...content,
+              onboardingError ? h('div', { key: 'err', className: 'bl-pin-err' }, onboardingError) : null,
+            ]),
+            h('div', { key: 'foot', className: 'bl-dialog-foot' }, [
+              ...foot,
+              h('div', { key: 'sp', className: 'bl-spacer' }),
+              onboardingStep > 0
+                ? h('button', { key: 'back', className: 'bl-btn', onClick: () => { setOnboardingPinErr(''); setOnboardingError(''); setOnboardingStep((v) => Math.max(0, v - 1)) }, disabled: busy }, '上一步')
+                : null,
+              next,
+            ]),
+          ]),
+        ])
+      }
 
       const noticeTimer = useRef(null)
       const filterRef = useRef({ q: '', category: '' })
@@ -1602,12 +1715,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       useEffect(() => {
         function onKey(event) {
           if (event.key !== 'Escape') return
+          if (onboardingOpen) return
           setPlayer(null)
           setEditing(null)
         }
         window.addEventListener('keydown', onKey)
         return () => window.removeEventListener('keydown', onKey)
-      }, [])
+      }, [onboardingOpen])
 
       /* ---------------- 片库加载 ---------------- */
 
@@ -1677,6 +1791,18 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             setPinSet(Boolean((d.settings || d).parentPinSet))
           })
           .catch(fail)
+
+        api('/onboarding/status')
+          .then((d) => {
+            const status = d && typeof d === 'object' ? d : null
+            setOnboardingStatus(status)
+            if (status && status.needsOnboarding === true) {
+              resetOnboardingDraft()
+              setOnboardingOpen(true)
+              if (Number(status.version) !== 1) setOnboardingError('引导版本与本机数据不一致，可直接跳过。')
+            }
+          })
+          .catch(() => {})
       }, [fail, loadAllVideos])
 
       /* ---------------- 派生数据 ---------------- */
@@ -2194,10 +2320,94 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           loadRewards().catch(() => {})
           if (prizes) loadPrizes().catch(() => {})
           flash('设置已保存')
+          return true
+        } catch (e) {
+          fail(e)
+          return false
+        } finally {
+          setSettingsBusy(false)
+        }
+      }
+
+      /* ---------------- 新手引导 ---------------- */
+
+      function resetOnboardingDraft() {
+        setOnboardingStep(0)
+        setOnboardingPin('')
+        setOnboardingPinErr('')
+        setOnboardingError('')
+      }
+
+      async function saveOnboardingRhythm() {
+        const saved = await saveSettings()
+        if (saved) {
+          setOnboardingStep(2)
+        } else {
+          setOnboardingError('每日节奏保存失败，请看页面提示后重试')
+        }
+      }
+
+      async function saveOnboardingPin() {
+        const pin = onboardingPin.replace(/\D/g, '')
+        if (!pin) {
+          setOnboardingPinErr('')
+          setOnboardingStep(3)
+          return
+        }
+        if (pin.length !== 4) {
+          setOnboardingPinErr('家长 PIN 需要 4 位数字，或留空跳过')
+          return
+        }
+        setOnboardingPinErr('')
+        setOnboardingBusy(true)
+        try {
+          const data = await send('/settings/pin', 'POST', { action: 'set', pin, currentPin: '' })
+          setPinSet(Boolean(data && data.parentPinSet))
+          markUnlocked()
+          setOnboardingStep(3)
+        } catch (e) {
+          setOnboardingPinErr(errorText(e))
+        } finally {
+          setOnboardingBusy(false)
+        }
+      }
+
+      async function completeOnboarding(nextTab) {
+        setOnboardingBusy(true)
+        setOnboardingError('')
+        try {
+          const data = await send('/onboarding/complete', 'POST', {})
+          if (!data || (data.ok !== true && data.done !== true)) throw new Error('引导完成失败')
+          setSettings((prev) => ({ ...(prev || {}), onboardingDone: true }))
+          setOnboardingStatus((prev) => prev ? { ...prev, done: true, needsOnboarding: false } : prev)
+          setOnboardingOpen(false)
+          resetOnboardingDraft()
+          if (nextTab) {
+            if (nextTab === 'settings') setConfView('base')
+            setTab(nextTab)
+          }
+          flash('新手引导已完成')
+        } catch (e) {
+          setOnboardingError(errorText(e))
+        } finally {
+          setOnboardingBusy(false)
+        }
+      }
+
+      async function reopenOnboarding() {
+        setOnboardingBusy(true)
+        setOnboardingError('')
+        try {
+          const data = await send('/onboarding/reset', 'POST', {})
+          if (!data || (data.ok !== true && data.done !== false)) throw new Error('重看引导失败')
+          setSettings((prev) => ({ ...(prev || {}), onboardingDone: false }))
+          setOnboardingStatus((prev) => ({ ...(prev || {}), done: false, needsOnboarding: true, version: 1 }))
+          resetOnboardingDraft()
+          setOnboardingOpen(true)
         } catch (e) {
           fail(e)
         } finally {
-          setSettingsBusy(false)
+          setOnboardingBusy(false)
         }
       }
 
@@ -4564,6 +4774,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
               onClick: () => setConfView(row[0]),
             }, row[1])),
             pinSet ? h('button', { key: 'lock', className: 'bl-subtab bl-subtab-lock', onClick: lockNow }, '锁定') : null,
+            h('button', { key: 'onboarding', className: 'bl-subtab', onClick: reopenOnboarding, disabled: onboardingBusy }, onboardingBusy ? '准备中…' : '重看新手引导'),
           ]),
           confView === 'prizes' ? renderPrizeAdmin() : confView === 'medals' ? renderMedalAdmin() : renderBaseSettings(),
         ]
@@ -5169,8 +5380,10 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             reportMode === 'printing' ? h('div', { key: 'printing', className: 'bl-hint' }, '正在打开打印面板…') : null,
           ]),
         ]) : null,
+        onboardingOpen ? renderOnboarding() : null,
       ])
     }
+
 
     /* ------------------------------------------------------------------ */
     /* 插件入口                                                            */

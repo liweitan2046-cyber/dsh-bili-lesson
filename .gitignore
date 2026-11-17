@@ -4,3 +4,4 @@ assets/deck-bg-raw.png
 .tmp-*.mjs
 standalone/.tmp-*/
 .v*.css
+dist/

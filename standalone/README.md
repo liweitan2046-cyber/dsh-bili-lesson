@@ -51,6 +51,16 @@ BILI_LESSON_SEED=force node server.mjs  # 片库清空或想重来：重铺演�
 **里面没有视频文件**：只有 BV 号、标题、封面地址、时长、UP 主和题目文本，画面仍然从 B 站加载，版权归原 UP 主。
 换掉它很容易 —— 直接改 `data/videos.json` 与 `data/lessons.json`，写法见 [HOW-TO-CURATE](../docs/HOW-TO-CURATE.md)。
 
+## 便携绿色包
+
+不想在本机安装 Node.js 时，可在仓库根目录构建 Windows x64 绿色包：
+
+```bash
+node scripts/build-portable.mjs
+```
+
+脚本会用当前运行的 `node.exe` 生成 `dist/portable/xinghuo-lesson-portable-win-x64/`（无第三方依赖、不联网下载）。整个目录拷到目标机器后双击 `start-portable.bat` 即可离线启动，端口与数据目录可用 `BILI_LESSON_PORT` / `BILI_LESSON_HOME` 环境变量调整；家长锁仍为界面软锁，详见包内 `README-PORTABLE.txt`。
+
 ## 与插件版的差异
 
 - **没有登录**。只监听本机回环地址，同机器上任何程序都能访问 —— 幼儿园单机场景可接受，接公网必须先加鉴权。
