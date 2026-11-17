@@ -25,6 +25,7 @@ import {
 } from './src/rewards.js'
 import { normalizePool, drawable, countUsage, pickPrize, prizeView } from './src/prizes.js'
 import { studyStats, progressOf, mergeMedals } from './src/medals.js'
+import { weekDates, mondayOf } from './src/plan.js'
 
 const BV = 'BV1GJ411x7h7'
 const dir = await mkdtemp(join(tmpdir(), 'bili-lesson-'))
@@ -339,6 +340,71 @@ ok('delete cleans watch', watchAfter.data.records?.length === 0, watchAfter.data
 
 const missing = await call('GET', '/nope')
 ok('unknown route 404', missing.status === 404, missing.data)
+
+/* ---- 家长驾驶舱：/family/weekly 周聚合 ---- */
+const fwWeek = '2026-11-09'
+const fwDates = weekDates(fwWeek)
+const fwBefore = await call('GET', '/family/weekly?weekStart=' + fwWeek)
+ok('family weekly empty week is 7 zero days',
+  fwBefore.status === 200 && fwBefore.data.weekStart === fwWeek && fwBefore.data.days.length === 7 &&
+  fwBefore.data.days.every((d, i) => d.date === fwDates[i] && d.watched === 0 && d.correct === 0 && d.answered === 0 && d.minutes === 0) &&
+  fwBefore.data.totals.accuracy === 0 && fwBefore.data.categories.length === 0,
+  fwBefore.data)
+
+// 构造一条目标周内的观看记录 + 一条答题记录（用 ledger 直写，避免日期依赖当天）。
+const fwVideoId = 'BV_FAMILY_WEEKLY'
+await store.update('videos', current => ({
+  ...current,
+  [fwVideoId]: { id: fwVideoId, bvid: fwVideoId, title: '周报测试片', category: '科学', duration: 125, done: true },
+}))
+await store.update('watch', current => [
+  ...((Array.isArray(current) ? current : []).filter(r => r.videoId !== fwVideoId)),
+  { videoId: fwVideoId, date: fwDates[1], done: true, at: Date.parse(fwDates[1] + 'T12:00:00Z') },
+  { videoId: fwVideoId, date: fwDates[8] || '2026-12-01', done: true, at: Date.parse('2026-12-01T12:00:00Z') }, // 周外，应被过滤
+])
+const fwAttempt = { id: 'at_fw', lessonId: 'ls_fw', videoId: fwVideoId, correct: 3, total: 4, score: 75, boxGranted: false, answers: [
+  { qid: 'q1', correct: true }, { qid: 'q2', correct: true }, { qid: 'q3', correct: true }, { qid: 'q4', correct: false },
+], createdAt: Date.parse(fwDates[2] + 'T10:00:00Z') }
+await routes.ledger.update('attempts', current => ({ attempts: [...((current && current.attempts) || []), fwAttempt] }))
+const fwAfter = await call('GET', '/family/weekly?weekStart=' + fwWeek)
+const fwDay1 = fwAfter.data.days[1]
+const fwDay2 = fwAfter.data.days[2]
+ok('family weekly aggregates watch and attempts',
+  fwAfter.status === 200 && fwDay1.watched === 1 && fwDay1.minutes === 2 &&
+  fwDay2.correct === 3 && fwDay2.answered === 4 &&
+  fwAfter.data.totals.watched === 1 && fwAfter.data.totals.minutes === 2 &&
+  fwAfter.data.totals.correct === 3 && fwAfter.data.totals.answered === 4 &&
+  Math.abs(fwAfter.data.totals.accuracy - 0.75) < 1e-9 &&
+  fwAfter.data.categories.some(c => c.name === '科学' && c.count === 1),
+  fwAfter.data)
+// 周外记录不应污染另一周。
+const fwOtherWeek = await call('GET', '/family/weekly?weekStart=' + mondayOf('2026-12-01'))
+ok('family weekly filters by target week',
+  fwOtherWeek.status === 200 && fwOtherWeek.data.totals.watched === 1 &&
+  fwOtherWeek.data.days.every(d => d.correct === 0 && d.answered === 0),
+  fwOtherWeek.data)
+// streak 口径：今天或昨天起往前连续有 done 记录的天数。
+const today = localDay()
+const yesterdayDate = new Date(today + 'T00:00:00Z'); yesterdayDate.setUTCDate(yesterdayDate.getUTCDate() - 1)
+const yest = yesterdayDate.toISOString().slice(0, 10)
+const dayBefore = new Date(yest + 'T00:00:00Z'); dayBefore.setUTCDate(dayBefore.getUTCDate() - 1)
+const db = dayBefore.toISOString().slice(0, 10)
+await store.update('watch', current => [
+  ...((Array.isArray(current) ? current : []).filter(r => r.videoId !== fwVideoId)),
+  { videoId: fwVideoId, date: db, done: true, at: Date.parse(db + 'T12:00:00Z') },
+  { videoId: fwVideoId, date: yest, done: true, at: Date.parse(yest + 'T12:00:00Z') },
+])
+const fwStreak = await call('GET', '/family/weekly')
+ok('family weekly streak counts consecutive days ending today or yesterday',
+  fwStreak.status === 200 && fwStreak.data.totals.streak === 2, fwStreak.data.totals)
+const fwPost = await call('POST', '/family/weekly')
+ok('family weekly rejects non-GET', fwPost.status === 405, fwPost.data)
+const fwInvalid = await call('GET', '/family/weekly?weekStart=2026-13-99')
+ok('family weekly invalid weekStart falls back to this Monday',
+  fwInvalid.status === 200 && fwInvalid.data.weekStart === mondayOf(localDay()), fwInvalid.data.weekStart)
+const fwDefault = await call('GET', '/family/weekly')
+ok('family weekly default weekStart is this Monday',
+  fwDefault.status === 200 && fwDefault.data.weekStart === mondayOf(localDay()), fwDefault.data.weekStart)
 
 server.close()
 await rm(dir, { recursive: true, force: true })

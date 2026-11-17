@@ -1,6 +1,6 @@
 {
   "name": "dsh-bili-lesson",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "星火课堂：DSH 桌面端插件 —— 家长挑片、按周排课、孩子看完打勾、课卡判分、错题回炉、盲盒与勋章，附带家长锁。",
   "license": "MIT",
   "keywords": ["dsh", "dsh-plugin", "bilibili", "kids", "education"],

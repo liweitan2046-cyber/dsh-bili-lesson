@@ -19,7 +19,10 @@ window.__ModuleLoader__.load({
       { id: 'library', label: '舰桥首页' },
       { id: 'plan', label: '本周航线' },
       { id: 'learn', label: '训练舱' },
+      { id: 'island', label: '今日岛' },
+      { id: 'hospital', label: '错题医院' },
       { id: 'mistakes', label: '错题本' },
+      { id: 'insights', label: '家长驾驶舱' },
       { id: 'watch', label: '航行记录' },
       { id: 'rewards', label: '成就展厅' },
       { id: 'lessons', label: '课卡工坊' },
@@ -41,6 +44,7 @@ window.__ModuleLoader__.load({
     const TAB_TITLE = {
       library: '舰桥首页', plan: '本周航线', watch: '航行记录', learn: '训练舱',
       mistakes: '错题本', rewards: '成就展厅', lessons: '课卡工坊', settings: '舰桥设置',
+      island: '今日岛', hospital: '错题医院', insights: '家长驾驶舱',
     }
 
     const RAIL_ICONS = {
@@ -50,6 +54,9 @@ window.__ModuleLoader__.load({
       learn: ['M9 7.6l7.4 4.4L9 16.4z', 'M4 4.8h16v14.4H4z'],
       mistakes: ['M4.8 5.2h14.4v13.6H4.8z', 'M8 5.2v13.6', 'M9.6 9.6l5.2 5', 'M14.8 9.6l-5.2 5'],
       rewards: ['M12 3.4l7 7-7 10.2-7-10.2z', 'M5 10.4h14'],
+      island: ['M3.8 17.6c3-4.2 6.6-5.6 10.2-3.2l6.2-7.4-1.2 9.4c-2.8 3.2-6.2 4.6-10.4 3.4z', 'M12.4 9.6V4.8l5.4 2.2-2 2.4', 'M5.4 18.8h13.2'],
+      hospital: ['M12 4.2l7.2 3.6v7.4L12 19.8l-7.2-4.6V7.8z', 'M12 7.4v8.8', 'M7.8 11.8h8.4'],
+      insights: ['M4.2 19.6h15.6', 'M6.8 16.2l3.6-4.2 3.2 2.4 4.2-6.2', 'M6.8 19.6v-3.4M11 19.6v-7.6M15 19.6v-5.2M18.4 19.6V8.6'],
       lessons: ['M4.6 5.2h14.8v13.6H4.6z', 'M8 9h8', 'M8 12.8h5.4'],
       settings: ['M4 7.6h6', 'M14 7.6h6', 'M4 16.4h9', 'M17 16.4h3', 'M11.2 5.2v4.8', 'M14.2 14v4.8'],
     }
@@ -1106,7 +1113,43 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
 .bl-mistake-foot{margin-top:9px;font-size:11.5px;line-height:1.55;color:rgba(160,190,214,.72)}
 .bl-mistake-foot.ok{color:#8fe6c4}
 .bl-mistake-foot.no{color:#ffb3b3}
-@media (max-width:880px){.bl-prow{grid-template-columns:1fr 1fr;row-gap:4px}.bl-prow-head{display:none}.bl-prow-medal{grid-template-columns:30px minmax(90px,1fr) 64px 60px 120px 56px}}
+/* ---- 孩子两张脸 + 家长驾驶舱 ---- */
+.bl-island-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.8fr);gap:12px;min-height:calc(100vh - 250px)}
+.bl-island-world{display:flex;flex-direction:column;gap:10px}
+.bl-island-svg{width:100%;flex:1;min-height:340px;border-radius:12px;background:#081521}
+.bl-island-list{display:flex;flex-direction:column;gap:8px;padding:12px;min-height:0;overflow:auto}
+.bl-island-card{display:flex;align-items:center;gap:9px;width:100%;min-height:58px;padding:8px 10px;border:1px solid var(--bl-line);border-radius:10px;background:rgba(8,20,34,.72);color:#dcecf8;font:inherit;text-align:left;cursor:pointer;transition:border-color .15s,transform .15s}
+.bl-island-card:hover{border-color:rgba(92,200,255,.45);transform:translateX(2px)}
+.bl-island-card.done{opacity:.72;border-color:rgba(79,216,166,.34)}
+.bl-island-glyph{width:34px;height:34px;flex:none;border-radius:9px;display:grid;place-items:center;color:#9fe0ff;background:rgba(92,200,255,.1)}
+.bl-island-name{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.bl-island-name b{font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-island-name em{font-style:normal;font-size:10.5px;color:rgba(160,190,214,.68)}
+.bl-island-action{font-size:11px;color:#9fe0ff;white-space:nowrap}
+.bl-island-next{margin-top:8px;padding-top:10px;border-top:1px solid var(--bl-line);display:flex;flex-direction:column;gap:7px}
+.bl-island-next>b{font-size:11px;letter-spacing:.12em;color:#9fb8ce}
+.bl-monster-wards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.bl-monster{display:flex;flex-direction:column;align-items:center;gap:7px;padding:14px;border:1px solid var(--bl-line);border-radius:12px;background:rgba(12,26,40,.6);text-align:center}
+.bl-monster.healed{border-color:rgba(79,216,166,.4);background:rgba(79,216,166,.07)}
+.bl-monster-body{position:relative;width:96px;height:82px;border-radius:46% 46% 38% 38%;background:var(--monster);display:grid;place-items:center;box-shadow:0 10px 24px rgba(0,0,0,.28);animation:blMonsterBob 2.4s ease-in-out infinite}
+.bl-monster-eye{font-family:ui-monospace,Consolas,monospace;font-size:20px;color:#10202c;font-weight:700}
+.bl-monster-horn{position:absolute;top:-14px;left:50%;transform:translateX(-50%);color:var(--monster);font-size:18px}
+.bl-monster>b{font-size:12.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-monster .bl-hint{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bl-monster-hp{font-size:11px;color:#ffb3b3}
+.bl-monster.healed .bl-monster-hp{color:#8fe6c4}
+@keyframes blMonsterBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.bl-parent-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:12px}
+.bl-parent-advice{display:flex;flex-direction:column;gap:12px;min-height:240px}
+.bl-parent-say{font-size:16px;line-height:1.65;color:#eaf6ff;font-weight:600}
+.bl-chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.bl-weekbars{display:flex;align-items:flex-end;gap:8px;height:160px;padding:10px 4px 0}
+.bl-weekbar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bl-weekbar i{display:block;width:70%;min-height:4px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#6fe0ff,#2e86c8)}
+.bl-weekbar span{font-size:10px;color:rgba(160,190,214,.7)}
+.bl-poster-modal{width:min(520px,92vw);max-height:92vh;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.bl-poster-modal img{width:100%;border-radius:10px;border:1px solid var(--bl-line)}
+@media (max-width:880px){.bl-island-layout,.bl-parent-grid{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:880px){.bl-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 `
 
@@ -1181,6 +1224,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const [mistakeFilter, setMistakeFilter] = useState('pending')
       const [mistakeBusy, setMistakeBusy] = useState('')
       const [mistakePick, setMistakePick] = useState({})
+      const [monsterHits, setMonsterHits] = useState({})
+      const [weekly, setWeekly] = useState(null)
+      const [posterOpen, setPosterOpen] = useState(false)
+      const [posterUrl, setPosterUrl] = useState('')
+      const [posterBusy, setPosterBusy] = useState(false)
       const [rewards, setRewards] = useState(null)
       const [rewardBusy, setRewardBusy] = useState(false)
       const [lastDraw, setLastDraw] = useState(null)
@@ -1213,6 +1261,36 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const fail = useCallback((e) => {
         setError(errorText(e))
       }, [])
+
+      const MONSTER_FACES = ['ò_ó', '>_<', 'x_x', '˘◡˘']
+      const monsterFace = (hp) => MONSTER_FACES[Math.max(0, Math.min(MONSTER_FACES.length - 1, hp))]
+      const monsterColor = (hp) => hp <= 0 ? '#4fd8a6' : hp <= 1 ? '#ffd88a' : '#ff8b8b'
+
+      function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+        const chars = String(text || '').split('')
+        let line = ''
+        for (const ch of chars) {
+          const next = line + ch
+          if (ctx.measureText(next).width > maxWidth && line) {
+            ctx.fillText(line, x, y)
+            line = ch
+            y += lineHeight
+          } else {
+            line = next
+          }
+        }
+        if (line) ctx.fillText(line, x, y)
+      }
+
+      function openLessonFor(videoId) {
+        if (lessons.some((l) => l && l.videoId === videoId)) {
+          setLearnPick(videoId)
+          setTab('learn')
+        } else {
+          const v = pick(videoId)
+          if (v) setPlayer(v)
+        }
+      }
 
       const flash = useCallback((text) => {
         setNotice(text)
@@ -1538,6 +1616,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           const data = await send('/watch', 'POST', { videoId, date, done })
           setWatch((prev) => mergeWatch(prev, data))
           loadRewards().catch(() => {})
+          refreshKidData()
         } catch (e) {
           fail(e)
         }
@@ -2645,7 +2724,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         try {
           const data = await send('/mistakes/answer', 'POST', { key: item.key, choice })
           setMistakePick((prev) => ({ ...prev, [item.key]: { choice, correct: Boolean(data.correct), answer: Number(data.answer) } }))
-          flash(data.correct ? '答对了，这题算掌握' : '还差一点，看一眼解释再试一次')
+          if (data.correct) {
+            setMonsterHits((prev) => ({ ...prev, [item.key]: (Number(prev[item.key]) || 0) + 1 }))
+            loadWeekly().catch(() => {})
+            flash('怪兽掉血啦，这题算掌握')
+          } else {
+            flash('还差一点，看一眼解释再试一次')
+          }
           setMistakes((prev) => {
             if (!prev) return prev
             const items = prev.items.map((row) => row.key === item.key
@@ -2724,6 +2809,209 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
             onClick: () => setMistakeFilter(chip.id),
           }, chip.text))),
           list,
+        ]
+      }
+
+      function renderTodayIsland() {
+        const todayIds = ((plan && plan.days) || []).find((d) => d.date === today)?.videoIds || []
+        const doneToday = (watchIndex.byDate[today] || []).filter((id) => todayIds.indexOf(id) !== -1)
+        const tasks = todayIds.map((id, i) => ({ id, video: pick(id), done: doneToday.indexOf(id) !== -1, i })).filter((r) => r.video)
+        const pending = []
+        ;(plan && plan.days || []).forEach((d) => (d.videoIds || []).forEach((id) => {
+          if (d.date !== today && (watchIndex.byDate[d.date] || []).indexOf(id) === -1) pending.push({ id, video: pick(id), date: d.date })
+        }))
+        const next = pending.slice(0, 3).filter((r) => r.video)
+        const fixed = tasks.length + next.length
+        const done = tasks.filter((r) => r.done).length
+        const ratio = fixed ? done / fixed : 0
+        const angle = -Math.PI / 2 + ratio * Math.PI * 2
+        const rocketX = 400 + Math.cos(angle) * 140
+        const rocketY = 170 + Math.sin(angle) * 140
+        const islandCard = (row, primary) => h('button', {
+          key: row.id + (row.date || ''),
+          className: 'bl-island-card' + (row.done ? ' done' : ''),
+          onClick: () => openLessonFor(row.id),
+        }, [
+          h('span', { key: 'g', className: 'bl-island-glyph' }, h(Glyph, { name: catGlyph(row.video.category), size: 20 })),
+          h('span', { key: 'n', className: 'bl-island-name' }, [
+            h('b', { key: 't' }, row.video.title || row.id),
+            h('em', { key: 's' }, (row.video.category || '未分类') + (row.date ? ' · ' + shortDate(row.date) : '')),
+          ]),
+          h('span', { key: 'a', className: 'bl-island-action' }, row.done ? '复习' : (primary ? '出发' : '去看看')),
+        ])
+
+        return [
+          pageHead('PLAY · 今日任务岛', '今日岛', '今天看什么、答什么，一眼就懂 · 完成一圈就点亮灯塔', [
+            h('button', { key: 'route', className: 'bl-btn bl-btn-sm', onClick: () => setTab('plan') }, '本周航线 →'),
+          ]),
+          h('div', { key: 'grid', className: 'bl-island-layout' }, [
+            h('div', { key: 'world', className: 'bl-panel bl-island-world' }, [
+              h('div', { key: 'head', className: 'bl-panel-head' }, [h('b', { key: 't' }, '今天的小岛'), h('div', { key: 'sp', className: 'bl-spacer' }), h('span', { key: 'c', className: 'bl-chip gold' }, done + ' / ' + fixed + ' 已点亮')]),
+              h('svg', { key: 'svg', viewBox: '0 0 800 340', className: 'bl-island-svg', 'aria-hidden': 'true' }, [
+                h('defs', { key: 'd' }, h('linearGradient', { key: 'sea', id: 'blIslandSea', x1: '0', y1: '0', x2: '0', y2: '1' }, [h('stop', { key: 'a', offset: '0%', stopColor: '#123a52' }), h('stop', { key: 'b', offset: '100%', stopColor: '#081521' })])),
+                h('rect', { key: 'sea', x: 0, y: 0, width: 800, height: 340, rx: 16, fill: 'url(#blIslandSea)' }),
+                h('ellipse', { key: 'shadow', cx: 400, cy: 240, rx: 236, ry: 56, fill: 'rgba(0,0,0,.26)' }),
+                h('path', { key: 'land', d: 'M180 236 C220 166 286 136 400 132 C514 136 580 166 620 236 C560 278 484 292 400 292 C316 292 240 278 180 236Z', fill: '#1d4f4a', stroke: '#4fd8a6', strokeWidth: 2 }),
+                h('path', { key: 'ring', d: 'M260 170 A140 140 0 1 1 540 170', fill: 'none', stroke: 'rgba(140,200,220,.18)', strokeWidth: 10, strokeLinecap: 'round' }),
+                h('circle', { key: 'rocket', cx: rocketX, cy: rocketY, r: 13, fill: '#ffd88a', stroke: '#fff4d2', strokeWidth: 2 }),
+                h('text', { key: 'rt', x: rocketX, y: rocketY + 5, textAnchor: 'middle', fontSize: 12 }, '▲'),
+                h('g', { key: 'tree', transform: 'translate(300 212)' }, [h('rect', { key: 't', x: -4, y: 0, width: 8, height: 26, fill: '#9b704c' }), h('circle', { key: 'c', cy: -8, r: 18, fill: '#4fd8a6' })]),
+                h('g', { key: 'tree2', transform: 'translate(520 208)' }, [h('rect', { key: 't', x: -4, y: 0, width: 8, height: 24, fill: '#9b704c' }), h('circle', { key: 'c', cy: -6, r: 15, fill: '#35d8ff' })]),
+                h('g', { key: 'lamp', transform: 'translate(400 156)' }, [h('rect', { key: 'p', x: -3, y: 0, width: 6, height: 52, fill: '#b9c9d8' }), h('circle', { key: 'b', cy: -6, r: 13, fill: done >= fixed && fixed ? '#ffd88a' : '#46657a', stroke: '#f7dfae', strokeWidth: 2 })]),
+                h('text', { key: 'cap', x: 400, y: 320, textAnchor: 'middle', fontSize: 14, fill: '#bcd5ea' }, fixed ? (done >= fixed ? '灯塔亮啦，今天全部完成！' : '再完成 ' + (fixed - done) + ' 条，灯塔就亮了') : '今天没有排片，去看看本周航线'),
+              ]),
+            ]),
+            h('div', { key: 'list', className: 'bl-panel bl-island-list' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, [h('b', { key: 't' }, '今日登陆点'), h('div', { key: 'sp', className: 'bl-spacer' }), h('span', { key: 's', className: 'bl-hint' }, '点一下就看片答问')]),
+              tasks.length ? tasks.map((row) => islandCard(row, true)) : h('div', { key: 'e', className: 'bl-empty' }, '今天没排片，下面是本周还没看的。'),
+              next.length ? h('div', { key: 'n', className: 'bl-island-next' }, [h('b', { key: 't' }, '接下来'), next.map((row) => islandCard(row, false))]) : null,
+            ]),
+          ]),
+        ]
+      }
+
+      function renderMonsterHospital() {
+        const box = mistakes || { items: [], summary: { total: 0, pending: 0, resolved: 0, videos: 0, categories: [] } }
+        const pending = (box.items || []).filter((m) => !m.resolved).slice(0, 6)
+        const healed = box.summary ? (Number(box.summary.resolved) || 0) : 0
+        const monsters = pending.map((m, i) => {
+          const hits = Number(monsterHits[m.key]) || 0
+          const answered = mistakePick[m.key]
+          const hp = answered && answered.correct ? Math.max(0, 2 - hits) : 2
+          return h('div', { key: m.key, className: 'bl-monster' + (hp <= 0 ? ' healed' : '') }, [
+            h('div', { key: 'body', className: 'bl-monster-body', style: { '--monster': monsterColor(hp) } }, [
+              h('span', { key: 'eye', className: 'bl-monster-eye' }, monsterFace(hp)),
+              h('span', { key: 'horn', className: 'bl-monster-horn' }, '▲'),
+            ]),
+            h('b', { key: 't', title: m.videoTitle }, m.videoTitle || '错题怪兽'),
+            h('span', { key: 'q', className: 'bl-hint' }, m.prompt || ''),
+            h('span', { key: 'hp', className: 'bl-monster-hp' }, hp <= 0 ? '康复' : '血条 ' + hp + '/2'),
+            h('button', { key: 'go', className: 'bl-btn bl-btn-sm bl-btn-primary', onClick: () => { setMistakeFilter('pending'); setTab('mistakes') } }, '去打怪'),
+          ])
+        })
+        return [
+          pageHead('CARE · 错题医院', '错题医院', '每道错题都是一只小怪兽 · 连答对 2 次就能送进康复图鉴', [
+            h('button', { key: 'book', className: 'bl-btn bl-btn-sm', onClick: () => setTab('mistakes') }, '错题本 →'),
+          ]),
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('a', '待照顾', Number(box.summary?.pending) || 0, '只', '还没答对的错题怪兽', 'gold'),
+            kpi('b', '已康复', healed, '只', '答对后进入图鉴', 'green'),
+            kpi('c', '涉及片子', Number(box.summary?.videos) || 0, '条', '怪兽从哪里来'),
+            kpi('d', '错题总数', Number(box.summary?.total) || 0, '道', '自动从交卷结果收录'),
+          ]),
+          monsters.length
+            ? h('div', { key: 'wards', className: 'bl-monster-wards' }, monsters)
+            : h('div', { key: 'empty', className: 'bl-empty-panel' }, [h('div', { key: 't' }, '病房空空的，怪兽都康复啦。'), h('div', { key: 's', className: 'bl-hint' }, '去做一套课卡，答错的题会变成新怪兽。'), h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: () => setTab('learn') }, '去训练舱')]),
+        ]
+      }
+
+      function renderParentInsights() {
+        if (pinSet && !pinUnlocked) return renderPinLock('家长驾驶舱')
+        const sum = (weekly && weekly.totals) || {}
+        const days = (weekly && weekly.days) || []
+        const cats = (weekly && weekly.categories) || []
+        const watched = Number(sum.watched) || 0
+        const answered = Number(sum.answered) || 0
+        const correct = Number(sum.correct) || 0
+        const accuracy = Math.round(Number(sum.accuracy || 0) * 100)
+        const streak = Number(sum.streak) || 0
+        const morning = days.slice(0, 3).reduce((n, d) => n + (Number(d.watched) || 0), 0)
+        const latter = days.slice(4).reduce((n, d) => n + (Number(d.watched) || 0), 0)
+        const top = cats[0]
+        const advice = !watched ? '这周还没开始看片，先从今日岛挑一条最短的开始。'
+          : answered === 0 ? '看了 ' + watched + ' 条还没答题，陪他答一套 3 分钟的小卡，看看懂没懂。'
+            : accuracy < 80 ? '答对率 ' + accuracy + '%，先去错题医院陪他把错题怪兽打一轮。'
+              : latter < morning ? '后半周看得少了，今晚固定 10 分钟一起看一条就好。'
+                : '节奏很稳，周末挑一条他最喜欢的片子，让他讲给你听。'
+
+        const drawPoster = () => {
+          setPosterBusy(true)
+          try {
+            const c = document.createElement('canvas')
+            c.width = 1080
+            c.height = 1440
+            const x = c.getContext('2d')
+            const g = x.createLinearGradient(0, 0, 0, 1440)
+            g.addColorStop(0, '#07131f')
+            g.addColorStop(1, '#0d2840')
+            x.fillStyle = g
+            x.fillRect(0, 0, 1080, 1440)
+            x.strokeStyle = 'rgba(90,180,220,.12)'
+            x.lineWidth = 1
+            for (let i = 0; i < 1080; i += 48) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 1440); x.stroke() }
+            for (let i = 0; i < 1440; i += 48) { x.beginPath(); x.moveTo(0, i); x.lineTo(1080, i); x.stroke() }
+            x.fillStyle = '#8fe6ff'
+            x.font = '700 34px sans-serif'
+            x.fillText('星火课堂 · 本周成长海报', 72, 110)
+            x.fillStyle = '#ffffff'
+            x.font = '800 108px sans-serif'
+            x.fillText(String(watched), 72, 310)
+            x.font = '500 34px sans-serif'
+            x.fillStyle = '#8fb4cf'
+            x.fillText('条片', 72, 366)
+            x.fillText(String(answered) + ' 道题 · ' + accuracy + '% 正确率', 72, 450)
+            x.fillText('连续 ' + streak + ' 天 · 错题康复 ' + (Number(sum.resolvedMistakes) || 0) + ' 道', 72, 510)
+            x.fillText('新勋章 ' + (Number(sum.medals) || 0) + ' 枚 · 新盲盒 ' + (Number(sum.boxes) || 0) + ' 个', 72, 570)
+            x.strokeStyle = '#4fd8a6'
+            x.lineWidth = 4
+            const y = 700
+            days.forEach((d, i) => {
+              const px = 72 + i * 140
+              x.beginPath(); x.arc(px, y, (Number(d.watched) || 0) ? 18 : 8, 0, Math.PI * 2); x.fillStyle = (Number(d.watched) || 0) ? '#4fd8a6' : '#36556b'; x.fill()
+            })
+            x.fillStyle = '#dbeaf8'
+            x.font = '500 34px sans-serif'
+            wrapText(x, advice, 72, 860, 936, 52)
+            x.fillStyle = '#8fb4cf'
+            x.font = '400 26px sans-serif'
+            x.fillText('数据都在本机 · 这周你陪他做了什么？', 72, 1350)
+            setPosterUrl(c.toDataURL('image/png'))
+            setPosterOpen(true)
+            flash('成长海报已生成，右键图片可保存')
+          } catch (e) {
+            fail(e)
+          } finally {
+            setPosterBusy(false)
+          }
+        }
+
+        return [
+          pageHead('PARENT · 家长驾驶舱', '家长驾驶舱', '五个信号 + 一句能马上做的建议 · 数据只存在本机', [
+            h('button', { key: 'refresh', className: 'bl-btn bl-btn-sm', onClick: () => loadWeekly().catch((e) => fail(e)) }, '刷新'),
+            pinSet ? h('button', { key: 'lock', className: 'bl-btn bl-btn-sm', onClick: lockNow }, '锁定') : null,
+          ]),
+          h('div', { key: 'kpis', className: 'bl-kpis' }, [
+            kpi('a', '本周看片', watched, '条', '计划 ' + weekTasks + ' 条', 'cyan'),
+            kpi('b', '连续天数', streak, '天', '今天或昨天起算', 'green'),
+            kpi('c', '答题正确率', accuracy, '%', answered + ' 道题里答对 ' + correct, accuracy >= 80 ? 'green' : 'gold'),
+            kpi('d', '错题康复', Number(sum.resolvedMistakes) || 0, '道', '新错题 ' + (Number(sum.newMistakes) || 0) + ' 道'),
+          ]),
+          h('div', { key: 'grid', className: 'bl-parent-grid' }, [
+            h('div', { key: 'advice', className: 'bl-panel bl-parent-advice' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, h('b', { key: 't' }, '本周一句话')),
+              h('div', { key: 'a', className: 'bl-parent-say' }, advice),
+              h('div', { key: 'meta', className: 'bl-chip-row' }, [
+                h('span', { key: 'c', className: 'bl-chip' }, '分类偏爱：' + (top ? top.name + ' ' + top.count + ' 条' : '暂无')),
+                h('span', { key: 'm', className: 'bl-chip gold' }, '勋章 +' + (Number(sum.medals) || 0)),
+                h('span', { key: 'b', className: 'bl-chip' }, '盲盒 +' + (Number(sum.boxes) || 0)),
+              ]),
+            ]),
+            h('div', { key: 'activity', className: 'bl-panel' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, [h('b', { key: 't' }, '这一周的脚印'), h('div', { key: 'sp', className: 'bl-spacer' }), h('button', { key: 'go', className: 'bl-link', onClick: () => setTab('watch') }, '航行记录 →')]),
+              h('div', { key: 'bars', className: 'bl-weekbars' }, days.map((d) => {
+                const n = Number(d.watched) || 0
+                return h('div', { key: d.date, className: 'bl-weekbar', title: shortDate(d.date) + ' · ' + n + ' 条 / ' + (Number(d.correct) || 0) + ' 题' }, [
+                  h('i', { key: 'i', style: { height: Math.max(4, Math.min(120, n * 24)) + 'px' } }),
+                  h('span', { key: 's' }, shortDate(d.date)),
+                ])
+              })),
+            ]),
+            h('div', { key: 'poster', className: 'bl-panel' }, [
+              h('div', { key: 'h', className: 'bl-panel-head' }, h('b', { key: 't' }, '每周成长海报')),
+              h('div', { key: 'd', className: 'bl-hint' }, '把这一周变成一张可以保存、发给家人的小海报。不上传，不分享到公开平台。'),
+              h('button', { key: 'go', className: 'bl-btn bl-btn-primary', onClick: drawPoster, disabled: posterBusy }, posterBusy ? '画着呢…' : '生成海报'),
+            ]),
+          ]),
         ]
       }
 
@@ -2987,11 +3275,22 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         return data
       }, [])
 
+      const loadWeekly = useCallback(async () => {
+        const data = await api('/family/weekly?weekStart=' + encodeURIComponent(weekStart))
+        setWeekly(data && Array.isArray(data.days) ? data : null)
+        return data
+      }, [weekStart])
+
       const loadRewards = useCallback(async () => {
         const data = await api('/rewards')
         setRewards(data && Array.isArray(data.items) ? data : null)
         return data
       }, [])
+
+      const refreshKidData = useCallback(() => {
+        loadMistakes().catch(() => {})
+        loadWeekly().catch(() => {})
+      }, [loadMistakes, loadWeekly])
 
       const draftOfPrize = (row) => ({
         id: row.id || '',
@@ -3036,7 +3335,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       }, [tab, loadRewards])
 
       useEffect(() => {
-        if (tab !== 'mistakes') return
+        if (tab === 'insights' || tab === 'island') loadWeekly().catch(() => {})
+      }, [tab, loadWeekly])
+
+      useEffect(() => {
+        if (tab !== 'mistakes' && tab !== 'hospital') return
         loadMistakes().catch((e) => fail(e))
       }, [tab, loadMistakes, fail])
 
@@ -3091,7 +3394,7 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           })
           setLastDraw(null)
           loadRewards().catch(() => {})
-          loadMistakes().catch(() => {})
+          refreshKidData()
           flash(data.newBox ? '交卷了，得了一个盲盒' : '交卷了，看看错在哪')
         } catch (e) {
           fail(e)
@@ -3519,9 +3822,9 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ]
       }
 
-      function renderPinLock() {
+      function renderPinLock(title) {
         return [
-          pageHead('CONFIG · 舰桥设置', '舰桥设置', '这一页被家长锁保护：输 4 位 PIN 才能改奖品池、勋章门槛和排片默认值。'),
+          pageHead('CONFIG · ' + (title || '舰桥设置'), title || '舰桥设置', '这一页被家长锁保护：输 4 位 PIN 才能看家长驾驶舱和改奖品池、勋章门槛、排片默认值。'),
           h('div', { key: 'lock', className: 'bl-panel bl-pinlock' }, [
             h('div', { key: 'ic', className: 'bl-pinlock-ic' }, h(Glyph, { name: 'shield', size: 30 })),
             h('b', { key: 't', className: 'bl-pinlock-t' }, '输入家长 PIN'),
@@ -3922,17 +4225,23 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
           ? renderPlan()
           : tab === 'watch'
             ? renderWatch()
-            : tab === 'learn'
-              ? renderLearn()
-              : tab === 'mistakes'
-                ? renderMistakes()
-                : tab === 'rewards'
-                  ? renderRewards()
-                : tab === 'lessons'
-                  ? renderLessons()
-                  : tab === 'vault'
-                    ? renderVault()
-                    : renderSettings()
+            : tab === 'island'
+              ? renderTodayIsland()
+              : tab === 'hospital'
+                ? renderMonsterHospital()
+                : tab === 'insights'
+                  ? renderParentInsights()
+                  : tab === 'learn'
+                    ? renderLearn()
+                    : tab === 'mistakes'
+                      ? renderMistakes()
+                      : tab === 'rewards'
+                        ? renderRewards()
+                        : tab === 'lessons'
+                          ? renderLessons()
+                          : tab === 'vault'
+                            ? renderVault()
+                            : renderSettings()
 
       const xp = doneTotal * 40 + (rewards ? (Number(rewards.xpBonus) || 0) : 0)
       const level = 1 + Math.floor(xp / XP_STEP)
@@ -3940,10 +4249,11 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
       const railCount = (id) => id === 'library' ? String(allVideos.length)
         : id === 'plan' ? weekDone + '/' + weekTasks
           : id === 'watch' ? String(streak)
-            : id === 'mistakes' ? String((mistakes && mistakes.summary && mistakes.summary.pending) || '')
-            : id === 'lessons' ? String(lessons.length)
-              : id === 'vault' ? String(allVideos.length)
-                : ''
+            : id === 'hospital' ? String((mistakes && mistakes.summary && mistakes.summary.pending) || '')
+              : id === 'mistakes' ? String((mistakes && mistakes.summary && mistakes.summary.pending) || '')
+                : id === 'lessons' ? String(lessons.length)
+                  : id === 'vault' ? String(allVideos.length)
+                    : ''
 
       return h('div', { className: 'bl-root' }, [
         h('div', { key: 'shell', className: 'bl-shell' }, [
@@ -4007,6 +4317,13 @@ background:linear-gradient(160deg,rgba(58,140,220,.9),rgba(10,34,60,.95));box-sh
         ]),
         player ? renderPlayer() : null,
         editing ? renderVideoEditor() : null,
+        posterOpen && posterUrl ? h('div', { key: 'poster', className: 'bl-modal', onClick: () => setPosterOpen(false) }, [
+          h('div', { key: 'card', className: 'bl-panel bl-poster-modal', onClick: (e) => e.stopPropagation() }, [
+            h('div', { key: 'h', className: 'bl-panel-head' }, [h('b', { key: 't' }, '本周成长海报'), h('div', { key: 'sp', className: 'bl-spacer' }), h('button', { key: 'x', className: 'bl-btn bl-btn-sm', onClick: () => setPosterOpen(false) }, '关闭')]),
+            h('img', { key: 'img', src: posterUrl, alt: '本周成长海报' }),
+            h('div', { key: 'hint', className: 'bl-hint' }, '右键图片可以保存；海报只在本地生成，不会上传。'),
+          ]),
+        ]) : null,
       ])
     }
 

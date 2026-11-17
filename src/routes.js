@@ -8,7 +8,7 @@ import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { fetchVideo, parseBvid } from './bili.js'
-import { autoFill, mondayOf, normalizePlan, toDate } from './plan.js'
+import { autoFill, mondayOf, normalizePlan, toDate, weekDates } from './plan.js'
 import { normalizeLesson } from './lesson.js'
 import { DEFAULT_SETTINGS, Store } from './store.js'
 import {
@@ -160,6 +160,119 @@ export class Routes {
       watch: Array.isArray(watch) ? watch : [],
       attempts,
     })
+  }
+
+  /** 家长驾驶舱：按周聚合观看/答题/错题/勋章/盲盒，只读，不写任何 ledger。 */
+  async familyWeekly(weekStart) {
+    const dates = weekDates(weekStart)
+    const inWeek = new Set(dates)
+    const day = date => ({ date, watched: 0, correct: 0, answered: 0, minutes: 0 })
+    const days = dates.map(day)
+    const byDate = new Map(days.map(row => [row.date, row]))
+
+    const [videos, watch, attempts, mistakes, honors, rewards] = await Promise.all([
+      this.store.read('videos'),
+      this.store.read('watch'),
+      this.attempts(),
+      this.ledger.read('mistakes'),
+      this.honors(),
+      this.ledger.read('rewards'),
+    ])
+
+    const videoById = new Map()
+    for (const row of Object.values(videos || {})) {
+      if (row && row.id) videoById.set(row.id, row)
+    }
+
+    const doneDays = new Set()
+    const categories = new Map()
+    for (const row of Array.isArray(watch) ? watch : []) {
+      if (!row || row.done !== true) continue
+      doneDays.add(row.date)
+      const bucket = byDate.get(row.date)
+      if (bucket) bucket.watched += 1
+      const video = videoById.get(row.videoId)
+      if (bucket && video) bucket.minutes += Math.round((Number(video.duration) || 0) / 60)
+      if (bucket && video) {
+        const name = text(video.category) || '未分类'
+        categories.set(name, (categories.get(name) || 0) + 1)
+      }
+    }
+
+    for (const row of attempts) {
+      if (!row) continue
+      const bucket = byDate.get(localDay(Number(row.createdAt) || 0))
+      if (!bucket) continue
+      bucket.correct += Number(row.correct) || 0
+      const answers = Array.isArray(row.answers) ? row.answers.length : (Number(row.total) || 0)
+      bucket.answered += answers
+    }
+
+    const totals = {
+      watched: 0,
+      correct: 0,
+      answered: 0,
+      minutes: 0,
+      accuracy: 0,
+      streak: 0,
+      newMistakes: 0,
+      resolvedMistakes: 0,
+      medals: 0,
+      boxes: 0,
+    }
+    for (const row of days) {
+      totals.watched += row.watched
+      totals.correct += row.correct
+      totals.answered += row.answered
+      totals.minutes += row.minutes
+    }
+    totals.accuracy = totals.answered ? Math.round((totals.correct / totals.answered) * 1000) / 1000 : 0
+
+    let cursor = localDay()
+    if (!doneDays.has(cursor)) {
+      const d = new Date(cursor + 'T00:00:00Z')
+      d.setUTCDate(d.getUTCDate() - 1)
+      cursor = d.toISOString().slice(0, 10)
+    }
+    while (doneDays.has(cursor)) {
+      totals.streak += 1
+      const d = new Date(cursor + 'T00:00:00Z')
+      d.setUTCDate(d.getUTCDate() - 1)
+      cursor = d.toISOString().slice(0, 10)
+    }
+
+    const reviewed = mistakes && mistakes.reviewed && typeof mistakes.reviewed === 'object' ? mistakes.reviewed : {}
+    for (const state of Object.values(reviewed)) {
+      if (state && state.resolved && inWeek.has(localDay(Number(state.at) || 0))) totals.resolvedMistakes += 1
+    }
+
+    // 错误题派生口径与 GET /mistakes 一致：attempt.answers 中 correct === false 的题，按 key 去重取最近一次。
+    const wrongLatest = new Map()
+    for (const attempt of attempts.slice().sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0))) {
+      if (!attempt || !attempt.lessonId) continue
+      for (const row of Array.isArray(attempt.answers) ? attempt.answers : []) {
+        if (!row || row.correct !== false) continue
+        const key = attempt.lessonId + ':' + row.qid
+        if (!wrongLatest.has(key)) wrongLatest.set(key, Number(attempt.createdAt) || 0)
+      }
+    }
+    for (const stamp of wrongLatest.values()) {
+      if (inWeek.has(localDay(stamp))) totals.newMistakes += 1
+    }
+
+    for (const row of (honors && honors.earned) || []) {
+      if (row && inWeek.has(localDay(Number(row.at) || 0))) totals.medals += 1
+    }
+    for (const row of (rewards && Array.isArray(rewards.draws) ? rewards.draws : [])) {
+      if (row && inWeek.has(localDay(Number(row.at) || 0))) totals.boxes += 1
+    }
+
+    return {
+      weekStart,
+      days,
+      totals,
+      categories: Array.from(categories, ([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)),
+    }
   }
 
   /**
@@ -876,6 +989,17 @@ export class Routes {
         })
       }
       throw Object.assign(new Error('不支持的方法'), { status: 405 })
+    }
+
+    /* ---------------- 家长驾驶舱 / 成长海报周报 ---------------- */
+
+    if (head === 'family' && tail === 'weekly') {
+      if (method !== 'GET') throw Object.assign(new Error('周报只支持 GET'), { status: 405 })
+      const rawWeek = toDate(q.weekStart)
+      const parsed = rawWeek ? new Date(rawWeek + 'T00:00:00Z') : null
+      const valid = parsed && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === rawWeek
+      const weekStart = mondayOf(valid ? rawWeek : localDay())
+      return json(res, 200, await this.familyWeekly(weekStart))
     }
 
     /* ---------------- 导出给小步乐园 ---------------- */

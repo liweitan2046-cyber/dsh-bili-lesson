@@ -15,11 +15,15 @@ It is not a recommendation algorithm and not a question generator — the parent
 | Page | What it does |
 |---|---|
 | Bridge home | Today's tasks / this week's arc route / category star map; the "current course" card on the right carries cover, learning goals, progress and a "start learning" button |
+| Today Island | A kid-facing task island: finished items push a rocket around the island, and finishing everything lights the beacon |
+| Mistake Hospital | Wrong answers as little monsters: one correct retry lowers HP, two in a row send it to the recovery album |
+| Parent cockpit | Five signals plus one actionable sentence; the weekly growth poster is generated locally and never uploaded; also behind the PIN lock |
 | Vault (library) | Paste a BV id or a full Bilibili link to add a clip; you fill in category, minimum age and your own reason; "check dead" probes the whole library at once |
 | This week's route | Seven days of scheduling — "auto schedule" (rotates categories, skips dead clips and anything used in the last three weeks) or swap a clip by hand |
 | Log | Tick clips off day by day; this week's count, streak, last 7 days as bars |
 | Training bay | Official player plus this week's clip list on the left, the quiz card on the right; answer question by question, submit and get scored — 80 points earns one blind box that day |
 | Mistakes | Every question missed on submit lands here automatically; tap an option to redo it on the spot, a correct answer marks it "mastered" |
+| Family weekly (API) | `GET /bili-lesson/family/weekly` is a read-only weekly rollup of clips watched, answers, recovered mistakes, medals and boxes; the parent cockpit and growth poster read from it |
 | Medal hall | 8 medals (granted automatically when a threshold is met, progress shown until then) + blind box + prize pool + recent draws |
 | Card workshop | One quiz card per video, 3–8 questions each |
 | Bridge settings | Clips per day / default age / weekly box cap; the 54-item prize pool with stock and weights; medal thresholds; **parent-lock PIN** |
