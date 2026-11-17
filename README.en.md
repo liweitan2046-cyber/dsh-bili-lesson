@@ -6,7 +6,7 @@ A Bilibili learning panel for your own kid, mounted in the sidebar of the
 [DeepSeek Harness](https://github.com/deepseek-ai) desktop app:
 **parent picks the clips → the week gets scheduled → the kid watches and ticks it off → a quiz card goes with the clip → submit and get scored → missed questions come back → blind boxes and medals**.
 
-It is not a recommendation algorithm and not a question generator — the parent chooses every clip and writes every question. The plugin is only the machine that does *schedule + check-in + grading + rewards*.
+It is not a recommendation algorithm — the parent chooses every clip and has the final say on every question (0.9.0 can draft questions locally from the clip title for the parent to edit). The plugin is only the machine that does *schedule + check-in + grading + rewards + growth*. All data stays local: no cloud account, no telemetry.
 
 ![Home](docs/screenshots/home.png)
 
@@ -26,11 +26,20 @@ It is not a recommendation algorithm and not a question generator — the parent
 | Family weekly (API) | `GET /bili-lesson/family/weekly` is a read-only weekly rollup of clips watched, answers, recovered mistakes, medals and boxes; the parent cockpit and growth poster read from it |
 | Medal hall | 8 medals (granted automatically when a threshold is met, progress shown until then) + blind box + prize pool + recent draws |
 | Card workshop | One quiz card per video, 3–8 questions each |
-| Bridge settings | Clips per day / default age / weekly box cap; the 54-item prize pool with stock and weights; medal thresholds; **parent-lock PIN** |
+| Bridge settings | Clips per day / default age / weekly box cap; the 54-item prize pool with stock and weights; medal thresholds; **parent-lock PIN**; content pack export/import; replay onboarding |
+
+### New in 0.9.0 (self-sustaining content → growth story → parent action → distribution)
+
+- **Self-sustaining content**: in Card Workshop, "Draft from title" builds 3–8 questions from local rules plus public Bilibili metadata (no key, no API settings page) for the parent to edit; Settings → Basics → "Content pack" exports/imports the library and cards as JSON (scrubbed, dead clips never revived).
+- **Growth story**: an 8-planet growth map embedded in Today Island (unlocks from watching, correct answers, streaks and medals); missed questions return on an Ebbinghaus 1/3/7/15/30-day schedule; Training Bay adds a zero-dependency Canvas2D low-poly cartoon teacher (lip sync + rotation, not a photoreal digital human).
+- **Parent action**: seven "if…then…" advice rules with adjustable thresholds, a non-blocking screen-time nudge, a PIN-gated data-sovereignty panel (per-category export/delete), a text weekly report and a printable page; Today Island shows an eye-care chip.
+- **Distribution**: a four-step first-run wizard (welcome / daily rhythm / parent PIN / content start, skippable and replayable from settings), plus `scripts/build-portable.mjs` producing a portable Node bundle (`dist/portable/`, bundled node.exe + one-click .bat, no DSH or install needed).
+
+Explicitly out of scope: social leaderboards, cloud accounts, a general-purpose question generator, photoreal digital humans. Contracts: [GAP2](./docs/GAP2-CONTRACT.md) / [GAP3](./docs/GAP3-CONTRACT.md) / [GAP4](./docs/GAP4-CONTRACT.md).
 
 ## Where the clips and questions come from
 
-This plugin **has no built-in search and does not write questions for you**: the library and the question bank are yours to feed.
+This plugin **has no built-in search**: the parent picks clips and has the final say on questions (a local draft from the clip title is available to edit).
 Every detail (endpoints, fields, limits, traps) is in [docs/HOW-TO-CURATE.md](./docs/HOW-TO-CURATE.md) (Chinese); the gist:
 
 **Clips**
@@ -91,13 +100,14 @@ and the browser opens `http://127.0.0.1:7788/`. No business code changed — it 
 things DSH normally does (an HTTP server and the React mount).
 
 First launch seeds a 30-clip demo library (four themed weeks, one clip a day), so it is not empty —
-handy for showing a kindergarten or a parent. Node 24 required.
+and from 0.9.0 a four-step first-run wizard. Handy for showing a kindergarten or a parent. Node 24 required.
+No DSH needed either: `dist/portable/` is a green bundle with its own node.exe (built with `node scripts/build-portable.mjs`, ~90 MB, gitignored).
 
 ## Self-check
 
 ```powershell
-npm run check        # node --check on eight files
-npm test             # boots a real HTTP server and runs selftest (85 cases; it really calls the Bilibili view API once)
+npm run check        # node --check on the server and client entry files
+npm test             # boots a real HTTP server and runs selftest (140 cases; it really calls the Bilibili view API once)
 npm run check:load   # simulates the DSH loader: server and client both load, factory id == package name
 ```
 
@@ -111,9 +121,9 @@ Everything stays local in `~/.dsh/bili-lesson/` (`BILI_LESSON_HOME` overrides it
 | `plans.json` | per-week plan, keyed by the Monday date |
 | `watch.json` | viewing records (the ticks) |
 | `lessons.json` | quiz cards |
-| `settings.json` | clips per day / default age / embedded playback / weekly box cap / parent lock |
+| `settings.json` | clips per day / default age / embedded playback / weekly box cap / parent lock / screen-time limit / parent rules / onboarding flag |
 | `attempts.json` | submissions (per question qid / choice / correct, score, whether a box was granted) |
-| `mistakes.json` | mastery state per missed question (`lessonId:qid` → resolved / tries / lastChoice / at) |
+| `mistakes.json` | mastery state plus Ebbinghaus review stage (`lessonId:qid` → resolved / tries / stage / dueAt / at) |
 | `rewards.json` · `honors.json` | draw history / medals already granted |
 | `prizes.json` · `medals.json` | prize pool and medal rules once a parent edited them (built-in defaults otherwise) |
 
@@ -154,5 +164,5 @@ Every route lives under the `/bili-lesson/` prefix and goes through DSH's own au
 - The library is filled in by hand or by an AI assistant; there is no built-in search, because Bilibili's search API needs a wbi signature and returns 412 when called directly.
 - No "API endpoint / key" settings page: there is exactly one data source (the official view endpoint), hard-wired at `src/bili.js:20`.
   Swapping in a third-party API means editing that one function - deliberately not a setting, because a key would then sit in plain text in `settings.json`.
-- No AI-written questions: the parent writes them (the template only fills the fields correctly), so the kid never gets a question the parent was unsure about.
-- One machine, one profile — no multi-child profiles and no cloud backup; to move machines, copy `~/.dsh/bili-lesson/` by hand.
+- Drafts are built by local rules, not AI: the parent finalizes every question so the kid never gets a question the parent was unsure about.
+- One machine, one profile — no multi-child profiles and no cloud backup; to move machines, use the content pack export/import in settings, or copy `~/.dsh/bili-lesson/` by hand.
